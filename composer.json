@@ -1,0 +1,6 @@
+{
+    "name": "caja/caja-ahorro",
+    "require": {
+        "phpmailer/phpmailer": "^6.9"
+    }
+}

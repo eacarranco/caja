@@ -1,0 +1,132 @@
+:root {
+    --primary: #0d6efd;
+    --sidebar-width: 250px;
+}
+body {
+    background: #f5f6fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #2c3e50;
+    color: #ecf0f1;
+    overflow-y: auto;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+}
+.sidebar .logo {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid #34495e;
+}
+.sidebar .nav-link {
+    color: #bdc3c7;
+    padding: 12px 20px;
+    transition: all 0.3s;
+}
+.sidebar .nav-link:hover, .sidebar .nav-link.active {
+    color: #fff;
+    background: #34495e;
+}
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: 20px;
+    min-height: 100vh;
+}
+.navbar-top {
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+.card-dashboard {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    transition: transform 0.3s;
+}
+.card-dashboard:hover {
+    transform: translateY(-5px);
+}
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+}
+.login-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+}
+.sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 1100;
+    border: none;
+    background: #2c3e50;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    font-size: 20px;
+    cursor: pointer;
+}
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 999;
+}
+@media (max-width: 768px) {
+    .sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    .sidebar.open {
+        transform: translateX(0);
+    }
+    .sidebar-overlay.show {
+        display: block;
+    }
+    .main-content {
+        margin-left: 0;
+        padding: 60px 10px 10px;
+    }
+    .login-container {
+        margin: 40px auto;
+        padding: 0 10px;
+    }
+    .card-dashboard:hover {
+        transform: none;
+    }
+    .table-responsive-stack td {
+        display: block;
+        text-align: right;
+        padding-left: 50% !important;
+        position: relative;
+    }
+    .table-responsive-stack td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 8px;
+        font-weight: bold;
+        text-align: left;
+    }
+    .table-responsive-stack thead {
+        display: none;
+    }
+}
