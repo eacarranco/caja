@@ -18,7 +18,13 @@ class PortalController extends BaseController {
                 'inversiones' => [],
                 'cobros' => [],
                 'cuenta' => null,
-                'pendientes' => [],
+                'pendientes' => [
+                    'aporte_obligatorio_mensual' => 0,
+                    'aporte_obligatorio' => 0,
+                    'aporte_excedente' => 0,
+                    'multas' => 0,
+                    'cuotas_credito' => 0,
+                ],
             ]);
             return;
         }
@@ -52,8 +58,13 @@ class PortalController extends BaseController {
         $stmt->execute([$idSocio]);
         $creditosRes = $stmt->fetch();
 
+        $aporteObligatorioMensual = floatval($cuentaRes['saldo_obligatorio'] ?? 0)
+            + floatval($multasRes['multas'] ?? 0)
+            + floatval($creditosRes['cuotas_credito'] ?? 0);
+
         $pendientes = [
             'aporte_obligatorio' => $cuentaRes['saldo_obligatorio'] ?? 0,
+            'aporte_obligatorio_mensual' => $aporteObligatorioMensual,
             'aporte_excedente' => $cuentaRes['saldo_excedente'] ?? 0,
             'multas' => $multasRes['multas'] ?? 0,
             'cuotas_credito' => $creditosRes['cuotas_credito'] ?? 0,
@@ -81,6 +92,37 @@ class PortalController extends BaseController {
         $stmt = $this->db->prepare("SELECT h.*, c.nombre1, c.apellido1 FROM historial_operaciones h JOIN socios c ON h.id_socio = c.id_socio WHERE h.id_socio = ? ORDER BY h.fecha_registro DESC LIMIT 100");
         $stmt->execute([$socio['id_socio']]);
         $historial = $stmt->fetchAll();
+
+        $stmt = $this->db->prepare("SELECT saldo_obligatorio, saldo_excedente FROM cuentas_ahorro WHERE id_socio = ?");
+        $stmt->execute([$socio['id_socio']]);
+        $cuenta = $stmt->fetch();
+        $currentBalance = floatval($cuenta['saldo_obligatorio'] ?? 0) + floatval($cuenta['saldo_excedente'] ?? 0);
+
+        $balance = $currentBalance;
+        $impactMap = [
+            'aporte_obligatorio' => 1,
+            'aporte_excedente' => 1,
+            'interes_ganado' => 1,
+            'inversion_retiro' => 1,
+            'retiro_ahorro' => -1,
+            'inversion_apertura' => -1,
+        ];
+
+        foreach ($historial as &$registro) {
+            $tipo = $registro['tipo_operacion'];
+            $monto = floatval($registro['monto'] ?? 0);
+            $impact = $impactMap[$tipo] ?? 0;
+            $registro['saldo_posterior'] = $balance;
+            if ($impact === 1) {
+                $registro['saldo_anterior'] = $balance - $monto;
+            } elseif ($impact === -1) {
+                $registro['saldo_anterior'] = $balance + $monto;
+            } else {
+                $registro['saldo_anterior'] = $balance;
+            }
+            $balance = $registro['saldo_anterior'];
+        }
+        unset($registro);
 
         $this->render('portal/historial', [
             'titulo' => 'Historial de operaciones',
@@ -222,11 +264,29 @@ class PortalController extends BaseController {
             $stmt->execute([$idSocio]);
             $creditos = $stmt->fetch();
 
+            $stmt = $this->db->prepare("SELECT a.total AS siguiente_cuota, a.fecha_vencimiento, a.numero_cuota, cr.id_credito
+                                        FROM amortizaciones a
+                                        JOIN creditos cr ON a.id_credito = cr.id_credito
+                                        WHERE cr.id_socio = ? AND a.estado IN ('pendiente','vencida')
+                                        ORDER BY a.fecha_vencimiento ASC
+                                        LIMIT 1");
+            $stmt->execute([$idSocio]);
+            $siguienteCuota = $stmt->fetch();
+
+            $aporteObligatorioTotal = floatval($cuenta['saldo_obligatorio'] ?? 0)
+                + floatval($multas['multas_pendientes'] ?? 0)
+                + floatval($creditos['cuotas_pendientes'] ?? 0);
+
             $pendientes = [
-                'aporte_obligatorio' => $cuenta['saldo_obligatorio'] ?? 0,
+                'aporte_obligatorio_mensual' => $aporteObligatorioTotal,
+                'aporte_obligatorio' => $aporteObligatorioTotal,
                 'aporte_excedente' => $cuenta['saldo_excedente'] ?? 0,
                 'multas' => $multas['multas_pendientes'] ?? 0,
                 'cuotas_credito' => $creditos['cuotas_pendientes'] ?? 0,
+                'saldo_obligatorio' => $cuenta['saldo_obligatorio'] ?? 0,
+                'siguiente_cuota' => floatval($siguienteCuota['siguiente_cuota'] ?? 0),
+                'siguiente_cuota_fecha' => $siguienteCuota['fecha_vencimiento'] ?? null,
+                'siguiente_numero_cuota' => $siguienteCuota['numero_cuota'] ?? null,
             ];
         }
 

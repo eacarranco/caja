@@ -11,8 +11,8 @@
                 <div class="card-body py-3">
                     <div class="fs-3 text-primary mb-1"><i class="bi bi-piggy-bank"></i></div>
                     <h6 class="mb-1">Capital Ahorro</h6>
-                    <h4 class="text-primary mb-0">$ <?= number_format($pendientes['aporte_obligatorio'], 2) ?></h4>
-                    <a href="<?= BASE_URL ?>/portal/detalleAhorro" class="btn btn-outline-primary btn-sm mt-2"><i class="bi bi-list-ul"></i> Detalles</a>
+                    <h4 class="text-primary mb-0">$ <?= number_format($pendientes['aporte_obligatorio_mensual'] ?? $pendientes['aporte_obligatorio'] ?? 0, 2) ?></h4>
+                    <a href="<?= BASE_URL ?>/portal/detalleAhorro" class="btn btn btn-primary">Detalles</a>
                 </div>
             </div>
         </div>

@@ -13,10 +13,18 @@
                 </thead>
                 <tbody>
                 <?php foreach ($historial as $h): ?>
+                <?php
+                    $monto = floatval($h['monto'] ?? 0);
+                    $negativo = in_array($h['tipo_operacion'], ['retiro_ahorro', 'inversion_apertura']);
+                    if ($negativo) {
+                        $monto = -abs($monto);
+                    }
+                    $montoClass = $monto < 0 ? 'text-danger' : 'text-dark';
+                ?>
                 <tr>
-                    <td data-label="Fecha"><?= $h['fecha_registro'] ?></td>
-                    <td data-label="Tipo"><span class="badge bg-info"><?= ucfirst(str_replace('_', ' ', $h['tipo_operacion'])) ?></span></td>
-                    <td data-label="Monto"><strong>$<?= number_format((float)($h['monto'] ?? 0), 2) ?></strong></td>
+                    <td data-label="Fecha"><?= htmlspecialchars($h['fecha_registro']) ?></td>
+                    <td data-label="Tipo"><span class="badge bg-info"><?= htmlspecialchars(ucfirst(str_replace('_', ' ', $h['tipo_operacion']))) ?></span></td>
+                    <td data-label="Monto"><strong class="<?= $montoClass ?>"><?= $monto < 0 ? '- ' : '' ?>$<?= number_format(abs($monto), 2) ?></strong></td>
                     <td data-label="Saldo ant.">$<?= number_format((float)($h['saldo_anterior'] ?? 0), 2) ?></td>
                     <td data-label="Saldo post.">$<?= number_format((float)($h['saldo_posterior'] ?? 0), 2) ?></td>
                 </tr>
