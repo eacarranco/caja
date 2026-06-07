@@ -11,39 +11,61 @@ class PortalController extends BaseController {
 
         if (!$socio) {
             $this->render('portal/index', [
-                'titulo' => 'Mi portal',
+                'titulo' => 'Inicio',
                 'socio' => null,
                 'creditos' => [],
                 'inversiones' => [],
                 'cobros' => [],
                 'cuenta' => null,
+                'pendientes' => [],
             ]);
             return;
         }
+        $idSocio = $socio['id_socio'];
 
         $stmt = $this->db->prepare("SELECT * FROM cuentas_ahorro WHERE id_socio = ?");
-        $stmt->execute([$socio['id_socio']]);
+        $stmt->execute([$idSocio]);
         $cuenta = $stmt->fetch();
 
         $stmt = $this->db->prepare("SELECT c.*, p.nombre AS producto FROM créditos c JOIN productos_financieros p ON c.id_producto = p.id_producto WHERE c.id_socio = ? ORDER BY c.fecha_solicitud DESC");
-        $stmt->execute([$socio['id_socio']]);
+        $stmt->execute([$idSocio]);
         $creditos = $stmt->fetchAll();
 
         $stmt = $this->db->prepare("SELECT i.*, p.nombre AS producto FROM inversiones i JOIN productos_financieros p ON i.id_producto = p.id_producto WHERE i.id_socio = ? ORDER BY i.fecha_registro DESC");
-        $stmt->execute([$socio['id_socio']]);
+        $stmt->execute([$idSocio]);
         $inversiones = $stmt->fetchAll();
 
         $stmt = $this->db->prepare("SELECT c.*, ses.número_sesión FROM cobros c LEFT JOIN sesiones_mensuales ses ON c.id_sesión = ses.id_sesión WHERE c.id_socio = ? AND c.anulado = FALSE ORDER BY c.fecha_registro DESC LIMIT 10");
-        $stmt->execute([$socio['id_socio']]);
+        $stmt->execute([$idSocio]);
         $cobros = $stmt->fetchAll();
 
+        $stmt = $this->db->prepare("SELECT saldo_obligatorio, saldo_excedente FROM cuentas_ahorro WHERE id_socio = ?");
+        $stmt->execute([$idSocio]);
+        $cuentaRes = $stmt->fetch();
+
+        $stmt = $this->db->prepare("SELECT IFNULL(SUM(monto), 0) AS multas FROM multas WHERE id_socio = ? AND pagada = FALSE");
+        $stmt->execute([$idSocio]);
+        $multasRes = $stmt->fetch();
+
+        $stmt = $this->db->prepare("SELECT IFNULL(SUM(a.total), 0) AS cuotas_credito FROM amortizaciones a JOIN créditos cr ON a.id_crédito = cr.id_crédito WHERE cr.id_socio = ? AND a.estado != 'pagada'");
+        $stmt->execute([$idSocio]);
+        $creditosRes = $stmt->fetch();
+
+        $pendientes = [
+            'aporte_obligatorio' => $cuentaRes['saldo_obligatorio'] ?? 0,
+            'aporte_excedente' => $cuentaRes['saldo_excedente'] ?? 0,
+            'multas' => $multasRes['multas'] ?? 0,
+            'cuotas_credito' => $creditosRes['cuotas_credito'] ?? 0,
+        ];
+
         $this->render('portal/index', [
-            'titulo' => 'Mi portal',
+            'titulo' => 'Inicio',
             'socio' => $socio,
             'creditos' => $creditos,
             'inversiones' => $inversiones,
             'cobros' => $cobros,
             'cuenta' => $cuenta,
+            'pendientes' => $pendientes,
         ]);
     }
 
@@ -171,6 +193,75 @@ class PortalController extends BaseController {
             'notificaciones' => $notificaciones,
             'noLeidas' => $noLeidas,
         ]);
+    }
+
+    public function pagar() {
+        $this->requireAuth();
+        $cedula = $_SESSION['usuario_cedula'] ?? '';
+        $stmt = $this->db->prepare("SELECT id_socio FROM socios WHERE cédula = ?");
+        $stmt->execute([$cedula]);
+        $socio = $stmt->fetch();
+        $pendientes = [];
+
+        if ($socio) {
+            $idSocio = $socio['id_socio'];
+
+            $stmt = $this->db->prepare("SELECT saldo_obligatorio, saldo_excedente FROM cuentas_ahorro WHERE id_socio = ?");
+            $stmt->execute([$idSocio]);
+            $cuenta = $stmt->fetch();
+
+            $stmt = $this->db->prepare("SELECT IFNULL(SUM(monto), 0) AS multas_pendientes FROM multas WHERE id_socio = ? AND pagada = FALSE");
+            $stmt->execute([$idSocio]);
+            $multas = $stmt->fetch();
+
+            $stmt = $this->db->prepare("SELECT IFNULL(SUM(a.total), 0) AS cuotas_pendientes
+                                        FROM amortizaciones a
+                                        JOIN créditos cr ON a.id_crédito = cr.id_crédito
+                                        WHERE cr.id_socio = ? AND a.estado != 'pagada'");
+            $stmt->execute([$idSocio]);
+            $creditos = $stmt->fetch();
+
+            $pendientes = [
+                'aporte_obligatorio' => $cuenta['saldo_obligatorio'] ?? 0,
+                'aporte_excedente' => $cuenta['saldo_excedente'] ?? 0,
+                'multas' => $multas['multas_pendientes'] ?? 0,
+                'cuotas_credito' => $creditos['cuotas_pendientes'] ?? 0,
+            ];
+        }
+
+        $this->render('portal/pagar', [
+            'titulo' => 'Pagar',
+            'pendientes' => $pendientes,
+        ]);
+    }
+
+    public function solicitarCredito() {
+        $this->redirect('/portal');
+    }
+
+    public function solicitarCertificado() {
+        $this->requireAuth();
+        $cedula = $_SESSION['usuario_cedula'] ?? '';
+        $stmt = $this->db->prepare("SELECT id_socio FROM socios WHERE cédula = ?");
+        $stmt->execute([$cedula]);
+        $socio = $stmt->fetch();
+        if (!$socio) $this->redirect('/portal');
+
+        $idSocio = $socio['id_socio'];
+
+        $stmt = $this->db->prepare("SELECT CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) AS nombre FROM socios WHERE id_socio = ?");
+        $stmt->execute([$idSocio]);
+        $socioData = $stmt->fetch();
+
+        $this->render('portal/certificaciones', [
+            'titulo' => 'Certificaciones',
+            'id_socio' => $idSocio,
+            'socio_nombre' => $socioData['nombre'] ?? '',
+        ]);
+    }
+
+    public function inversion() {
+        $this->redirect('/portal');
     }
 
     public function password() {

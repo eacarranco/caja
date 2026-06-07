@@ -1,5 +1,5 @@
 <div class="container-fluid">
-    <h4>Mi portal</h4>
+    <h4>Inicio</h4>
 
     <?php if (!$socio): ?>
     <div class="alert alert-info">No se encontró un socio asociado a tu cédula. Contacta al administrador.</div>
@@ -42,11 +42,54 @@
         </div>
     </div>
 
-    <div class="mb-3">
-        <a href="<?= BASE_URL ?>/documento/estadoCuenta/<?= $socio['id_socio'] ?>" class="btn btn-sm btn-outline-warning"><i class="bi bi-wallet2"></i> Estado de cuenta</a>
-        <a href="<?= BASE_URL ?>/documento/constanciaSocio/<?= $socio['id_socio'] ?>" class="btn btn-sm btn-outline-success"><i class="bi bi-file-earmark-text"></i> Constancia</a>
-        <a href="<?= BASE_URL ?>/documento/libreDeuda/<?= $socio['id_socio'] ?>" class="btn btn-sm btn-outline-info"><i class="bi bi-file-earmark-check"></i> Libre deuda</a>
+    <div class="row g-3 mb-3">
+        <?php if ($pendientes['aporte_obligatorio'] > 0): ?>
+        <div class="col-md-3">
+            <div class="card card-dashboard text-center">
+                <div class="card-body py-3">
+                    <div class="fs-3 text-primary mb-1"><i class="bi bi-piggy-bank"></i></div>
+                    <h6 class="mb-1">Aporte obligatorio</h6>
+                    <h4 class="text-primary mb-0">$ <?= number_format($pendientes['aporte_obligatorio'], 2) ?></h4>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+        <?php if ($pendientes['aporte_excedente'] > 0): ?>
+        <div class="col-md-3">
+            <div class="card card-dashboard text-center">
+                <div class="card-body py-3">
+                    <div class="fs-3 text-success mb-1"><i class="bi bi-graph-up-arrow"></i></div>
+                    <h6 class="mb-1">Aporte excedente</h6>
+                    <h4 class="text-success mb-0">$ <?= number_format($pendientes['aporte_excedente'], 2) ?></h4>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+        <?php if ($pendientes['cuotas_credito'] > 0): ?>
+        <div class="col-md-3">
+            <div class="card card-dashboard text-center">
+                <div class="card-body py-3">
+                    <div class="fs-3 text-warning mb-1"><i class="bi bi-bank"></i></div>
+                    <h6 class="mb-1">Cuota crédito</h6>
+                    <h4 class="text-warning mb-0">$ <?= number_format($pendientes['cuotas_credito'], 2) ?></h4>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+        <?php if ($pendientes['multas'] > 0): ?>
+        <div class="col-md-3">
+            <div class="card card-dashboard text-center">
+                <div class="card-body py-3">
+                    <div class="fs-3 text-danger mb-1"><i class="bi bi-exclamation-triangle"></i></div>
+                    <h6 class="mb-1">Multas</h6>
+                    <h4 class="text-danger mb-0">$ <?= number_format($pendientes['multas'], 2) ?></h4>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
+
+
     <div class="row g-3">
         <div class="col-md-6">
             <div class="card card-dashboard">
