@@ -223,7 +223,7 @@ CREATE TABLE inversiones (
 CREATE TABLE cobros (
     id_cobro CHAR(36) PRIMARY KEY COMMENT 'Identificador único del cobro (UUID)',
     id_socio CHAR(36) NOT NULL COMMENT 'FK al socio que realiza el pago',
-    id_sesión CHAR(36) NOT NULL COMMENT 'FK a la sesión mensual donde se registra el cobro',
+    id_sesión CHAR(36) NULL COMMENT 'FK a la sesión mensual donde se registra el cobro',
     tipo ENUM('aporte_obligatorio','aporte_excedente','cuota_crédito','multa','inversión','interés','desembolso','otro') NOT NULL COMMENT 'Tipo de cobro',
     id_referencia CHAR(36) COMMENT 'ID de referencia según el tipo (id_amortización, id_multa, etc.)',
     monto DECIMAL(12,2) NOT NULL COMMENT 'Monto cobrado',

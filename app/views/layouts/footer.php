@@ -1,12 +1,12 @@
+    <?php if (isset($_SESSION['usuario_id']) && isset($_SESSION['2fa_verified']) && $_SESSION['2fa_verified']): ?>
+        </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="<?= $baseUrl ?? '' ?>/public/assets/js/app.js"></script>
-    <?php if (!empty(PUSHER_APP_KEY)): ?>
-    <script>
-        window.pusherKey = '<?= PUSHER_APP_KEY ?>';
-        window.pusherCluster = '<?= PUSHER_APP_CLUSTER ?>';
-        window.pusherChannel = 'privado-socio-<?= $_SESSION['usuario_id'] ?? '' ?>';
-    </script>
     <?php endif; ?>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/gh/zuramai/mazer@docs/demo/assets/extensions/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/zuramai/mazer@docs/demo/assets/compiled/js/app.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/zuramai/mazer@docs/demo/assets/static/js/components/dark.js"></script>
+    <script src="<?= $baseUrl ?>/public/assets/js/app.js"></script>
 </body>
 </html>

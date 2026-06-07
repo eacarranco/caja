@@ -65,6 +65,17 @@ class Validator {
         return $this;
     }
 
+    public function date($field, $label, $value) {
+        if (empty($value)) return $this;
+        $parts = explode('-', $value);
+        if (count($parts) !== 3 || !checkdate((int)$parts[1], (int)$parts[2], (int)$parts[0])) {
+            $this->errors[$field] = "$label no es una fecha válida";
+        } elseif ((int)$parts[0] < 1900 || (int)$parts[0] > date('Y')) {
+            $this->errors[$field] = "$label tiene un año fuera de rango";
+        }
+        return $this;
+    }
+
     public function unique($field, $label, $value, $table, $column, $excludeId = null) {
         if (empty($value)) return $this;
         $db = Database::getInstance();

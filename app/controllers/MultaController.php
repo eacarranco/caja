@@ -3,32 +3,55 @@ class MultaController extends BaseController {
 
     public function listar() {
         $this->requireAuth();
+        $cedula = $_SESSION['usuario_cedula'] ?? '';
+        $idSocio = null;
+        $esSocio = false;
+        if ($cedula) {
+            $stmt = $this->db->prepare("SELECT id_socio FROM socios WHERE cédula = ?");
+            $stmt->execute([$cedula]);
+            $idSocio = $stmt->fetchColumn();
+            if ($idSocio) $esSocio = true;
+        }
+
         $page = max(1, intval($_GET['p'] ?? 1));
         $porPagina = 20;
         $offset = ($page - 1) * $porPagina;
-        $filtroTipo = $_GET['tipo'] ?? '';
-        $filtroPagada = $_GET['pagada'] ?? '';
-        $filtroSocio = $_GET['socio'] ?? '';
 
-        $where = [];
-        $params = [];
-        if ($filtroTipo) { $where[] = 'm.tipo = ?'; $params[] = $filtroTipo; }
-        if ($filtroPagada !== '') { $where[] = 'm.pagada = ?'; $params[] = $filtroPagada; }
-        if ($filtroSocio) { $where[] = 's.apellido1 LIKE ?'; $params[] = "%$filtroSocio%"; }
-        $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
-
-        $stmt = $this->db->prepare("SELECT m.*, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS socio, s.cédula
-                                    FROM multas m
-                                    JOIN socios s ON m.id_socio = s.id_socio
-                                    $whereClause
-                                    ORDER BY m.fecha_generación DESC LIMIT $porPagina OFFSET $offset");
-        $stmt->execute($params);
-        $multas = $stmt->fetchAll();
-
-        $total = $this->db->prepare("SELECT COUNT(*) FROM multas m JOIN socios s ON m.id_socio = s.id_socio $whereClause");
-        $total->execute($params);
-        $totalMultas = $total->fetchColumn();
-        $totalPaginas = ceil($totalMultas / $porPagina);
+        if ($esSocio) {
+            $stmt = $this->db->prepare("SELECT m.*, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS socio, s.cédula
+                                        FROM multas m
+                                        JOIN socios s ON m.id_socio = s.id_socio
+                                        WHERE m.id_socio = ?
+                                        ORDER BY m.fecha_generación DESC LIMIT $porPagina OFFSET $offset");
+            $stmt->execute([$idSocio]);
+            $multas = $stmt->fetchAll();
+            $total = $this->db->prepare("SELECT COUNT(*) FROM multas WHERE id_socio = ?");
+            $total->execute([$idSocio]);
+            $totalMultas = $total->fetchColumn();
+            $totalPaginas = ceil($totalMultas / $porPagina);
+            $filtroTipo = $filtroPagada = $filtroSocio = '';
+        } else {
+            $filtroTipo = $_GET['tipo'] ?? '';
+            $filtroPagada = $_GET['pagada'] ?? '';
+            $filtroSocio = $_GET['socio'] ?? '';
+            $where = [];
+            $params = [];
+            if ($filtroTipo) { $where[] = 'm.tipo = ?'; $params[] = $filtroTipo; }
+            if ($filtroPagada !== '') { $where[] = 'm.pagada = ?'; $params[] = $filtroPagada; }
+            if ($filtroSocio) { $where[] = 's.apellido1 LIKE ?'; $params[] = "%$filtroSocio%"; }
+            $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+            $stmt = $this->db->prepare("SELECT m.*, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS socio, s.cédula
+                                        FROM multas m
+                                        JOIN socios s ON m.id_socio = s.id_socio
+                                        $whereClause
+                                        ORDER BY m.fecha_generación DESC LIMIT $porPagina OFFSET $offset");
+            $stmt->execute($params);
+            $multas = $stmt->fetchAll();
+            $total = $this->db->prepare("SELECT COUNT(*) FROM multas m JOIN socios s ON m.id_socio = s.id_socio $whereClause");
+            $total->execute($params);
+            $totalMultas = $total->fetchColumn();
+            $totalPaginas = ceil($totalMultas / $porPagina);
+        }
 
         $this->render('multas/listar', [
             'titulo' => 'Multas',
@@ -38,6 +61,7 @@ class MultaController extends BaseController {
             'filtroTipo' => $filtroTipo,
             'filtroPagada' => $filtroPagada,
             'filtroSocio' => $filtroSocio,
+            'esSocio' => $esSocio,
         ]);
     }
 

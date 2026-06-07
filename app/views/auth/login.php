@@ -1,8 +1,10 @@
 <div class="login-container">
-    <div class="card login-card">
+    <div class="auth-logo">
+        <h3><?= APP_NAME ?></h3>
+    </div>
+    <div class="card">
         <div class="card-body p-4">
             <div class="text-center mb-4">
-                <h4><?= APP_NAME ?></h4>
                 <p class="text-muted">Ingresa tus credenciales</p>
             </div>
             <?php if (!empty($error)): ?>

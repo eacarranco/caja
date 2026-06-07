@@ -87,7 +87,7 @@
     <div class="card card-dashboard">
         <div class="card-header"><strong>Cambiar estado</strong></div>
         <div class="card-body">
-            <form id="formCambioEstado" enctype="multipart/form-data">
+            <form id="formCambioEstado" onsubmit="return cambiarEstado('<?= $socio['id_socio'] ?>')" enctype="multipart/form-data">
                 <div class="row g-2 align-items-center">
                     <div class="col-auto">
                         <select id="nuevoEstado" class="form-select" onchange="toggleActaFields()">
@@ -103,7 +103,7 @@
                         <input type="text" id="motivoCambio" class="form-control" placeholder="Motivo (opcional)">
                     </div>
                     <div class="col-auto" id="actaFields" style="display:none">
-                        <input type="text" id="numeroActa" class="form-control mb-1" placeholder="NÂ° acta aprobación">
+                        <input type="text" id="numeroActa" class="form-control mb-1" placeholder="N° acta aprobación">
                         <input type="file" id="actaPdf" class="form-control" accept=".pdf">
                     </div>
                     <div class="col-auto">

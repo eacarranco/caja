@@ -26,11 +26,13 @@ class CobroController extends BaseController {
                                    WHERE c.anulado = FALSE
                                    ORDER BY c.fecha_registro DESC");
         $cobros = $stmt->fetchAll();
+        $sesionAbierta = $this->db->query("SELECT id_sesión FROM sesiones_mensuales WHERE estado = 'abierta' LIMIT 1")->fetchColumn();
         $this->render('cobros/listar', [
             'titulo' => 'Cobros',
             'cobros' => $cobros,
             'tiposCobro' => $this->tiposCobro,
             'mediosPago' => $this->mediosPago,
+            'sesionAbierta' => $sesionAbierta,
         ]);
     }
 
@@ -83,7 +85,7 @@ class CobroController extends BaseController {
                 $stmt = $this->db->prepare("SELECT CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) FROM socios WHERE id_socio = ?");
                 $stmt->execute([$idSocio]);
                 $nombreSocio = $stmt->fetchColumn();
-                NotificacionHelper::crearCobro($idCobro, $nombreSocio, $monto, $this->tiposCobro[$tipo]);
+                NotificacionHelper::crearCobro($idSocio, $nombreSocio, $monto, $this->tiposCobro[$tipo]);
 
                 $this->json(['mensaje' => 'Cobro registrado', 'id_cobro' => $idCobro]);
             }

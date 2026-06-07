@@ -4,24 +4,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.csrfToken = csrfMeta.getAttribute('content');
     }
 
-    var toggleBtn = document.getElementById('sidebarToggle');
-    var sidebar = document.getElementById('sidebar');
-    var overlay = document.getElementById('sidebarOverlay');
-    if (toggleBtn && sidebar && overlay) {
-        function closeSidebar() {
-            sidebar.classList.remove('open');
-            overlay.classList.remove('show');
-        }
-        toggleBtn.addEventListener('click', function() {
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('show');
-        });
-        overlay.addEventListener('click', closeSidebar);
-        document.querySelectorAll('.sidebar .nav-link').forEach(function(link) {
-            link.addEventListener('click', closeSidebar);
-        });
-    }
-
     document.querySelectorAll('[data-confirm]').forEach(function(el) {
         el.addEventListener('click', function(e) {
             if (!confirm(this.getAttribute('data-confirm'))) {
@@ -29,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
     var alerts = document.querySelectorAll('.alert-dismissible');
     alerts.forEach(function(alert) {
         setTimeout(function() {
@@ -44,7 +27,7 @@ function showToast(message, type) {
     var container = document.querySelector('.toast-container');
     if (!container) {
         container = document.createElement('div');
-        container.className = 'toast-container';
+        container.className = 'toast-container position-fixed top-0 end-0 p-3';
         document.body.appendChild(container);
     }
     var toast = document.createElement('div');
@@ -56,12 +39,31 @@ function showToast(message, type) {
     setTimeout(function() { toast.remove(); }, 5000);
 }
 
-if (typeof Pusher !== 'undefined' && window.pusherKey) {
-    var pusher = new Pusher(window.pusherKey, { cluster: window.pusherCluster });
-    if (window.pusherChannel) {
-        var channel = pusher.subscribe(window.pusherChannel);
-        channel.bind('notificacion', function(data) {
-            showToast(data.titulo + ': ' + data.mensaje, 'info');
-        });
-    }
+function actualizarNotifBadge() {
+    fetch(BASE_URL + '/notificacion/contar')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            var badge = document.getElementById('notifBadge');
+            if (badge) {
+                if (d.pendientes > 0) {
+                    badge.textContent = Math.min(d.pendientes, 99);
+                    badge.classList.remove('d-none');
+                } else {
+                    badge.classList.add('d-none');
+                }
+            }
+        }).catch(function() {});
+}
+
+if (typeof Pusher !== 'undefined' && typeof PUSHER_KEY !== 'undefined' && PUSHER_KEY) {
+    var pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER || 'us2' });
+    var channel = pusher.subscribe('canal-general');
+    channel.bind('notificacion', function(data) {
+        actualizarNotifBadge();
+        if (data.titulo) {
+            showToast(data.titulo + ': ' + (data.mensaje || ''), 'info');
+        }
+    });
+} else {
+    setInterval(actualizarNotifBadge, 30000);
 }

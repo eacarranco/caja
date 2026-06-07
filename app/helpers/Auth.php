@@ -102,6 +102,7 @@ class Auth {
             'Analista Financiero' => '/dashboard',
             'Tesorero' => '/dashboard',
             'Asistente de Tesorería' => '/dashboard',
+            'Secretario/a' => '/dashboard',
             'Socio' => '/portal',
         ];
         return $rutas[$rol] ?? '/';

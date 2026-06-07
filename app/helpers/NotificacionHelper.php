@@ -23,9 +23,9 @@ class NotificacionHelper {
         return $id;
     }
 
-    public static function crearCobro($cobro, $socioNombre, $monto, $tipo) {
+    public static function crearCobro($idSocio, $socioNombre, $monto, $tipo) {
         return self::crear([
-            'id_usuario' => $_SESSION['usuario_id'] ?? null,
+            'id_socio' => $idSocio,
             'tipo' => 'cobro',
             'título' => 'Cobro registrado',
             'mensaje' => "Cobro de $tipo por $$monto a $socioNombre",

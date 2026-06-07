@@ -24,16 +24,16 @@ class RetiroController extends BaseController {
 
     public function aprobar($id) {
         $this->requirePermission('cobro.aporte');
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') $this->json(['error' => 'Método no permitido'], 405);
-        $this->validateCSRF();
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') $this->redirect('/retiro/listar');
+        if (!CSRFMiddleware::validarToken($_POST['csrf_token'] ?? '')) { $_SESSION['error'] = 'CSRF inválido'; $this->redirect('/retiro/listar'); }
 
         $stmt = $this->db->prepare("SELECT r.*, c.saldo_disponible FROM solicitudes_retiro r
                                     LEFT JOIN cuentas_ahorro c ON r.id_socio = c.id_socio
                                     WHERE r.id_solicitud = ? AND r.estado = 'pendiente'");
         $stmt->execute([$id]);
         $s = $stmt->fetch();
-        if (!$s) $this->json(['error' => 'No encontrada o ya procesada'], 400);
-        if ($s['monto'] > ($s['saldo_disponible'] ?? 0)) $this->json(['error' => 'Saldo insuficiente'], 400);
+        if (!$s) { $_SESSION['error'] = 'No encontrada o ya procesada'; $this->redirect('/retiro/listar'); }
+        if ($s['monto'] > ($s['saldo_disponible'] ?? 0)) { $_SESSION['error'] = 'Saldo insuficiente'; $this->redirect('/retiro/listar'); }
 
         $this->db->beginTransaction();
         try {
@@ -43,28 +43,33 @@ class RetiroController extends BaseController {
             $this->db->prepare("UPDATE cuentas_ahorro SET saldo_disponible = saldo_disponible - ?, fecha_último_movimiento = NOW() WHERE id_socio = ?")
                 ->execute([$s['monto'], $s['id_socio']]);
 
-            $this->db->prepare("INSERT INTO cobros (id_cobro, id_socio, tipo, monto, medio_pago, hash_integridad, usuario_registra)
-                VALUES (?, ?, 'otro', ?, 'efectivo', ?, ?)")
-                ->execute([$idCobro, $s['id_socio'], $s['monto'], $hash, $_SESSION['usuario_id']]);
+            $idSesion = $this->db->query("SELECT id_sesión FROM sesiones_mensuales WHERE estado = 'abierta' LIMIT 1")->fetchColumn();
+
+            $this->db->prepare("INSERT INTO cobros (id_cobro, id_socio, id_sesión, tipo, monto, medio_pago, hash_integridad, usuario_registra)
+                VALUES (?, ?, ?, 'otro', ?, 'efectivo', ?, ?)")
+                ->execute([$idCobro, $s['id_socio'], $idSesion ?: null, $s['monto'], $hash, $_SESSION['usuario_id']]);
 
             $this->db->prepare("UPDATE solicitudes_retiro SET estado = 'aprobado', fecha_respuesta = NOW(), usuario_respuesta = ?, id_cobro = ? WHERE id_solicitud = ?")
                 ->execute([$_SESSION['usuario_id'], $idCobro, $id]);
 
             $this->historialInsert($s['id_socio'], 'retiro_ahorro', $s['monto'], $idCobro);
             $this->db->commit();
-            $this->json(['mensaje' => 'Retiro aprobado y desembolsado']);
+            $_SESSION['success'] = 'Retiro aprobado y desembolsado';
+            $this->redirect('/retiro/listar');
         } catch (Exception $e) {
             $this->db->rollBack();
-            $this->json(['error' => $e->getMessage()], 500);
+            $_SESSION['error'] = $e->getMessage();
+            $this->redirect('/retiro/listar');
         }
     }
 
     public function rechazar($id) {
         $this->requirePermission('cobro.aporte');
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') $this->json(['error' => 'Método no permitido'], 405);
-        $this->validateCSRF();
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') $this->redirect('/retiro/listar');
+        if (!CSRFMiddleware::validarToken($_POST['csrf_token'] ?? '')) { $_SESSION['error'] = 'CSRF inválido'; $this->redirect('/retiro/listar'); }
         $this->db->prepare("UPDATE solicitudes_retiro SET estado = 'rechazado', fecha_respuesta = NOW(), usuario_respuesta = ? WHERE id_solicitud = ? AND estado = 'pendiente'")
             ->execute([$_SESSION['usuario_id'], $id]);
-        $this->json(['mensaje' => 'Solicitud rechazada']);
+        $_SESSION['success'] = 'Solicitud rechazada';
+        $this->redirect('/retiro/listar');
     }
 }

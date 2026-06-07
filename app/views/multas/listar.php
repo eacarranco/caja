@@ -1,6 +1,7 @@
 <div class="container-fluid">
     <h4>Multas</h4>
 
+    <?php if (!$esSocio): ?>
     <form method="GET" class="row g-2 mb-3">
         <div class="col-auto">
             <select name="tipo" class="form-select form-select-sm">
@@ -26,18 +27,21 @@
             <a href="<?= BASE_URL ?>/multa/listar" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x-circle"></i></a>
         </div>
     </form>
+    <?php endif; ?>
 
     <div class="card card-dashboard">
         <div class="card-body p-0">
             <div class="table-responsive"><table class="table table-hover mb-0">
                 <thead class="table-light">
-                    <tr><th>Fecha</th><th>Socio</th><th>Tipo</th><th>Monto</th><th>Justificación</th><th>Pagada</th><th></th></tr>
+                    <tr><th>Fecha</th><?php if (!$esSocio): ?><th>Socio</th><?php endif; ?><th>Tipo</th><th>Monto</th><th>Justificación</th><th>Pagada</th><th></th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($multas as $m): ?>
                     <tr>
                         <td><?= $m['fecha_generación'] ?></td>
+                        <?php if (!$esSocio): ?>
                         <td><?= htmlspecialchars($m['socio']) ?></td>
+                        <?php endif; ?>
                         <td><span class="badge bg-<?= $m['tipo'] === 'inasistencia' ? 'danger' : ($m['tipo'] === 'mora_crédito' ? 'warning' : 'info') ?>"><?= str_replace('_', ' ', $m['tipo']) ?></span></td>
                         <td><strong>$<?= number_format($m['monto'], 2) ?></strong></td>
                         <td>

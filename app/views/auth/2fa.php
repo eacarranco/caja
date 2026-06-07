@@ -1,8 +1,11 @@
 <div class="login-container">
-    <div class="card login-card">
+    <div class="auth-logo">
+        <h3><?= APP_NAME ?></h3>
+    </div>
+    <div class="card">
         <div class="card-body p-4">
             <div class="text-center mb-4">
-                <h4>Verificación de dos factores</h4>
+                <h5>Verificación de dos factores</h5>
                 <p class="text-muted">Ingresa el PIN de 6 dígitos enviado a tu correo</p>
             </div>
             <?php if (!empty($error)): ?>

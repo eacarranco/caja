@@ -5,17 +5,30 @@ class PusherHelper {
         if (empty(PUSHER_APP_KEY)) return false;
         try {
             $canal = 'canal-general';
-            $payload = json_encode([
-                'evento' => $evento,
-                'data' => $data,
-                'time' => time(),
-            ]);
-            $url = "https://api-" . PUSHER_APP_CLUSTER . ".pusher.com/apps/" . PUSHER_APP_ID . "/events";
             $body = json_encode([
                 'name' => $evento,
                 'channel' => $canal,
                 'data' => json_encode($data),
             ]);
+
+            $timestamp = time();
+            $bodyMd5 = md5($body);
+            $path = '/apps/' . PUSHER_APP_ID . '/events';
+
+            $queryParams = [
+                'auth_key' => PUSHER_APP_KEY,
+                'auth_timestamp' => $timestamp,
+                'auth_version' => '1.0',
+                'body_md5' => $bodyMd5,
+            ];
+            ksort($queryParams);
+            $queryString = http_build_query($queryParams);
+
+            $signatureString = "POST\n$path\n$queryString";
+            $authSignature = hash_hmac('sha256', $signatureString, PUSHER_APP_SECRET);
+
+            $url = 'https://api-' . PUSHER_APP_CLUSTER . '.pusher.com' . $path . '?' . $queryString . '&auth_signature=' . $authSignature;
+
             $ch = curl_init($url);
             curl_setopt_array($ch, [
                 CURLOPT_POST => true,
@@ -23,10 +36,16 @@ class PusherHelper {
                 CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_TIMEOUT => 5,
+                CURLOPT_SSL_VERIFYPEER => false,
             ]);
-            curl_exec($ch);
+            $resp = curl_exec($ch);
+            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
-            return true;
+
+            if ($httpCode !== 200) {
+                error_log("Pusher error HTTP $httpCode: $resp");
+            }
+            return $httpCode === 200;
         } catch (Exception $e) {
             error_log("Pusher error: " . $e->getMessage());
             return false;

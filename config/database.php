@@ -2,6 +2,7 @@
 class Database {
     private static $instance = null;
     private $connection;
+    private $lastStmt;
 
     private $host = '127.0.0.1';
     private $port = '3306';
@@ -33,7 +34,8 @@ class Database {
     }
 
     public function prepare($sql) {
-        return $this->connection->prepare($sql);
+        $this->lastStmt = $this->connection->prepare($sql);
+        return $this->lastStmt;
     }
 
     public function query($sql) {
@@ -42,5 +44,21 @@ class Database {
 
     public function lastInsertId() {
         return $this->connection->lastInsertId();
+    }
+
+    public function beginTransaction() {
+        return $this->connection->beginTransaction();
+    }
+
+    public function commit() {
+        return $this->connection->commit();
+    }
+
+    public function rollBack() {
+        return $this->connection->rollBack();
+    }
+
+    public function affectedRows() {
+        return $this->lastStmt ? $this->lastStmt->rowCount() : 0;
     }
 }

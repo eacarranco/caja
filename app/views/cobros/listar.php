@@ -1,5 +1,12 @@
 <div class="container-fluid">
-    <h4>Cobros</h4>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Cobros</h4>
+        <?php if ($sesionAbierta): ?>
+        <a href="<?= BASE_URL ?>/cobro/registrar/<?= $sesionAbierta ?>" class="btn btn-primary"><i class="bi bi-cash-coin"></i> Nuevo cobro</a>
+        <?php else: ?>
+        <a href="<?= BASE_URL ?>/sesion/abrir" class="btn btn-primary"><i class="bi bi-cash-coin"></i> Nuevo cobro</a>
+        <?php endif; ?>
+    </div>
 
     <div class="card card-dashboard">
         <div class="card-body p-0">

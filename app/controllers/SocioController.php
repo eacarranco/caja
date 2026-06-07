@@ -46,6 +46,7 @@ class SocioController extends BaseController {
                 ->required('apellido1', 'Primer apellido', $data['apellido1'])
                 ->required('nombre1', 'Primer nombre', $data['nombre1'])
                 ->required('fecha_nacimiento', 'Fecha de nacimiento', $data['fecha_nacimiento'])
+                ->date('fecha_nacimiento', 'Fecha de nacimiento', $data['fecha_nacimiento'])
                 ->required('dirección', 'Dirección', $data['dirección'])
                 ->required('celular', 'Celular', $data['celular'])
                 ->required('correo_electrónico', 'Correo electrónico', $data['correo_electrónico'])
@@ -66,7 +67,7 @@ class SocioController extends BaseController {
                     'nombre2' => strtoupper($data['nombre2'] ?? ''),
                     'fecha_nacimiento' => $data['fecha_nacimiento'],
                     'género' => $data['género'],
-                    'estado_civil' => $data['estado_civil'] ?? null,
+                    'estado_civil' => !empty($data['estado_civil']) ? $data['estado_civil'] : null,
                     'dirección' => $data['dirección'],
                     'teléfono' => $data['teléfono'] ?? '',
                     'celular' => $data['celular'],

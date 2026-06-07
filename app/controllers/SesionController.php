@@ -1,5 +1,6 @@
 <?php
 require_once ROOT_PATH . '/app/helpers/PDFGenerator.php';
+require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php';
 
 class SesionController extends BaseController {
 

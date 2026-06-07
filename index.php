@@ -35,6 +35,7 @@ $routeMap = [
     'documento/libreDeuda' => ['controller' => 'DocumentoController', 'method' => 'libreDeuda'],
     'documento/actaCierre' => ['controller' => 'DocumentoController', 'method' => 'actaCierre'],
     'notificacion' => ['controller' => 'NotificacionController', 'method' => 'listar'],
+    'notificacion/contar' => ['controller' => 'NotificacionController', 'method' => 'contar'],
     'login' => ['controller' => 'AuthController', 'method' => 'login'],
     'logout' => ['controller' => 'AuthController', 'method' => 'logout'],
     'password' => ['controller' => 'AuthController', 'method' => 'password'],
@@ -100,6 +101,7 @@ $routeMap = [
     'portal/solicitarRetiro' => ['controller' => 'PortalController', 'method' => 'solicitarRetiro'],
     'retiro' => ['controller' => 'RetiroController', 'method' => 'listar'],
     'retiro/aprobar' => ['controller' => 'RetiroController', 'method' => 'aprobar'],
+    'retiro/rechazar' => ['controller' => 'RetiroController', 'method' => 'rechazar'],
     'asistencia' => ['controller' => 'AsistenciaController', 'method' => 'listar'],
     'asistencia/justificar' => ['controller' => 'AsistenciaController', 'method' => 'justificar'],
     'asistencia/aprobarJustificacion' => ['controller' => 'AsistenciaController', 'method' => 'aprobarJustificacion'],
@@ -114,7 +116,7 @@ $controllerName = 'AuthController';
 $methodName = 'index';
 $params = [];
 
-if (!empty($urlParts[0])) {
+if ($url !== '') {
     $routeKey = $urlParts[0] . (isset($urlParts[1]) ? '/' . $urlParts[1] : '');
     if (isset($routeMap[$routeKey])) {
         $controllerName = $routeMap[$routeKey]['controller'];
@@ -129,6 +131,9 @@ if (!empty($urlParts[0])) {
         $methodName = $urlParts[1] ?? 'index';
         $params = array_slice($urlParts, 2);
     }
+} elseif (isset($routeMap[''])) {
+    $controllerName = $routeMap['']['controller'];
+    $methodName = $routeMap['']['method'];
 }
 
 $controllerFile = ROOT_PATH . '/app/controllers/' . $controllerName . '.php';
