@@ -1,3 +1,22 @@
+<?php
+$logoSidebarId = '';
+$logoSdId = '';
+foreach ($params as $p) {
+    if ($p['código'] === 'logo_sidebar') $logoSidebarId = $p['valor'];
+    if ($p['código'] === 'logo_sd') $logoSdId = $p['valor'];
+}
+function fmPreview($idArchivo, $baseUrl) {
+    if (empty($idArchivo)) return '';
+    $meta = FileManager::get($idArchivo);
+    if (!$meta) return '';
+    $src = $baseUrl . '/archivo/ver/' . $idArchivo;
+    $mime = $meta['mime_type'] ?? '';
+    if (strpos($mime, 'image/') === 0) {
+        return '<img src="' . $src . '" style="max-height:80px;max-width:100%" alt="preview">';
+    }
+    return '<i class="bi bi-file-earmark fs-1 text-muted"></i>';
+}
+?>
 <div class="container-fluid">
     <h4>Imagen corporativa</h4>
 
@@ -5,21 +24,35 @@
         <div class="col-md-6">
             <div class="card card-dashboard">
                 <div class="card-body">
-                    <h5>Logo institucional</h5>
-                    <?php
-                    $logo = '';
-                    foreach ($params as $p) {
-                        if ($p['código'] === 'img.logo') $logo = $p['valor'];
-                    }
-                    ?>
-                    <div class="mb-3">
-                        <img id="previewLogo" src="<?= BASE_URL ?>/<?= $logo ?>"
-                             style="max-height:120px; max-width:100%" alt="Logo actual">
+                    <h5>Logo del sidebar</h5>
+                    <div class="mb-3 text-center p-3 bg-light rounded">
+                        <?= fmPreview($logoSidebarId, BASE_URL) ?>
+                        <?php if (empty($logoSidebarId)): ?>
+                        <p class="text-muted small mb-0">Sin imagen</p>
+                        <?php endif; ?>
                     </div>
-                    <form id="formLogo" enctype="multipart/form-data">
+                    <form class="fmUploadForm" data-codigo="logo_sidebar" enctype="multipart/form-data">
                         <?= CSRFMiddleware::campoHTML() ?>
-                        <input type="file" name="logo" class="form-control mb-2" accept=".png,.jpg,.jpeg,.svg" required>
-                        <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Subir logo</button>
+                        <input type="file" name="archivo" class="form-control mb-2" accept="image/png,image/jpeg,image/svg+xml" required>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Subir</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card card-dashboard">
+                <div class="card-body">
+                    <h5>Logo sin fondo</h5>
+                    <div class="mb-3 text-center p-3 bg-light rounded">
+                        <?= fmPreview($logoSdId, BASE_URL) ?>
+                        <?php if (empty($logoSdId)): ?>
+                        <p class="text-muted small mb-0">Sin imagen</p>
+                        <?php endif; ?>
+                    </div>
+                    <form class="fmUploadForm" data-codigo="logo_sd" enctype="multipart/form-data">
+                        <?= CSRFMiddleware::campoHTML() ?>
+                        <input type="file" name="archivo" class="form-control mb-2" accept="image/png,image/jpeg,image/svg+xml" required>
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> Subir</button>
                     </form>
                 </div>
             </div>
@@ -45,17 +78,17 @@
 </div>
 
 <script>
-document.getElementById('formLogo')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    var f = new FormData(this);
-    f.append('csrf_token', document.querySelector('[name="csrf_token"]').value);
-    fetch('<?= BASE_URL ?>/imagen/subirLogo', { method: 'POST', body: f })
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-        if (d.error) { alert(d.error); } else {
-            document.getElementById('previewLogo').src = '<?= BASE_URL ?>/' + f.get('logo').name + '?_=' + Date.now();
-            location.reload();
-        }
+document.querySelectorAll('.fmUploadForm').forEach(function(form) {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var f = new FormData(this);
+        f.append('csrf_token', document.querySelector('[name="csrf_token"]').value);
+        f.append('codigo', this.dataset.codigo);
+        fetch('<?= BASE_URL ?>/imagen/subirImagenParam', { method: 'POST', body: f })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.error) { alert(d.error); } else { location.reload(); }
+        });
     });
 });
 

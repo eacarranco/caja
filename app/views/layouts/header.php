@@ -56,17 +56,15 @@
                     <div class="logo">
                         <a href="<?= $baseUrl ?>/dashboard">
                             <?php
-                            $logoPath = '';
+                            $logoSrc = $baseUrl . '/public/assets/images/favicon.svg';
                             try {
-                                $logoStmt = $ndb->prepare("SELECT valor FROM parámetros WHERE código = 'img.logo'");
+                                $logoStmt = $ndb->prepare("SELECT valor FROM parámetros WHERE código = 'logo_sidebar'");
                                 $logoStmt->execute();
-                                $logoPath = $logoStmt->fetchColumn();
+                                $logoId = $logoStmt->fetchColumn();
+                                if ($logoId) $logoSrc = $baseUrl . '/archivo/ver/' . $logoId;
                             } catch (Exception $e) {}
-                            if ($logoPath): ?>
-                            <img src="<?= $baseUrl ?>/<?= $logoPath ?>" alt="Logo" style="max-height:40px; width:auto">
-                            <?php else: ?>
-                            <img src="<?= $baseUrl ?>/public/assets/images/favicon.svg" alt="Caja" style="height:32px">
-                            <?php endif; ?>
+                            ?>
+                            <img src="<?= $logoSrc ?>" alt="Logo" style="max-height:40px; width:auto">
                         </a>
                     </div>
                     <div class="theme-toggle d-flex gap-2 align-items-center mt-2">
@@ -186,11 +184,20 @@
                     <?php endif; ?>
                     <?php if ($uid && RBAC::tienePermiso($uid, 'param.roles')): ?>
                     <li class="sidebar-title">Administración</li>
-                    <li class="sidebar-item <?= mazerActive('parametro') ?>">
-                        <a href="<?= $baseUrl ?>/parametro/listar" class="sidebar-link">
+                    <?php $paramSubActive = (strpos($currentUrl, 'parametro') === 0 || strpos($currentUrl, 'imagen') === 0) ? 'active' : ''; ?>
+                    <li class="sidebar-item has-sub <?= $paramSubActive ?>">
+                        <a href="#" class="sidebar-link">
                             <i class="bi bi-gear-fill"></i>
-                            <span>Parámetros</span>
+                            <span>Configuración</span>
                         </a>
+                        <ul class="submenu <?= $paramSubActive ?>">
+                            <li class="submenu-item <?= mazerActive('parametro') ?>">
+                                <a href="<?= $baseUrl ?>/parametro/listar" class="submenu-link">Parámetros</a>
+                            </li>
+                            <li class="submenu-item <?= mazerActive('imagen') ?>">
+                                <a href="<?= $baseUrl ?>/imagen/index" class="submenu-link">Imagen corporativa</a>
+                            </li>
+                        </ul>
                     </li>
                     <li class="sidebar-item <?= mazerActive('usuario') ?>">
                         <a href="<?= $baseUrl ?>/usuario/listar" class="sidebar-link">
@@ -208,12 +215,6 @@
                         <a href="<?= $baseUrl ?>/catalogo/provincias" class="sidebar-link">
                             <i class="bi bi-journal-text"></i>
                             <span>Catálogos</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item <?= mazerActive('imagen') ?>">
-                        <a href="<?= $baseUrl ?>/imagen/index" class="sidebar-link">
-                            <i class="bi bi-image-fill"></i>
-                            <span>Imagen</span>
                         </a>
                     </li>
                     <?php endif; ?>

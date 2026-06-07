@@ -344,6 +344,25 @@ CREATE TABLE garantes (
     FOREIGN KEY (id_socio) REFERENCES socios(id_socio)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Garantes de créditos';
 
+CREATE TABLE archivos (
+    id_archivo CHAR(36) PRIMARY KEY COMMENT 'Identificador único del archivo (UUID)',
+    nombre_original VARCHAR(255) NOT NULL COMMENT 'Nombre original del archivo subido',
+    nombre_archivo VARCHAR(255) NOT NULL COMMENT 'Nombre interno en disco (UUID + extensión)',
+    mime_type VARCHAR(100) NOT NULL COMMENT 'Tipo MIME del archivo',
+    tamaño BIGINT NOT NULL COMMENT 'Tamaño en bytes',
+    extensión VARCHAR(10) NOT NULL COMMENT 'Extensión del archivo (pdf, jpg, png, etc)',
+    ruta VARCHAR(500) NOT NULL COMMENT 'Ruta relativa desde storage/archivos/',
+    hash_sha256 VARCHAR(64) NOT NULL COMMENT 'SHA-256 del contenido del archivo',
+    entidad_tipo VARCHAR(50) COMMENT 'Nombre de la tabla o módulo asociado (socio, credito, multa, etc)',
+    entidad_id CHAR(36) COMMENT 'UUID del registro asociado en la entidad',
+    subdirectorio VARCHAR(100) DEFAULT 'general' COMMENT 'Subdirectorio dentro de storage/archivos/',
+    id_usuario_subio CHAR(36) COMMENT 'Usuario que subió el archivo',
+    fecha_subida DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de subida del archivo',
+    FOREIGN KEY (id_usuario_subio) REFERENCES usuarios(id_usuario),
+    INDEX idx_archivos_entidad (entidad_tipo, entidad_id),
+    INDEX idx_archivos_hash (hash_sha256)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Gestión centralizada de archivos — metadatos en BD, archivos fuera del public root';
+
 CREATE TABLE solicitudes_retiro (
     id_solicitud CHAR(36) NOT NULL PRIMARY KEY COMMENT 'UUID de la solicitud',
     id_socio CHAR(36) NOT NULL COMMENT 'FK al socio solicitante',

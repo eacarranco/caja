@@ -1,9 +1,11 @@
 <?php
+require_once ROOT_PATH . '/app/helpers/FileManager.php';
+
 class ImagenController extends BaseController {
 
     public function index() {
         $this->requirePermission('param.imagen');
-        $stmt = $this->db->query("SELECT * FROM parámetros WHERE código LIKE 'img.%' OR código LIKE 'color.%' ORDER BY código");
+        $stmt = $this->db->query("SELECT * FROM parámetros WHERE código LIKE 'color.%' OR código IN ('logo_sidebar', 'logo_sd') ORDER BY código");
         $params = $stmt->fetchAll();
         $this->render('parametros/imagen', [
             'titulo' => 'Imagen corporativa',
@@ -11,25 +13,26 @@ class ImagenController extends BaseController {
         ]);
     }
 
-    public function subirLogo() {
+    public function subirImagenParam() {
         $this->requirePermission('param.imagen');
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->validateCSRF();
-            if (isset($_FILES['logo']) && $_FILES['logo']['error'] === UPLOAD_ERR_OK) {
-                $ext = strtolower(pathinfo($_FILES['logo']['name'], PATHINFO_EXTENSION));
-                if (!in_array($ext, ['png', 'jpg', 'jpeg', 'svg'])) {
-                    $this->json(['error' => 'Formato no permitido. Use PNG, JPG o SVG'], 400);
-                }
-                $dest = dirname(__DIR__, 2) . '/public/assets/img/logo.' . $ext;
-                move_uploaded_file($_FILES['logo']['tmp_name'], $dest);
-
-                $stmt = $this->db->prepare("UPDATE parámetros SET valor = ? WHERE código = 'img.logo'");
-                $stmt->execute(['assets/img/logo.' . $ext]);
-                $this->json(['mensaje' => 'Logo actualizado']);
-            } else {
-                $this->json(['error' => 'No se recibió el archivo'], 400);
-            }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->json(['error' => 'Método no permitido'], 405);
         }
+        $this->validateCSRF();
+        $codigo = $_POST['codigo'] ?? '';
+        if (!in_array($codigo, ['logo_sidebar', 'logo_sd'])) {
+            $this->json(['error' => 'Código de parámetro inválido'], 400);
+        }
+        if (!isset($_FILES['archivo']) || $_FILES['archivo']['error'] !== UPLOAD_ERR_OK) {
+            $this->json(['error' => 'No se recibió el archivo'], 400);
+        }
+        $result = FileManager::upload($_FILES['archivo'], 'imagen', $codigo, 'imagen', $_SESSION['usuario_id'] ?? null);
+        if (!$result['success']) {
+            $this->json(['error' => $result['error']], 400);
+        }
+        $stmt = $this->db->prepare("UPDATE parámetros SET valor = ? WHERE código = ?");
+        $stmt->execute([$result['id_archivo'], $codigo]);
+        $this->json(['mensaje' => 'Imagen actualizada', 'id_archivo' => $result['id_archivo']]);
     }
 
     public function guardarColor() {

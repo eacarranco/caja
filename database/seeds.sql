@@ -64,7 +64,9 @@ INSERT INTO parámetros (código, nombre, valor, tipo, módulo) VALUES
 ('session_timeout_minutos', 'Timeout de sesión (minutos)', '30', 'número', 'seguridad'),
 ('pin_2fa_dígitos', 'Dígitos del PIN 2FA', '6', 'número', 'seguridad'),
 ('pin_2fa_expiracion_min', 'Expiración PIN 2FA (minutos)', '5', 'número', 'seguridad'),
-('máx_reenvío_pin_hora', 'Máximo reenvíos PIN por hora', '3', 'número', 'seguridad');
+('máx_reenvío_pin_hora', 'Máximo reenvíos PIN por hora', '3', 'número', 'seguridad'),
+('logo_sidebar', 'Logo del sidebar', '', 'texto', 'imagen'),
+('logo_sd', 'Logo sin fondo', '', 'texto', 'imagen');
 
 INSERT INTO provincias (nombre) VALUES ('Pichincha');
 INSERT INTO cantones (id_provincia, nombre) VALUES (1, 'Pedro Moncayo');

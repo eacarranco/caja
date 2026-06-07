@@ -18,7 +18,13 @@ class PDFGenerator {
     }
 
     private static function layout($body) {
-        $logo = BASE_URL . '/public/assets/img/logo.png';
+        $logo = BASE_URL . '/public/assets/images/favicon.svg';
+        try {
+            $stmt = Database::getInstance()->prepare("SELECT valor FROM parámetros WHERE código = 'logo_sidebar'");
+            $stmt->execute();
+            $logoId = $stmt->fetchColumn();
+            if ($logoId) $logo = BASE_URL . '/archivo/ver/' . $logoId;
+        } catch (Exception $e) {}
         return '<!DOCTYPE html>
 <html lang="es">
 <head><meta charset="UTF-8">

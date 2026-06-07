@@ -9,6 +9,7 @@ require_once ROOT_PATH . '/app/helpers/RBAC.php';
 require_once ROOT_PATH . '/app/helpers/Validator.php';
 require_once ROOT_PATH . '/app/helpers/CedulaEcuador.php';
 require_once ROOT_PATH . '/app/helpers/CSRFMiddleware.php';
+require_once ROOT_PATH . '/app/helpers/FileManager.php';
 require_once ROOT_PATH . '/config/pusher.php';
 
 session_start();
@@ -58,6 +59,7 @@ $routeMap = [
     'catalogo/editar' => ['controller' => 'CatalogoController', 'method' => 'editar'],
     'catalogo/eliminar' => ['controller' => 'CatalogoController', 'method' => 'eliminar'],
     'imagen' => ['controller' => 'ImagenController', 'method' => 'index'],
+    'imagen/subirImagenParam' => ['controller' => 'ImagenController', 'method' => 'subirImagenParam'],
     'producto' => ['controller' => 'ProductoController', 'method' => 'listar'],
     'producto/registrar' => ['controller' => 'ProductoController', 'method' => 'registrar'],
     'producto/editar' => ['controller' => 'ProductoController', 'method' => 'editar'],
@@ -110,6 +112,10 @@ $routeMap = [
     'multa/justificar' => ['controller' => 'MultaController', 'method' => 'justificar'],
     'multa/aprobarJustificacion' => ['controller' => 'MultaController', 'method' => 'aprobarJustificacion'],
     'multa/marcarPagada' => ['controller' => 'MultaController', 'method' => 'marcarPagada'],
+    'archivo/ver' => ['controller' => 'ArchivoController', 'method' => 'ver'],
+    'archivo/descargar' => ['controller' => 'ArchivoController', 'method' => 'descargar'],
+    'archivo/listarPorEntidad' => ['controller' => 'ArchivoController', 'method' => 'listarPorEntidad'],
+    'archivo/eliminar' => ['controller' => 'ArchivoController', 'method' => 'eliminar'],
 ];
 
 $controllerName = 'AuthController';
