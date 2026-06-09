@@ -146,7 +146,7 @@ class ProductoController extends BaseController {
             'penalidad_retiro_anticipado' => $esCredito ? 0 : str_replace(',', '.', $post['penalidad_retiro_anticipado'] ?? '0'),
             'condiciones_html' => $post['condiciones_html'] ?? '',
             'min_permanencia_meses' => $esCredito ? 0 : intval($post['min_permanencia_meses'] ?? 0),
-            'min_ahorro' => $esCredito ? floatval($minAhorro) : str_replace(',', '.', $post['min_ahorro'] ?? '0'),
+            'min_ahorro' => $esCredito ? floatval($minAhorro) : str_replace(',', '.', $post['min_ahorro_inv'] ?? '0'),
             'min_ahorro_unidad' => $esCredito ? $minAhorroUnidad : 'dolares',
             'es_emergente' => $esCredito ? (!empty($post['es_emergente']) ? 1 : 0) : 0,
             'monto_max_emergente' => $esCredito ? str_replace(',', '.', $post['monto_max_emergente'] ?? '0') : 0,

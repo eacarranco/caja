@@ -493,7 +493,6 @@
             renderTable(d);
             document.getElementById('simResult').style.display = 'block';
 
-            var permanencia = parseInt(opt.dataset.min_permanencia);
             var ahorroReq = parseFloat(opt.dataset.min_ahorro);
             var ahorroUnidad = opt.dataset.min_ahorro_unidad || 'dolares';
             var destCarMin = parseInt(opt.dataset.destino_caracteres);
@@ -533,13 +532,6 @@
                 if (ahorroTotal < ahorroNecesario) {
                     elegible = false;
                     msgs.push('Requiere minimo ' + labelAhorro + ' de ahorro (tiene $' + ahorroTotal.toFixed(2) + ')');
-                }
-            }
-            if (destCarMin > 0) {
-                var destInput = document.getElementById('destinoInput');
-                if (destInput && destInput.value.trim().length < destCarMin) {
-                    elegible = false;
-                    msgs.push('El destino debe tener al menos ' + destCarMin + ' caracteres');
                 }
             }
             <?php endif; ?>

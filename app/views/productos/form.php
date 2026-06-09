@@ -141,7 +141,7 @@
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <input type="checkbox" name="usa_min_destino_caracteres" class="form-check-input mt-0" value="1" id="chkDestCar"
-                                           onchange="document.getElementById('destCarInput').disabled=!this.checked"
+                                           onclick="document.getElementById('destCarInput').disabled=!this.checked"
                                            <?= (floatval($data['min_destino_caracteres'] ?? 0) > 0) ? 'checked' : '' ?>>
                                 </div>
                                 <input type="number" min="1" name="min_destino_caracteres" id="destCarInput"
@@ -158,7 +158,7 @@
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <input type="checkbox" name="usa_min_permanencia" class="form-check-input mt-0" value="1" id="chkPerm"
-                                           onchange="document.getElementById('permValInput').disabled=!this.checked;document.getElementById('permUnidad').disabled=!this.checked"
+                                           onclick="document.getElementById('permValInput').disabled=!this.checked;document.getElementById('permUnidad').disabled=!this.checked"
                                            <?= (floatval($data['min_permanencia_valor'] ?? 0) > 0) ? 'checked' : '' ?>>
                                 </div>
                                 <input type="number" min="1" name="min_permanencia_valor" id="permValInput"
@@ -179,15 +179,21 @@
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <input type="checkbox" name="usa_min_ahorro" class="form-check-input mt-0" value="1" id="chkAhorro"
-                                           onchange="document.getElementById('ahorroInput').disabled=!this.checked;document.getElementById('ahorroUnidad').disabled=!this.checked"
+                                           onclick="var e=this.checked;document.getElementById('ahorroInput').disabled=!e;document.getElementById('ahorroUnidad').disabled=!e;if(!e){document.getElementById('ahorroHidden').value='0';document.getElementById('ahorroUnidadHidden').value='dolares'}"
                                            <?= (floatval($data['min_ahorro'] ?? 0) > 0) ? 'checked' : '' ?>>
                                 </div>
-                                <input type="number" step="0.01" min="0.01" name="min_ahorro" id="ahorroInput"
+                                <input type="hidden" name="min_ahorro" id="ahorroHidden" value="<?= htmlspecialchars($data['min_ahorro'] ?? '0') ?>">
+                                <input type="number" step="0.01" min="0.01" name="min_ahorro_visible" id="ahorroInput"
                                        class="form-control <?= isset($errors['min_ahorro']) ? 'is-invalid' : '' ?>"
                                        value="<?= htmlspecialchars($data['min_ahorro'] ?? '0') ?>"
                                        placeholder="Valor"
+                                       oninput="document.getElementById('ahorroHidden').value=this.value"
                                        <?= (floatval($data['min_ahorro'] ?? 0) > 0) ? '' : 'disabled' ?>>
-                                <select name="min_ahorro_unidad" id="ahorroUnidad" class="form-select" style="max-width:130px" <?= (floatval($data['min_ahorro'] ?? 0) > 0) ? '' : 'disabled' ?>>
+                                <input type="hidden" name="min_ahorro_unidad" id="ahorroUnidadHidden" value="<?= htmlspecialchars($data['min_ahorro_unidad'] ?? 'dolares') ?>">
+                                <select name="min_ahorro_unidad_visible" id="ahorroUnidad"
+                                        class="form-select" style="max-width:130px"
+                                        onchange="document.getElementById('ahorroUnidadHidden').value=this.value"
+                                        <?= (floatval($data['min_ahorro'] ?? 0) > 0) ? '' : 'disabled' ?>>
                                     <option value="dolares" <?= ($data['min_ahorro_unidad'] ?? 'dolares') === 'dolares' ? 'selected' : '' ?>>Dolares</option>
                                     <option value="porcentaje" <?= ($data['min_ahorro_unidad'] ?? 'dolares') === 'porcentaje' ? 'selected' : '' ?>>% del credito</option>
                                 </select>
@@ -212,7 +218,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Ahorro mínimo requerido $</label>
-                            <input type="number" step="0.01" min="0" name="min_ahorro" class="form-control"
+                            <input type="number" step="0.01" min="0" name="min_ahorro_inv" class="form-control"
                                    value="<?= htmlspecialchars($data['min_ahorro'] ?? '0') ?>">
                         </div>
                         <div class="col-md-4">
