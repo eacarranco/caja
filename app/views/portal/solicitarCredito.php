@@ -168,30 +168,32 @@
 
                     <!-- Simulation Result -->
                     <div id="simResult" style="display:none" class="mt-4 pt-3 border-top">
-                        <h6 class="fw-semibold mb-3">📊 Tabla de amortización</h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm table-hover mb-0" id="tablaAmort">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Capital</th>
-                                        <th>Interés</th>
-                                        <th>Cuota</th>
-                                        <th>Saldo</th>
-                                    </tr>
-                                </thead>
-                                <tbody></tbody>
-                            </table>
-                        </div>
-                        <div class="row mt-3">
-                            <div class="col-md-6">
-                                <p class="mb-0"><strong>Total a pagar:</strong> <span class="text-primary fw-bold">$<span id="totalPagar">0.00</span></span></p>
+                        <div id="elegibilidadMsg" class="mb-3"></div>
+                        <div id="amortizacionContainer">
+                            <h6 class="fw-semibold mb-3">Tabla de amortizacion</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-hover mb-0" id="tablaAmort">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Capital</th>
+                                            <th>Interes</th>
+                                            <th>Cuota</th>
+                                            <th>Saldo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
                             </div>
-                            <div class="col-md-6">
-                                <p class="mb-0"><strong>Cuota mensual:</strong> <span class="text-primary fw-bold">$<span id="resCuotaDisplay">0.00</span></span></p>
+                            <div class="row mt-3">
+                                <div class="col-md-6">
+                                    <p class="mb-0"><strong>Total a pagar:</strong> <span class="text-primary fw-bold">$<span id="totalPagar">0.00</span></span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-0"><strong>Cuota mensual:</strong> <span class="text-primary fw-bold">$<span id="resCuotaDisplay">0.00</span></span></p>
+                                </div>
                             </div>
                         </div>
-                        <div id="elegibilidadMsg" class="mt-3"></div>
                     </div>
                 </div>
             </div>
@@ -501,12 +503,15 @@
             <?php endif; ?>
 
             var elMsg = document.getElementById('elegibilidadMsg');
+            var amortContainer = document.getElementById('amortizacionContainer');
             if (msgs.length > 0) {
                 elMsg.className = 'alert alert-warning';
-                elMsg.innerHTML = '<i class="bi bi-exclamation-triangle"></i> <strong>Atención:</strong> ' + msgs.join('. ');
+                elMsg.innerHTML = '<i class="bi bi-exclamation-triangle"></i> <strong>No cumple requisitos:</strong> ' + msgs.join('. ');
+                amortContainer.style.display = 'none';
             } else {
                 elMsg.className = 'alert alert-success';
                 elMsg.innerHTML = '<i class="bi bi-check-circle"></i> Cumple con todos los requisitos';
+                amortContainer.style.display = 'block';
             }
         });
     }
