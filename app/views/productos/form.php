@@ -4,11 +4,13 @@
         <a href="<?= BASE_URL ?>/producto/listar" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
     </div>
 
-    <div class="card card-dashboard">
-        <div class="card-body">
-            <form method="POST" id="productoForm">
-                <?= CSRFMiddleware::campoHTML() ?>
+    <form method="POST" id="productoForm">
+        <?= CSRFMiddleware::campoHTML() ?>
 
+        <!-- Card 1: Información General -->
+        <div class="card mb-3">
+            <div class="card-header"><strong><i class="bi bi-info-circle"></i> Información general</strong></div>
+            <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-5">
                         <label class="form-label">Nombre *</label>
@@ -26,7 +28,7 @@
                         </select>
                         <div class="invalid-feedback"><?= $errors['tipo'] ?? '' ?></div>
                     </div>
-                    <div class="col-md-4 d-flex align-items-end gap-3 pb-1">
+                    <div class="col-md-4 d-flex align-items-end pb-1">
                         <div class="form-check">
                             <input type="checkbox" name="activo" class="form-check-input" value="1" id="checkActivo"
                                    <?= !isset($data['activo']) || !empty($data['activo']) ? 'checked' : '' ?>>
@@ -34,10 +36,13 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <hr class="my-3">
-                <h6 class="fw-semibold">Configuración financiera</h6>
-
+        <!-- Card 2: Configuración Financiera -->
+        <div class="card mb-3">
+            <div class="card-header"><strong><i class="bi bi-calculator"></i> Configuración financiera</strong></div>
+            <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-3">
                         <label class="form-label">Tasa interés anual % *</label>
@@ -75,11 +80,14 @@
                         <div class="invalid-feedback"><?= $errors['monto_max'] ?? '' ?></div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Opciones de crédito -->
-                <div id="camposCredito" class="mt-3">
-                    <hr class="my-3">
-                    <h6 class="fw-semibold">Opciones de crédito</h6>
+        <!-- Card 3: Opciones de Crédito -->
+        <div id="camposCredito">
+            <div class="card mb-3">
+                <div class="card-header"><strong><i class="bi bi-file-earmark-text"></i> Opciones de crédito</strong></div>
+                <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-3">
                             <label class="form-label">Método de interés *</label>
@@ -104,9 +112,31 @@
                                 <label class="form-check-label" for="reqDocFirmado">Requiere documento firmado</label>
                             </div>
                         </div>
+                        <div class="col-md-3 d-flex align-items-end pb-1">
+                            <div class="form-check">
+                                <input type="checkbox" name="es_emergente" class="form-check-input" value="1" id="esEmergente"
+                                       onchange="document.getElementById('montoEmergenteGroup').style.display=this.checked?'':'none'"
+                                       <?= !empty($data['es_emergente']) ? 'checked' : '' ?>>
+                                <label class="form-check-label" for="esEmergente">Crédito emergente</label>
+                            </div>
+                        </div>
                     </div>
-                    <div class="row g-3 mt-2">
+                    <div class="row g-3 mt-2" id="montoEmergenteGroup" style="display:<?= !empty($data['es_emergente']) ? '' : 'none' ?>">
                         <div class="col-md-3">
+                            <label class="form-label">Monto máximo emergente $</label>
+                            <input type="number" step="0.01" min="0" name="monto_max_emergente" class="form-control"
+                                   value="<?= htmlspecialchars($data['monto_max_emergente'] ?? '0') ?>">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4: Condiciones de Elegibilidad -->
+            <div class="card mb-3">
+                <div class="card-header"><strong><i class="bi bi-check2-square"></i> Condiciones de elegibilidad</strong></div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <input type="checkbox" name="usa_min_destino_caracteres" class="form-check-input mt-0" value="1" id="chkDestCar"
@@ -122,7 +152,7 @@
                                 <div class="invalid-feedback"><?= $errors['min_destino_caracteres'] ?? '' ?></div>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <input type="checkbox" name="usa_min_permanencia" class="form-check-input mt-0" value="1" id="chkPerm"
@@ -142,7 +172,7 @@
                                 <div class="invalid-feedback"><?= $errors['min_permanencia_valor'] ?? '' ?></div>
                             </div>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <input type="checkbox" name="usa_min_ahorro" class="form-check-input mt-0" value="1" id="chkAhorro"
@@ -162,25 +192,27 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row g-3 mt-2">
                 </div>
+            </div>
+        </div>
 
-                <!-- Opciones de inversión -->
-                <div id="camposInversion" class="mt-3" style="display:none">
-                    <hr class="my-3">
-                    <h6 class="fw-semibold">Opciones de inversión</h6>
+        <!-- Card 5: Opciones de Inversión -->
+        <div id="camposInversion" style="display:none">
+            <div class="card mb-3">
+                <div class="card-header"><strong><i class="bi bi-piggy-bank"></i> Opciones de inversión</strong></div>
+                <div class="card-body">
                     <div class="row g-3">
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label">Permanencia mínima (meses)</label>
                             <input type="number" min="0" name="min_permanencia_meses" class="form-control"
                                    value="<?= htmlspecialchars($data['min_permanencia_meses'] ?? '0') ?>">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label">Ahorro mínimo requerido $</label>
                             <input type="number" step="0.01" min="0" name="min_ahorro" class="form-control"
                                    value="<?= htmlspecialchars($data['min_ahorro'] ?? '0') ?>">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-4">
                             <label class="form-label">Penalidad retiro anticipado %</label>
                             <input type="number" step="0.01" min="0" max="100" name="penalidad_retiro_anticipado"
                                    class="form-control"
@@ -188,23 +220,22 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Condiciones -->
-                <hr class="my-3">
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label class="form-label fw-semibold" id="lblCondiciones">Condiciones del producto</label>
-                        <div id="editorContainer" style="min-height:200px; border:1px solid #ccc; border-radius:4px;"></div>
-                        <textarea name="condiciones_html" id="condicionesHtml" class="d-none"><?= htmlspecialchars($data['condiciones_html'] ?? '') ?></textarea>
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> <?= $editando ? 'Guardar cambios' : 'Crear producto' ?></button>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
+
+        <!-- Card 6: Condiciones del Producto -->
+        <div class="card mb-3">
+            <div class="card-header"><strong><i class="bi bi-file-text"></i> <span id="lblCondiciones">Condiciones del producto</span></strong></div>
+            <div class="card-body">
+                <div id="editorContainer" style="min-height:200px; border:1px solid #ccc; border-radius:4px;"></div>
+                <textarea name="condiciones_html" id="condicionesHtml" class="d-none"><?= htmlspecialchars($data['condiciones_html'] ?? '') ?></textarea>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> <?= $editando ? 'Guardar cambios' : 'Crear producto' ?></button>
+        </div>
+    </form>
 </div>
 
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.css" rel="stylesheet">
