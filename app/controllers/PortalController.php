@@ -267,6 +267,9 @@ class PortalController extends BaseController {
             if ($plazo < ($prod['plazo_min_meses'] ?? 1) || $plazo > ($prod['plazo_max_meses'] ?? 999)) $errors['plazo'] = 'Plazo fuera de rango';
             if ($monto < ($prod['monto_min'] ?? 0) || $monto > ($prod['monto_max'] ?? 999999)) $errors['monto'] = 'Monto fuera del rango del producto';
             if (!$acepta) $errors['acepta'] = 'Debe aceptar las condiciones';
+            if (!empty($prod['requiere_garante']) && empty($_POST['garantes'])) {
+                $errors['garantes'] = 'Debe seleccionar al menos un garante';
+            }
 
             $fechaIngreso = new DateTime($socio['fecha_ingreso']);
             $hoy = new DateTime();

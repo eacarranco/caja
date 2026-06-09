@@ -234,6 +234,7 @@
                                 </option>
                                 <?php endforeach; ?>
                             </select>
+                            <?php if (isset($errors['garantes'])): ?><div class="text-danger small mt-1"><?= htmlspecialchars($errors['garantes']) ?></div><?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -386,15 +387,24 @@
         }
         if (currentStep === 2) {
             if (!document.getElementById('aceptaCheck').checked) {
-                alert('Debe aceptar las condiciones del crédito');
+                alert('Debe aceptar las condiciones del credito');
                 return false;
             }
             if (document.getElementById('destinoInput').value.trim().length < 10) {
                 alert('El destino debe tener al menos 10 caracteres');
                 return false;
             }
+            var selProd = document.getElementById('selProducto');
+            var optProd = selProd.options[selProd.selectedIndex];
+            if (optProd && optProd.dataset.requiere_garante == 1) {
+                var garantes = document.querySelector('select[name="garantes[]"]');
+                if (!garantes || garantes.selectedOptions.length === 0) {
+                    alert('Debe seleccionar al menos un garante');
+                    return false;
+                }
+            }
             if (!elegible) {
-                if (!confirm('No cumple todos los requisitos. ¿Desea continuar?')) {
+                if (!confirm('No cumple todos los requisitos. Desea continuar?')) {
                     return false;
                 }
             }
