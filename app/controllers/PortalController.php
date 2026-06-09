@@ -164,7 +164,7 @@ class PortalController extends BaseController {
         $socio = $stmt->fetch();
         if (!$socio) { $this->redirect('/portal'); return; }
 
-        $stmt = $this->db->prepare("SELECT a.*, ses.numero_sesion, ses.fecha AS fecha_sesión
+        $stmt = $this->db->prepare("SELECT a.*, ses.numero_sesion, ses.fecha AS fecha_sesion
                                     FROM asistencias a
                                     JOIN sesiones_mensuales ses ON a.id_sesion = ses.id_sesion
                                     WHERE a.id_socio = ?
