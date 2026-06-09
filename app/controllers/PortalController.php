@@ -422,6 +422,7 @@ class PortalController extends BaseController {
         $capital = $this->db->prepare("SELECT * FROM capital_inversion WHERE id_socio = ?");
         $capital->execute([$idSocio]);
         $capitalRow = $capital->fetch();
+        $saldoCapital = floatval($capitalRow['saldo'] ?? 0);
 
         $stmt = $this->db->prepare("SELECT i.*, p.nombre AS producto FROM inversiones i JOIN productos_financieros p ON i.id_producto = p.id_producto WHERE i.id_socio = ? ORDER BY i.fecha_registro DESC");
         $stmt->execute([$idSocio]);
@@ -429,11 +430,68 @@ class PortalController extends BaseController {
 
         $productos = $this->db->query("SELECT id_producto, nombre, tasa_interes_anual, plazo_min_meses, plazo_max_meses, monto_min, monto_max FROM productos_financieros WHERE tipo = 'inversion' AND activo = TRUE ORDER BY nombre")->fetchAll();
 
+        $errors = [];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->validateCSRF();
+            $idProducto = $_POST['id_producto'] ?? '';
+            $monto = str_replace(',', '.', $_POST['monto'] ?? '0');
+            $plazo = intval($_POST['plazo'] ?? 1);
+            $destino = $_POST['destino_final'] ?? 'capital_inversion';
+
+            if (!in_array($destino, ['capital_inversion', 'efectivo', 'transferencia'])) $destino = 'capital_inversion';
+            if (empty($idProducto)) $errors['id_producto'] = 'Seleccione un producto';
+
+            $prod = null;
+            foreach ($productos as $p) {
+                if ($p['id_producto'] === $idProducto) { $prod = $p; break; }
+            }
+            if (!$prod) $errors['id_producto'] = 'Producto invalido';
+            if (!is_numeric($monto) || $monto <= 0) $errors['monto'] = 'Monto invalido';
+            if ($monto > $saldoCapital) $errors['monto'] = 'Saldo insuficiente en capital de inversion. Disponible: $' . number_format($saldoCapital, 2);
+            if ($plazo < ($prod['plazo_min_meses'] ?? 1) || $plazo > ($prod['plazo_max_meses'] ?? 999)) $errors['plazo'] = 'Plazo fuera de rango';
+
+            if (empty($errors)) {
+                $tasa = $prod['tasa_interes_anual'];
+                $factor = $tasa / 100 / 12;
+                $rendimiento = $monto * $factor * $plazo;
+
+                $fechaInicio = date('Y-m-d');
+                $fechaVenc = new DateTime($fechaInicio);
+                $fechaVenc->modify('+' . $plazo . ' months');
+
+                $id = UUIDGenerator::generar();
+                $this->db->beginTransaction();
+                try {
+                    $this->db->prepare("INSERT INTO inversiones
+                        (id_inversion, id_socio, id_producto, monto, plazo_meses, tasa_interes, fecha_inicio, fecha_vencimiento, rendimiento_proyectado, destino_final)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                        ->execute([$id, $idSocio, $idProducto, $monto, $plazo, $tasa, $fechaInicio, $fechaVenc->format('Y-m-d'), round($rendimiento, 2), $destino]);
+
+                    $this->db->prepare("UPDATE capital_inversion SET saldo = saldo - ?, fecha_ultimo_movimiento = NOW() WHERE id_socio = ?")->execute([$monto, $idSocio]);
+                    $this->historialInsert($idSocio, 'inversion_apertura', $monto, $id);
+                    $this->db->commit();
+
+                    $st = $this->db->prepare("SELECT CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) AS nombre FROM socios WHERE id_socio = ?");
+                    $st->execute([$idSocio]);
+                    $nom = $st->fetchColumn();
+                    try { require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php'; NotificacionHelper::crearInversion($idSocio, $nom, $monto, 'creada'); } catch (Exception $e) {}
+
+                    $this->redirect('/portal/inversion?ok=1');
+                } catch (Exception $e) {
+                    $this->db->rollBack();
+                    $errors['general'] = $e->getMessage();
+                }
+            }
+        }
+
         $this->render('portal/inversion', [
             'titulo' => 'Inversion',
             'capital' => $capitalRow,
             'inversiones' => $inversiones,
             'productos' => $productos,
+            'errors' => $errors,
+            'saldoCapital' => $saldoCapital,
         ]);
     }
 
