@@ -141,6 +141,9 @@
                                     data-min_permanencia="<?= intval($p['min_permanencia_meses'] ?? 0) ?>"
                                     data-min_ahorro="<?= floatval($p['min_ahorro'] ?? 0) ?>"
                                     data-requiere_garante="<?= !empty($p['requiere_garante']) ? 1 : 0 ?>"
+                                    data-destino_caracteres="<?= intval($p['min_destino_caracteres'] ?? 0) ?>"
+                                    data-perm_valor="<?= intval($p['min_permanencia_valor'] ?? 0) ?>"
+                                    data-perm_unidad="<?= htmlspecialchars($p['min_permanencia_unidad'] ?? 'meses') ?>"
                                     <?= ($_POST['id_producto'] ?? '') === $p['id_producto'] ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($p['nombre']) ?>
                                 </option>
@@ -222,7 +225,7 @@
                             <textarea name="destino" id="destinoInput" class="form-control" rows="3" 
                                       placeholder="Describa el propósito del crédito (mínimo 10 caracteres)..."
                                       oninput="validarStep2()"><?= htmlspecialchars($_POST['destino'] ?? '') ?></textarea>
-                            <small class="text-muted d-block mt-1">Caracteres: <span id="destinoCount">0</span> / 10 mín.</small>
+                            <small class="text-muted d-block mt-1">Caracteres: <span id="destinoCount">0</span> / <span id="destinoMinLabel">10</span> min.</small>
                         </div>
                         <div class="col-md-6" id="garantesGroup" style="display:none">
                             <label class="form-label fw-500">Seleccionar garante(s)</label>
@@ -385,15 +388,18 @@
             }
             return true;
         }
-        if (currentStep === 2) {
-            if (!document.getElementById('aceptaCheck').checked) {
-                alert('Debe aceptar las condiciones del credito');
-                return false;
-            }
-            if (document.getElementById('destinoInput').value.trim().length < 10) {
-                alert('El destino debe tener al menos 10 caracteres');
-                return false;
-            }
+            if (currentStep === 2) {
+                if (!document.getElementById('aceptaCheck').checked) {
+                    alert('Debe aceptar las condiciones del credito');
+                    return false;
+                }
+                var selP = document.getElementById('selProducto');
+                var optP = selP.options[selP.selectedIndex];
+                var reqChars = parseInt(optP.dataset.destino_caracteres) || 10;
+                if (document.getElementById('destinoInput').value.trim().length < reqChars) {
+                    alert('El destino debe tener al menos ' + reqChars + ' caracteres');
+                    return false;
+                }
             var selProd = document.getElementById('selProducto');
             var optProd = selProd.options[selProd.selectedIndex];
             if (optProd && optProd.dataset.requiere_garante == 1) {
@@ -488,6 +494,9 @@
 
             var permanencia = parseInt(opt.dataset.min_permanencia);
             var ahorroReq = parseFloat(opt.dataset.min_ahorro);
+            var destCarMin = parseInt(opt.dataset.destino_caracteres);
+            var permValor = parseInt(opt.dataset.perm_valor);
+            var permUnidad = opt.dataset.perm_unidad || 'meses';
             elegible = true;
             var msgs = [];
 
@@ -500,15 +509,27 @@
             var fechaIngreso = new Date('<?= $socio['fecha_ingreso'] ?>');
             var hoy = new Date();
             var mesesActivo = (hoy.getFullYear() - fechaIngreso.getFullYear()) * 12 + (hoy.getMonth() - fechaIngreso.getMonth());
-            if (permanencia > 0 && mesesActivo < permanencia) {
-                elegible = false;
-                msgs.push('Requiere ' + permanencia + ' meses de permanencia (tiene ' + mesesActivo + ')');
+            if (permValor > 0) {
+                var mesesReq = permValor;
+                if (permUnidad === 'dias') mesesReq = Math.max(1, Math.round(permValor / 30));
+                if (permUnidad === 'anios') mesesReq = permValor * 12;
+                if (mesesActivo < mesesReq) {
+                    elegible = false;
+                    msgs.push('Requiere ' + permValor + ' ' + permUnidad + ' de permanencia (tiene ' + mesesActivo + ' meses)');
+                }
             }
             <?php $ahorroTotal = floatval($socio['saldo_obligatorio'] ?? 0) + floatval($socio['saldo_excedente'] ?? 0); ?>
             var ahorroTotal = <?= $ahorroTotal ?>;
             if (ahorroReq > 0 && ahorroTotal < ahorroReq) {
                 elegible = false;
                 msgs.push('Requiere $' + ahorroReq.toFixed(2) + ' de ahorro (tiene $' + ahorroTotal.toFixed(2) + ')');
+            }
+            if (destCarMin > 0) {
+                var destInput = document.getElementById('destinoInput');
+                if (destInput && destInput.value.trim().length < destCarMin) {
+                    elegible = false;
+                    msgs.push('El destino debe tener al menos ' + destCarMin + ' caracteres');
+                }
             }
             <?php endif; ?>
 
@@ -545,6 +566,10 @@
     function validarStep2() {
         var destino = document.getElementById('destinoInput').value.trim();
         document.getElementById('destinoCount').textContent = destino.length;
+        var selP = document.getElementById('selProducto');
+        var optP = selP.options[selP.selectedIndex];
+        var reqChars = parseInt(optP.dataset.destino_caracteres) || 10;
+        document.getElementById('destinoMinLabel').textContent = reqChars;
     }
 
     // Initialize

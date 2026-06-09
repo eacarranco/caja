@@ -596,6 +596,9 @@ CREATE TABLE `productos_financieros` (
   `min_ahorro` decimal(10,2) DEFAULT '0.00' COMMENT 'Minimo de ahorro acumulado requerido',
   `es_emergente` tinyint(1) DEFAULT '0' COMMENT 'Si es credito emergente (no requiere sesion de aprobacion)',
   `monto_max_emergente` decimal(10,2) DEFAULT '0.00' COMMENT 'Monto maximo para credito emergente',
+  `min_destino_caracteres` int DEFAULT '0' COMMENT 'Minimo de caracteres para el campo destino del credito',
+  `min_permanencia_valor` int DEFAULT '0' COMMENT 'Valor de permanencia minima',
+  `min_permanencia_unidad` enum('dias','meses','anios') COLLATE utf8mb4_unicode_ci DEFAULT 'meses' COMMENT 'Unidad de permanencia minima',
   `requiere_documento_firmado` tinyint(1) DEFAULT '1' COMMENT 'Si requiere documento firmado escaneado antes del desembolso',
   PRIMARY KEY (`id_producto`),
   KEY `idx_productos_tipo` (`tipo`),
@@ -609,7 +612,7 @@ CREATE TABLE `productos_financieros` (
 
 LOCK TABLES `productos_financieros` WRITE;
 /*!40000 ALTER TABLE `productos_financieros` DISABLE KEYS */;
-INSERT INTO `productos_financieros` VALUES ('802ad839-cfec-46aa-869f-9910912ea142','Inversión 12 Meses','inversion',7.00,'simple',12,12,100.00,10000.00,0,10.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,1),('900f2e04-b730-4bbf-9d83-d9c79ea6849e','Crédito Ordinario','credito',6.00,'simple',1,12,50.00,1500.00,1,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,1),('97daba5b-f71d-49aa-a826-b7f01c81fac1','Crédito Agrícola','credito',5.00,'frances',3,24,100.00,5000.00,1,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,1),('b53305e5-5102-49c0-9176-d164d3e98c58','Inversión 120 días','inversion',6.00,'simple',3,3,50.00,5000.00,0,5.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,1),('c5f8ab97-9808-4919-9e05-b6f89f473538','Crédito Emergente','credito',6.00,'simple',1,6,10.00,300.00,0,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,1,0.00,1);
+INSERT INTO `productos_financieros` VALUES ('802ad839-cfec-46aa-869f-9910912ea142','Inversión 12 Meses','inversion',7.00,'simple',12,12,100.00,10000.00,0,10.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,0,0,'meses',1),('900f2e04-b730-4bbf-9d83-d9c79ea6849e','Crédito Ordinario','credito',6.00,'simple',1,12,50.00,1500.00,1,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,0,0,'meses',1),('97daba5b-f71d-49aa-a826-b7f01c81fac1','Crédito Agrícola','credito',5.00,'frances',3,24,100.00,5000.00,1,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,0,0,'meses',1),('b53305e5-5102-49c0-9176-d164d3e98c58','Inversión 120 días','inversion',6.00,'simple',3,3,50.00,5000.00,0,5.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,0,0,'meses',1),('c5f8ab97-9808-4919-9e05-b6f89f473538','Crédito Emergente','credito',6.00,'simple',1,6,10.00,300.00,0,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,1,0.00,0,0,'meses',1);
 /*!40000 ALTER TABLE `productos_financieros` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -910,4 +913,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-09 16:06:05
+-- Dump completed on 2026-06-09 16:18:28

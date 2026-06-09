@@ -274,14 +274,27 @@ class PortalController extends BaseController {
             $fechaIngreso = new DateTime($socio['fecha_ingreso']);
             $hoy = new DateTime();
             $mesesActivo = $fechaIngreso->diff($hoy)->m + ($fechaIngreso->diff($hoy)->y * 12);
-            $permanenciaReq = intval($prod['min_permanencia_meses'] ?? 0);
-            if ($permanenciaReq > 0 && $mesesActivo < $permanenciaReq) {
-                $errors['elegibilidad'] = "Requiere mínimo $permanenciaReq meses de permanencia activa (lleva $mesesActivo)";
+
+            $destCarMin = intval($prod['min_destino_caracteres'] ?? 0);
+            $destinoText = trim($_POST['destino'] ?? '');
+            if ($destCarMin > 0 && mb_strlen($destinoText) < $destCarMin) {
+                $errors['destino'] = "El destino debe tener al menos $destCarMin caracteres";
+            }
+
+            $permVal = intval($prod['min_permanencia_valor'] ?? 0);
+            $permUnidad = $prod['min_permanencia_unidad'] ?? 'meses';
+            if ($permVal > 0) {
+                $mesesReq = $permVal;
+                if ($permUnidad === 'dias') $mesesReq = max(1, round($permVal / 30));
+                if ($permUnidad === 'anios') $mesesReq = $permVal * 12;
+                if ($mesesActivo < $mesesReq) {
+                    $errors['elegibilidad'] = "Requiere minimo $permVal " . ($permUnidad === 'dias' ? 'dias' : ($permUnidad === 'anios' ? 'anios' : 'meses')) . " de permanencia (lleva $mesesActivo meses)";
+                }
             }
             $ahorroReq = floatval($prod['min_ahorro'] ?? 0);
             $ahorroTotal = floatval($socio['saldo_obligatorio'] ?? 0) + floatval($socio['saldo_excedente'] ?? 0);
             if ($ahorroReq > 0 && $ahorroTotal < $ahorroReq) {
-                $errors['elegibilidad'] = ($errors['elegibilidad'] ?? '') . " Requiere mínimo $" . number_format($ahorroReq, 2) . " de ahorro (tiene $" . number_format($ahorroTotal, 2) . ")";
+                $errors['elegibilidad'] = ($errors['elegibilidad'] ?? '') . " Requiere minimo $" . number_format($ahorroReq, 2) . " de ahorro (tiene $" . number_format($ahorroTotal, 2) . ")";
             }
 
             $stmt = $this->db->prepare("SELECT COUNT(*) FROM creditos WHERE id_socio = ? AND estado IN ('ingresado','pendiente','aprobado','legalizado')");

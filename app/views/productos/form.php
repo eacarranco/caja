@@ -106,20 +106,60 @@
                         </div>
                     </div>
                     <div class="row g-3 mt-2">
-                        <div class="col-md-3 d-flex align-items-center gap-2 pb-1">
-                            <div class="form-check">
-                                <input type="checkbox" name="es_emergente" class="form-check-input" value="1" id="esEmergente"
-                                       onchange="document.getElementById('montoEmergenteGroup').style.display=this.checked?'':'none'"
-                                       <?= !empty($data['es_emergente']) ? 'checked' : '' ?>>
-                                <label class="form-check-label" for="esEmergente">Crédito emergente</label>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <div class="input-group-text">
+                                    <input type="checkbox" name="usa_min_destino_caracteres" class="form-check-input mt-0" value="1" id="chkDestCar"
+                                           onchange="document.getElementById('destCarInput').disabled=!this.checked"
+                                           <?= !empty($data['min_destino_caracteres']) ? 'checked' : '' ?>>
+                                </div>
+                                <input type="number" min="1" name="min_destino_caracteres" id="destCarInput"
+                                       class="form-control <?= isset($errors['min_destino_caracteres']) ? 'is-invalid' : '' ?>"
+                                       value="<?= htmlspecialchars($data['min_destino_caracteres'] ?? '0') ?>"
+                                       placeholder="Caracteres"
+                                       <?= empty($data['min_destino_caracteres']) ? 'disabled' : '' ?>>
+                                <span class="input-group-text">caracteres descripcion destino</span>
+                                <div class="invalid-feedback"><?= $errors['min_destino_caracteres'] ?? '' ?></div>
                             </div>
                         </div>
-                        <div class="col-md-3" id="montoEmergenteGroup" style="display:<?= !empty($data['es_emergente']) ? '' : 'none' ?>">
-                            <label class="form-label">Monto máximo emergente $</label>
-                            <input type="number" step="0.01" min="0" name="monto_max_emergente" class="form-control"
-                                   value="<?= htmlspecialchars($data['monto_max_emergente'] ?? '0') ?>">
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <div class="input-group-text">
+                                    <input type="checkbox" name="usa_min_permanencia" class="form-check-input mt-0" value="1" id="chkPerm"
+                                           onchange="document.getElementById('permValInput').disabled=!this.checked;document.getElementById('permUnidad').disabled=!this.checked"
+                                           <?= !empty($data['min_permanencia_valor']) ? 'checked' : '' ?>>
+                                </div>
+                                <input type="number" min="1" name="min_permanencia_valor" id="permValInput"
+                                       class="form-control <?= isset($errors['min_permanencia_valor']) ? 'is-invalid' : '' ?>"
+                                       value="<?= htmlspecialchars($data['min_permanencia_valor'] ?? '0') ?>"
+                                       placeholder="Valor"
+                                       <?= empty($data['min_permanencia_valor']) ? 'disabled' : '' ?>>
+                                <select name="min_permanencia_unidad" id="permUnidad" class="form-select" style="max-width:100px" <?= empty($data['min_permanencia_valor']) ? 'disabled' : '' ?>>
+                                    <option value="dias" <?= ($data['min_permanencia_unidad'] ?? 'meses') === 'dias' ? 'selected' : '' ?>>Dias</option>
+                                    <option value="meses" <?= ($data['min_permanencia_unidad'] ?? 'meses') === 'meses' ? 'selected' : '' ?>>Meses</option>
+                                    <option value="anios" <?= ($data['min_permanencia_unidad'] ?? 'meses') === 'anios' ? 'selected' : '' ?>>Anios</option>
+                                </select>
+                                <div class="invalid-feedback"><?= $errors['min_permanencia_valor'] ?? '' ?></div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <div class="input-group-text">
+                                    <input type="checkbox" name="usa_min_ahorro" class="form-check-input mt-0" value="1" id="chkAhorro"
+                                           onchange="document.getElementById('ahorroInput').disabled=!this.checked"
+                                           <?= !empty($data['min_ahorro']) ? 'checked' : '' ?>>
+                                </div>
+                                <input type="number" step="0.01" min="0.01" name="min_ahorro" id="ahorroInput"
+                                       class="form-control <?= isset($errors['min_ahorro']) ? 'is-invalid' : '' ?>"
+                                       value="<?= htmlspecialchars($data['min_ahorro'] ?? '0') ?>"
+                                       placeholder="Monto"
+                                       <?= empty($data['min_ahorro']) ? 'disabled' : '' ?>>
+                                <span class="input-group-text">Ahorro minimo $</span>
+                                <div class="invalid-feedback"><?= $errors['min_ahorro'] ?? '' ?></div>
+                            </div>
                         </div>
                     </div>
+                    <div class="row g-3 mt-2">
                 </div>
 
                 <!-- Opciones de inversión -->
