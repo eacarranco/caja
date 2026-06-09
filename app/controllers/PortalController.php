@@ -355,18 +355,59 @@ class PortalController extends BaseController {
     public function detalleAhorro() {
         $this->requireAuth();
         $cedula = $_SESSION['usuario_cedula'] ?? '';
-        $stmt = $this->db->prepare("SELECT id_socio FROM socios WHERE cedula = ?");
+        $stmt = $this->db->prepare("SELECT s.*, ca.saldo_obligatorio, ca.saldo_excedente FROM socios s LEFT JOIN cuentas_ahorro ca ON s.id_socio = ca.id_socio WHERE s.cedula = ?");
         $stmt->execute([$cedula]);
         $socio = $stmt->fetch();
         if (!$socio) $this->redirect('/portal');
+        $idSocio = $socio['id_socio'];
 
-        $stmt = $this->db->prepare("SELECT c.*, ses.numero_sesion FROM cobros c LEFT JOIN sesiones_mensuales ses ON c.id_sesion = ses.id_sesion WHERE c.id_socio = ? AND c.tipo = 'aporte_obligatorio' AND c.anulado = FALSE ORDER BY c.fecha_registro DESC");
-        $stmt->execute([$socio['id_socio']]);
-        $pagos = $stmt->fetchAll();
+        // Get current balances
+        $saldoObligatorio = floatval($socio['saldo_obligatorio'] ?? 0);
+        $saldoExcedente = floatval($socio['saldo_excedente'] ?? 0);
+
+        // Get all historial_operaciones that affect savings account
+        $stmt = $this->db->prepare("SELECT h.*, ses.numero_sesion, ses.titulo AS sesion_titulo, ses.fecha AS sesion_fecha
+                                     FROM historial_operaciones h
+                                     LEFT JOIN sesiones_mensuales ses ON h.id_sesion = ses.id_sesion
+                                     WHERE h.id_socio = ?
+                                     ORDER BY h.fecha_registro DESC");
+        $stmt->execute([$idSocio]);
+        $movimientos = $stmt->fetchAll();
+
+        // Generate conceptos
+        $conceptos = [
+            'aporte_obligatorio' => 'Aporte obligatorio',
+            'aporte_excedente' => 'Aporte excedente',
+            'retiro_ahorro' => 'Retiro de ahorro',
+            'desembolso_credito' => 'Desembolso de credito',
+            'pago_cuota' => 'Pago de cuota de credito',
+            'pago_multa' => 'Pago de multa',
+            'inversion_apertura' => 'Inversion apertura',
+            'inversion_retiro' => 'Retorno de inversion',
+            'interes_ganado' => 'Interes ganado',
+            'interes_pagado' => 'Interes pagado',
+            'cierre_sesion' => 'Cierre de sesion',
+            'anulacion' => 'Anulacion',
+            'deposito_capital_inversion' => 'Deposito a capital de inversion',
+            'retiro_capital_inversion' => 'Retiro de capital de inversion',
+        ];
+
+        $movs = [];
+        foreach ($movimientos as $m) {
+            $label = $conceptos[$m['tipo_operacion']] ?? $m['tipo_operacion'];
+            if ($m['numero_sesion']) {
+                $fechaSesion = $m['sesion_fecha'] ? date('d/m/Y', strtotime($m['sesion_fecha'])) : '';
+                $label .= ' (Sesion #' . $m['numero_sesion'] . ' del ' . $fechaSesion . ')';
+            }
+            $m['concepto'] = $label;
+            $movs[] = $m;
+        }
 
         $this->render('portal/detalleAhorro', [
-            'titulo' => 'Detalle de ahorro',
-            'pagos' => $pagos,
+            'titulo' => 'Estado de cuenta',
+            'movimientos' => $movs,
+            'saldo_obligatorio' => $saldoObligatorio,
+            'saldo_excedente' => $saldoExcedente,
         ]);
     }
 
