@@ -346,7 +346,14 @@
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="<?= $baseUrl ?>/portal"><i class="bi bi-house-fill me-2"></i>Inicio</a></li>
-                        <li><a class="dropdown-item" href="<?= $baseUrl ?>/password"><i class="bi bi-key me-2"></i>Contraseña</a></li>
+                        <?php if ($esSoloSocio): ?>
+                        <li><a class="dropdown-item" href="<?= $baseUrl ?>/portal/historial"><i class="bi bi-clock-history me-2"></i>Historial</a></li>
+                        <li><a class="dropdown-item" href="<?= $baseUrl ?>/portal/multas"><i class="bi bi-exclamation-triangle me-2"></i>Multas</a></li>
+                        <li><a class="dropdown-item" href="<?= $baseUrl ?>/portal/asistencias"><i class="bi bi-calendar-check me-2"></i>Asistencias</a></li>
+                        <li><a class="dropdown-item" href="<?= $baseUrl ?>/portal/password"><i class="bi bi-key me-2"></i>Contrasena</a></li>
+                        <?php else: ?>
+                        <li><a class="dropdown-item" href="<?= $baseUrl ?>/password"><i class="bi bi-key me-2"></i>Contrasena</a></li>
+                        <?php endif; ?>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="<?= $baseUrl ?>/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Salir</a></li>
                     </ul>
