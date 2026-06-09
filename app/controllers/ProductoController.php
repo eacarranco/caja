@@ -171,6 +171,9 @@ class ProductoController extends BaseController {
         if ($d['plazo_max_meses'] < $d['plazo_min_meses']) $errors['plazo_max_meses'] = 'Plazo máximo debe ser ≥ mínimo';
         if (!is_numeric($d['monto_min']) || $d['monto_min'] < 0) $errors['monto_min'] = 'Monto mínimo inválido';
         if (!is_numeric($d['monto_max']) || $d['monto_max'] <= $d['monto_min']) $errors['monto_max'] = 'Monto máximo debe ser > mínimo';
+        if ($d['min_destino_caracteres'] < 0) $errors['min_destino_caracteres'] = 'No puede ser negativo';
+        if ($d['min_permanencia_valor'] < 0) $errors['min_permanencia_valor'] = 'No puede ser negativo';
+        if ($d['min_ahorro'] < 0) $errors['min_ahorro'] = 'No puede ser negativo';
         return $errors;
     }
 }
