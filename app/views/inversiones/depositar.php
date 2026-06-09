@@ -10,7 +10,7 @@
 
     <div class="card">
         <div class="card-body">
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?? '' ?>">
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -32,11 +32,20 @@
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label">Medio de pago *</label>
-                        <select name="medio_pago" class="form-select">
+                        <select name="medio_pago" id="medioPago" class="form-select" onchange="toggleComprobante()">
                             <option value="efectivo">Efectivo</option>
                             <option value="transferencia">Transferencia</option>
                             <option value="compensacion">Compensacion</option>
+                            <option value="digital">Digital</option>
                         </select>
+                    </div>
+                </div>
+                <div class="row" id="comprobanteGroup" style="display:none">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Comprobante (imagen o PDF) *</label>
+                        <input type="file" name="comprobante" id="comprobanteInput" class="form-control <?= isset($errors['comprobante']) ? 'is-invalid' : '' ?>" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf">
+                        <?php if (isset($errors['comprobante'])): ?><div class="invalid-feedback"><?= $errors['comprobante'] ?></div><?php endif; ?>
+                        <small class="text-muted">Formatos: JPG, PNG, PDF. Max 2MB</small>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary"><i class="bi bi-wallet2"></i> Depositar</button>
@@ -44,3 +53,22 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleComprobante() {
+    var medio = document.getElementById('medioPago').value;
+    var group = document.getElementById('comprobanteGroup');
+    var input = document.getElementById('comprobanteInput');
+    if (medio === 'transferencia' || medio === 'compensacion' || medio === 'digital') {
+        group.style.display = 'flex';
+        input.required = true;
+    } else {
+        group.style.display = 'none';
+        input.required = false;
+        input.value = '';
+    }
+}
+<?php if (in_array(($_POST['medio_pago'] ?? ''), ['transferencia', 'compensacion', 'digital'])): ?>
+document.addEventListener('DOMContentLoaded', toggleComprobante);
+<?php endif; ?>
+</script>

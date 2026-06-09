@@ -181,9 +181,21 @@ class InversionController extends BaseController {
             $idSocio = $_POST['id_socio'] ?? '';
             $monto = str_replace(',', '.', $_POST['monto'] ?? '0');
             $medioPago = $_POST['medio_pago'] ?? 'efectivo';
+            $requiereComprobante = in_array($medioPago, ['transferencia', 'compensacion', 'digital']);
 
             if (empty($idSocio)) $errors['id_socio'] = 'Seleccione un socio';
             if (!is_numeric($monto) || $monto <= 0) $errors['monto'] = 'Monto invalido';
+
+            if ($requiereComprobante) {
+                if (empty($_FILES['comprobante']) || $_FILES['comprobante']['error'] !== UPLOAD_ERR_OK) {
+                    $errors['comprobante'] = 'Debe adjuntar el comprobante (imagen o PDF)';
+                } else {
+                    $ext = strtolower(pathinfo($_FILES['comprobante']['name'], PATHINFO_EXTENSION));
+                    if (!in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'pdf'])) {
+                        $errors['comprobante'] = 'Formato no valido. Extensiones: JPG, PNG, PDF';
+                    }
+                }
+            }
 
             if (empty($errors)) {
                 $this->db->beginTransaction();
@@ -194,11 +206,18 @@ class InversionController extends BaseController {
                     }
                     $this->db->prepare("UPDATE capital_inversion SET saldo = saldo + ?, fecha_ultimo_movimiento = NOW() WHERE id_socio = ?")->execute([$monto, $idSocio]);
 
+                    $comprobantePdf = null;
+                    if ($requiereComprobante && !empty($_FILES['comprobante']['tmp_name'])) {
+                        $ext = strtolower(pathinfo($_FILES['comprobante']['name'], PATHINFO_EXTENSION));
+                        $comprobantePdf = 'comprobante_deposito_' . substr($idSocio, 0, 8) . '_' . date('Ymd_His') . '.' . $ext;
+                        move_uploaded_file($_FILES['comprobante']['tmp_name'], ROOT_PATH . '/storage/documentos/' . $comprobantePdf);
+                    }
+
                     $idSesion = $this->db->query("SELECT id_sesion FROM sesiones_mensuales WHERE estado = 'abierta' LIMIT 1")->fetchColumn();
                     $idCobro = UUIDGenerator::generar();
                     $hash = hash('sha256', $idSocio . $idCobro . 'deposito_capital_inversion' . $monto . date('Y-m-d H:i:s'));
-                    $this->db->prepare("INSERT INTO cobros (id_cobro, id_socio, id_sesion, tipo, monto, medio_pago, hash_integridad, usuario_registra) VALUES (?, ?, ?, 'deposito_capital_inversion', ?, ?, ?, ?)")
-                        ->execute([$idCobro, $idSocio, $idSesion ?: null, $monto, $medioPago, $hash, $_SESSION['usuario_id']]);
+                    $this->db->prepare("INSERT INTO cobros (id_cobro, id_socio, id_sesion, tipo, monto, medio_pago, comprobante_pdf, hash_integridad, usuario_registra) VALUES (?, ?, ?, 'deposito_capital_inversion', ?, ?, ?, ?, ?)")
+                        ->execute([$idCobro, $idSocio, $idSesion ?: null, $monto, $medioPago, $comprobantePdf, $hash, $_SESSION['usuario_id']]);
 
                     $this->historialInsert($idSocio, 'deposito_capital_inversion', $monto, $idCobro, $idSesion ?: null);
                     $this->db->commit();
