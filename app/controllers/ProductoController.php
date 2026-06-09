@@ -31,10 +31,10 @@ class ProductoController extends BaseController {
                     (id_producto, nombre, tipo, activo, tasa_interes_anual, metodo_interes,
                      plazo_min_meses, plazo_max_meses, monto_min, monto_max,
                      requiere_garante, penalidad_retiro_anticipado,
-                     condiciones_html, min_permanencia_meses, min_ahorro,
+                     condiciones_html, min_permanencia_meses, min_ahorro, min_ahorro_unidad,
                      es_emergente, monto_max_emergente, requiere_documento_firmado,
                      min_destino_caracteres, min_permanencia_valor, min_permanencia_unidad)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([
                     $id, $data['nombre'], $data['tipo'], $data['activo'],
                     $data['tasa_interes_anual'], $data['metodo_interes'],
@@ -42,8 +42,8 @@ class ProductoController extends BaseController {
                     $data['monto_min'], $data['monto_max'],
                     $data['requiere_garante'], $data['penalidad_retiro_anticipado'],
                     $data['condiciones_html'], $data['min_permanencia_meses'],
-                    $data['min_ahorro'], $data['es_emergente'],
-                    $data['monto_max_emergente'], $data['requiere_documento_firmado'],
+                    $data['min_ahorro'], $data['min_ahorro_unidad'],
+                    $data['es_emergente'], $data['monto_max_emergente'], $data['requiere_documento_firmado'],
                     $data['min_destino_caracteres'], $data['min_permanencia_valor'],
                     $data['min_permanencia_unidad'],
                 ]);
@@ -79,7 +79,7 @@ class ProductoController extends BaseController {
                     nombre = ?, tipo = ?, activo = ?, tasa_interes_anual = ?, metodo_interes = ?,
                     plazo_min_meses = ?, plazo_max_meses = ?, monto_min = ?, monto_max = ?,
                     requiere_garante = ?, penalidad_retiro_anticipado = ?,
-                    condiciones_html = ?, min_permanencia_meses = ?, min_ahorro = ?,
+                    condiciones_html = ?, min_permanencia_meses = ?, min_ahorro = ?, min_ahorro_unidad = ?,
                     es_emergente = ?, monto_max_emergente = ?, requiere_documento_firmado = ?,
                     min_destino_caracteres = ?, min_permanencia_valor = ?, min_permanencia_unidad = ?
                     WHERE id_producto = ?");
@@ -90,8 +90,8 @@ class ProductoController extends BaseController {
                     $data['monto_min'], $data['monto_max'],
                     $data['requiere_garante'], $data['penalidad_retiro_anticipado'],
                     $data['condiciones_html'], $data['min_permanencia_meses'],
-                    $data['min_ahorro'], $data['es_emergente'],
-                    $data['monto_max_emergente'], $data['requiere_documento_firmado'],
+                    $data['min_ahorro'], $data['min_ahorro_unidad'],
+                    $data['es_emergente'], $data['monto_max_emergente'], $data['requiere_documento_firmado'],
                     $data['min_destino_caracteres'], $data['min_permanencia_valor'],
                     $data['min_permanencia_unidad'],
                     $id,
@@ -128,7 +128,9 @@ class ProductoController extends BaseController {
         $minDestCar = !empty($post['usa_min_destino_caracteres']) ? intval($post['min_destino_caracteres'] ?? 0) : 0;
         $minPermVal = !empty($post['usa_min_permanencia']) ? intval($post['min_permanencia_valor'] ?? 0) : 0;
         $minPermUnidad = $post['min_permanencia_unidad'] ?? 'meses';
-        $minAhorro = !empty($post['usa_min_ahorro']) ? str_replace(',', '.', $post['min_ahorro'] ?? '0') : 0;
+        $usaAhorro = !empty($post['usa_min_ahorro']);
+        $minAhorro = $usaAhorro ? str_replace(',', '.', $post['min_ahorro'] ?? '0') : 0;
+        $minAhorroUnidad = $usaAhorro ? ($post['min_ahorro_unidad'] ?? 'dolares') : 'dolares';
 
         return [
             'nombre' => trim($post['nombre'] ?? ''),
@@ -145,6 +147,7 @@ class ProductoController extends BaseController {
             'condiciones_html' => $post['condiciones_html'] ?? '',
             'min_permanencia_meses' => $esCredito ? 0 : intval($post['min_permanencia_meses'] ?? 0),
             'min_ahorro' => $esCredito ? floatval($minAhorro) : str_replace(',', '.', $post['min_ahorro'] ?? '0'),
+            'min_ahorro_unidad' => $esCredito ? $minAhorroUnidad : 'dolares',
             'es_emergente' => $esCredito ? (!empty($post['es_emergente']) ? 1 : 0) : 0,
             'monto_max_emergente' => $esCredito ? str_replace(',', '.', $post['monto_max_emergente'] ?? '0') : 0,
             'requiere_documento_firmado' => $esCredito ? (!empty($post['requiere_documento_firmado']) ? 1 : 0) : 1,

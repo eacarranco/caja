@@ -292,9 +292,18 @@ class PortalController extends BaseController {
                 }
             }
             $ahorroReq = floatval($prod['min_ahorro'] ?? 0);
+            $ahorroReqUnidad = $prod['min_ahorro_unidad'] ?? 'dolares';
             $ahorroTotal = floatval($socio['saldo_obligatorio'] ?? 0) + floatval($socio['saldo_excedente'] ?? 0);
-            if ($ahorroReq > 0 && $ahorroTotal < $ahorroReq) {
-                $errors['elegibilidad'] = ($errors['elegibilidad'] ?? '') . " Requiere minimo $" . number_format($ahorroReq, 2) . " de ahorro (tiene $" . number_format($ahorroTotal, 2) . ")";
+            if ($ahorroReq > 0) {
+                $ahorroNecesario = $ahorroReq;
+                $labelAhorro = '$' . number_format($ahorroReq, 2);
+                if ($ahorroReqUnidad === 'porcentaje') {
+                    $ahorroNecesario = round($monto * $ahorroReq / 100, 2);
+                    $labelAhorro = $ahorroReq . '% del credito ($' . number_format($ahorroNecesario, 2) . ')';
+                }
+                if ($ahorroTotal < $ahorroNecesario) {
+                    $errors['elegibilidad'] = ($errors['elegibilidad'] ?? '') . " Requiere minimo " . $labelAhorro . " de ahorro (tiene $" . number_format($ahorroTotal, 2) . ")";
+                }
             }
 
             $stmt = $this->db->prepare("SELECT COUNT(*) FROM creditos WHERE id_socio = ? AND estado IN ('ingresado','pendiente','aprobado','legalizado')");

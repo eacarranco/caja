@@ -146,15 +146,18 @@
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <input type="checkbox" name="usa_min_ahorro" class="form-check-input mt-0" value="1" id="chkAhorro"
-                                           onchange="document.getElementById('ahorroInput').disabled=!this.checked"
+                                           onchange="document.getElementById('ahorroInput').disabled=!this.checked;document.getElementById('ahorroUnidad').disabled=!this.checked"
                                            <?= !empty($data['min_ahorro']) ? 'checked' : '' ?>>
                                 </div>
                                 <input type="number" step="0.01" min="0.01" name="min_ahorro" id="ahorroInput"
                                        class="form-control <?= isset($errors['min_ahorro']) ? 'is-invalid' : '' ?>"
                                        value="<?= htmlspecialchars($data['min_ahorro'] ?? '0') ?>"
-                                       placeholder="Monto"
+                                       placeholder="Valor"
                                        <?= empty($data['min_ahorro']) ? 'disabled' : '' ?>>
-                                <span class="input-group-text">Ahorro minimo $</span>
+                                <select name="min_ahorro_unidad" id="ahorroUnidad" class="form-select" style="max-width:130px" <?= empty($data['min_ahorro']) ? 'disabled' : '' ?>>
+                                    <option value="dolares" <?= ($data['min_ahorro_unidad'] ?? 'dolares') === 'dolares' ? 'selected' : '' ?>>Dolares</option>
+                                    <option value="porcentaje" <?= ($data['min_ahorro_unidad'] ?? 'dolares') === 'porcentaje' ? 'selected' : '' ?>>% del credito</option>
+                                </select>
                                 <div class="invalid-feedback"><?= $errors['min_ahorro'] ?? '' ?></div>
                             </div>
                         </div>

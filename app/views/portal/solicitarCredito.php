@@ -140,6 +140,7 @@
                                     data-condiciones="<?= htmlspecialchars($p['condiciones_html'] ?? '') ?>"
                                     data-min_permanencia="<?= intval($p['min_permanencia_meses'] ?? 0) ?>"
                                     data-min_ahorro="<?= floatval($p['min_ahorro'] ?? 0) ?>"
+                                    data-min_ahorro_unidad="<?= htmlspecialchars($p['min_ahorro_unidad'] ?? 'dolares') ?>"
                                     data-requiere_garante="<?= !empty($p['requiere_garante']) ? 1 : 0 ?>"
                                     data-destino_caracteres="<?= intval($p['min_destino_caracteres'] ?? 0) ?>"
                                     data-perm_valor="<?= intval($p['min_permanencia_valor'] ?? 0) ?>"
@@ -494,6 +495,7 @@
 
             var permanencia = parseInt(opt.dataset.min_permanencia);
             var ahorroReq = parseFloat(opt.dataset.min_ahorro);
+            var ahorroUnidad = opt.dataset.min_ahorro_unidad || 'dolares';
             var destCarMin = parseInt(opt.dataset.destino_caracteres);
             var permValor = parseInt(opt.dataset.perm_valor);
             var permUnidad = opt.dataset.perm_unidad || 'meses';
@@ -520,9 +522,18 @@
             }
             <?php $ahorroTotal = floatval($socio['saldo_obligatorio'] ?? 0) + floatval($socio['saldo_excedente'] ?? 0); ?>
             var ahorroTotal = <?= $ahorroTotal ?>;
-            if (ahorroReq > 0 && ahorroTotal < ahorroReq) {
-                elegible = false;
-                msgs.push('Requiere $' + ahorroReq.toFixed(2) + ' de ahorro (tiene $' + ahorroTotal.toFixed(2) + ')');
+            if (ahorroReq > 0) {
+                var ahorroNecesario = ahorroReq;
+                var labelAhorro = '$' + ahorroReq.toFixed(2);
+                if (ahorroUnidad === 'porcentaje') {
+                    var montoInv = parseFloat(document.getElementById('inpMonto').value) || 0;
+                    ahorroNecesario = Math.round(montoInv * ahorroReq / 100 * 100) / 100;
+                    labelAhorro = ahorroReq + '% del credito ($' + ahorroNecesario.toFixed(2) + ')';
+                }
+                if (ahorroTotal < ahorroNecesario) {
+                    elegible = false;
+                    msgs.push('Requiere minimo ' + labelAhorro + ' de ahorro (tiene $' + ahorroTotal.toFixed(2) + ')');
+                }
             }
             if (destCarMin > 0) {
                 var destInput = document.getElementById('destinoInput');
