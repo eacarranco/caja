@@ -137,6 +137,7 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-4">
+                            <label class="form-label">Descripcion destino</label>
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <input type="checkbox" name="usa_min_destino_caracteres" class="form-check-input mt-0" value="1" id="chkDestCar"
@@ -148,11 +149,12 @@
                                        value="<?= htmlspecialchars($data['min_destino_caracteres'] ?? '0') ?>"
                                        placeholder="Caracteres"
                                        <?= empty($data['min_destino_caracteres']) ? 'disabled' : '' ?>>
-                                <span class="input-group-text">caracteres descripcion destino</span>
+                                <span class="input-group-text">caracteres</span>
                                 <div class="invalid-feedback"><?= $errors['min_destino_caracteres'] ?? '' ?></div>
                             </div>
                         </div>
                         <div class="col-md-4">
+                            <label class="form-label">Permanencia minima</label>
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <input type="checkbox" name="usa_min_permanencia" class="form-check-input mt-0" value="1" id="chkPerm"
@@ -173,6 +175,7 @@
                             </div>
                         </div>
                         <div class="col-md-4">
+                            <label class="form-label">Ahorro minimo</label>
                             <div class="input-group">
                                 <div class="input-group-text">
                                     <input type="checkbox" name="usa_min_ahorro" class="form-check-input mt-0" value="1" id="chkAhorro"
