@@ -116,8 +116,10 @@ class PDFGenerator {
         $h .= '<tr><td><strong>Rendimiento proyectado:</strong></td><td>$ ' . number_format($data['rendimiento'], 2) . '</td></tr>';
         $h .= '<tr><td><strong>Fecha de inicio:</strong></td><td>' . $data['fecha_inicio'] . '</td></tr>';
         $h .= '<tr><td><strong>Fecha de vencimiento:</strong></td><td>' . $data['fecha_vencimiento'] . '</td></tr>';
+        $destinoLabel = ['capital_inversion' => 'Reinversion (capital de inversion)', 'efectivo' => 'Efectivo', 'transferencia' => 'Transferencia'];
+        $h .= '<tr><td><strong>Destino al vencimiento:</strong></td><td>' . ($destinoLabel[$data['destino'] ?? 'capital_inversion'] ?? $data['destino']) . '</td></tr>';
         $h .= '</table>';
-        $h .= '<p style="font-size:10pt;text-align:justify;margin-top:20px">El socio acepta los términos y condiciones establecidos en el reglamento interno de la institución.</p>';
+        $h .= '<p style="font-size:10pt;text-align:justify;margin-top:20px">El socio acepta los terminos y condiciones establecidos en el reglamento interno de la institucion.</p>';
         $h .= '<div class="firma"><table><tr>';
         $h .= '<td><div>_________________________________<br>Presidente</div></td>';
         $h .= '<td><div>_________________________________<br>Inversionista</div></td>';

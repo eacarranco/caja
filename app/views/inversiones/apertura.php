@@ -15,7 +15,7 @@
                         <select name="id_socio" class="form-select <?= isset($errors['id_socio']) ? 'is-invalid' : '' ?>" required>
                             <option value="">Seleccione...</option>
                             <?php foreach ($socios as $s): ?>
-                            <option value="<?= $s['id_socio'] ?>"><?= htmlspecialchars($s['cedula'] . ' — ' . $s['nombre']) ?></option>
+                            <option value="<?= $s['id_socio'] ?>"><?= htmlspecialchars($s['cedula'] . ' — ' . $s['nombre']) ?> (Cap. Inv.: $<?= number_format($s['capital_inversion'], 2) ?>)</option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -41,8 +41,16 @@
                         <label class="form-label">Rendimiento proyectado</label>
                         <input type="text" id="rendimientoDisplay" class="form-control" readonly>
                     </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Destino al vencimiento</label>
+                        <select name="destino_final" class="form-select">
+                            <option value="capital_inversion">Reinvertir (capital de inversion)</option>
+                            <option value="efectivo">Efectivo</option>
+                            <option value="transferencia">Transferencia</option>
+                        </select>
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary mt-3"><i class="bi bi-check-lg"></i> Registrar inversión</button>
+                <button type="submit" class="btn btn-primary mt-3"><i class="bi bi-check-lg"></i> Registrar inversion</button>
             </form>
         </div>
     </div>

@@ -153,6 +153,34 @@ INSERT INTO `cantones` VALUES (1,1,'Pedro Moncayo');
 UNLOCK TABLES;
 
 --
+-- Table structure for table `capital_inversion`
+--
+
+DROP TABLE IF EXISTS `capital_inversion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `capital_inversion` (
+  `id_capital_inversion` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador unico del registro de capital de inversion (UUID)',
+  `id_socio` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio',
+  `saldo` decimal(12,2) DEFAULT '0.00' COMMENT 'Saldo disponible para invertir',
+  `fecha_ultimo_movimiento` datetime DEFAULT NULL COMMENT 'Fecha del ultimo movimiento',
+  PRIMARY KEY (`id_capital_inversion`),
+  UNIQUE KEY `id_socio` (`id_socio`),
+  CONSTRAINT `capital_inversion_ibfk_1` FOREIGN KEY (`id_socio`) REFERENCES `socios` (`id_socio`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Capital de inversion del socio — independiente de la cuenta de ahorro';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `capital_inversion`
+--
+
+LOCK TABLES `capital_inversion` WRITE;
+/*!40000 ALTER TABLE `capital_inversion` DISABLE KEYS */;
+INSERT INTO `capital_inversion` VALUES ('26f9e5ff-0d41-470f-880e-13537981c7ab','c19ef60e-9f5b-4750-a6d2-afd8f8e9ea9a',0.00,NULL),('6b80fc2c-5101-4c7e-9590-d11f2291f7ea','32d4ffda-eec7-4299-885f-f320557da01e',0.00,NULL),('9b0d26e3-e951-4abb-b954-38baf9127bab','392cced6-d52b-464b-9829-51aa9ce12468',0.00,NULL),('a08f3ba6-ec4c-4537-b30e-2e015bcecc40','c26b7a29-755b-4665-8912-397c05d48a27',0.00,NULL),('b69e3e03-c419-41ba-890a-29cfe7f1521f','00e16557-e3cf-4738-8516-7f3fb6ddb96d',0.00,NULL),('e0c2adc3-686a-4832-b5db-e248ceff3389','caaf8155-4c10-4e84-aa7b-ba4183906421',0.00,NULL),('ea33dbee-6357-48f3-804f-7b2923696a97','5afb15ad-ced5-431b-9fc2-970cf4919433',0.00,NULL),('edd4f598-07ea-4bbb-8746-1f5abfba8e3f','9e52d148-927b-4784-b290-b8d9f9b1c35f',0.00,NULL);
+/*!40000 ALTER TABLE `capital_inversion` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `catastro_entidades_publicas`
 --
 
@@ -187,7 +215,7 @@ CREATE TABLE `cobros` (
   `id_cobro` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador único del cobro (UUID)',
   `id_socio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio que realiza el pago',
   `id_sesion` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK a la sesión mensual donde se registra el cobro',
-  `tipo` enum('aporte_obligatorio','aporte_excedente','cuota_credito','multa','inversion','interes','desembolso','otro') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tipo` enum('aporte_obligatorio','aporte_excedente','cuota_credito','multa','inversion','interes','desembolso','otro','deposito_capital_inversion') COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Tipo de cobro o transaccion',
   `id_referencia` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'ID de referencia según el tipo (id_amortización, id_multa, etc.)',
   `monto` decimal(12,2) NOT NULL COMMENT 'Monto cobrado',
   `medio_pago` enum('efectivo','transferencia','compensacion','digital') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -339,7 +367,7 @@ DROP TABLE IF EXISTS `historial_operaciones`;
 CREATE TABLE `historial_operaciones` (
   `id_operacion` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador único de la operación (UUID)',
   `id_socio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio asociado a la operación',
-  `tipo_operacion` enum('aporte_obligatorio','aporte_excedente','retiro_ahorro','desembolso_credito','pago_cuota','pago_multa','inversion_apertura','inversion_retiro','interes_ganado','interes_pagado','cierre_sesion','anulacion') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Tipo de operacion financiera',
+  `tipo_operacion` enum('aporte_obligatorio','aporte_excedente','retiro_ahorro','desembolso_credito','pago_cuota','pago_multa','inversion_apertura','inversion_retiro','interes_ganado','interes_pagado','cierre_sesion','anulacion','deposito_capital_inversion','retiro_capital_inversion') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Tipo de operacion financiera',
   `monto` decimal(12,2) NOT NULL COMMENT 'Monto de la operación',
   `saldo_anterior` decimal(12,2) DEFAULT NULL COMMENT 'Saldo anterior a la operación',
   `saldo_posterior` decimal(12,2) DEFAULT NULL COMMENT 'Saldo posterior a la operación',
@@ -391,6 +419,7 @@ CREATE TABLE `inversiones` (
   `rendimiento_proyectado` decimal(12,2) DEFAULT NULL COMMENT 'Rendimiento proyectado al vencimiento',
   `estado` enum('activa','vencida','retiro_anticipado','cancelada') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'activa' COMMENT 'Estado actual de la inversión',
   `notificado_devolucion` tinyint(1) DEFAULT '0' COMMENT 'Indica si se notificó la próxima devolución',
+  `destino_final` enum('capital_inversion','efectivo','transferencia') COLLATE utf8mb4_unicode_ci DEFAULT 'capital_inversion' COMMENT 'Destino al vencimiento: reinversion, efectivo o transferencia',
   `contrato_pdf` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF del contrato de inversión',
   `fecha_registro` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de registro de la inversión',
   PRIMARY KEY (`id_inversion`),
@@ -408,7 +437,7 @@ CREATE TABLE `inversiones` (
 
 LOCK TABLES `inversiones` WRITE;
 /*!40000 ALTER TABLE `inversiones` DISABLE KEYS */;
-INSERT INTO `inversiones` VALUES ('349ad017-3d29-444e-830e-10df42bc6664','392cced6-d52b-464b-9829-51aa9ce12468','802ad839-cfec-46aa-869f-9910912ea142',500.00,12,7.00,'2026-06-06','2027-06-06',35.00,'retiro_anticipado',0,NULL,'2026-06-06 23:42:19');
+INSERT INTO `inversiones` VALUES ('349ad017-3d29-444e-830e-10df42bc6664','392cced6-d52b-464b-9829-51aa9ce12468','802ad839-cfec-46aa-869f-9910912ea142',500.00,12,7.00,'2026-06-06','2027-06-06',35.00,'retiro_anticipado',0,'capital_inversion',NULL,'2026-06-06 23:42:19');
 /*!40000 ALTER TABLE `inversiones` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -868,7 +897,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES ('1673019a-c66d-4bb8-9158-1729fa6b064a','Gavino','Carranco','1002003000','gavinocg@gmail.com','0996755645','gcarranco','$2y$12$QkuzAcoAFQ7C9f5GMMeGS.1smyFeCvsvJeESlsmkB00oBEfzlLYjO',1,0,0,NULL,0,'2026-06-06 16:38:03','2026-06-07 13:28:45'),('516363c5-c79a-4491-83b4-b8303ce1f286','Tesorero','Caja','1003560438','gcarranco@hotmail.com','','tesorero','$2y$12$/gRI9LwajMIzc8e/NYxO6.hCsUvfbH3c.yxuEKpkpRT7AXoL2ojxe',1,0,0,NULL,0,'2026-06-06 18:23:36','2026-06-06 20:44:40'),('6600ae1d-e99d-4986-b337-0741de09df84','CARLOS MANUEL','VARGAS CRUZ','1766677788','carlos.vargas@email.com','','1766677788','$2y$12$wx0/HsCyDTfUlKWE8twT/uRPv2o/MEOWXbadf9piFa6So5g39Trie',1,0,0,NULL,0,'2026-06-06 19:35:51','2026-06-06 19:44:55'),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291','Admin','Sistema','1002606083','admin@caja.test','0999999999','admin','$2y$12$IP4hst3.3yCimzqw/bO8JOYscRjkeQADlesFcttSetTnxNCRY.N8G',1,0,0,NULL,0,'2026-06-06 14:16:51','2026-06-07 13:41:52');
+INSERT INTO `usuarios` VALUES ('1673019a-c66d-4bb8-9158-1729fa6b064a','Gavino','Carranco','1002003000','gavinocg@gmail.com','0996755645','gcarranco','$2y$12$QkuzAcoAFQ7C9f5GMMeGS.1smyFeCvsvJeESlsmkB00oBEfzlLYjO',1,0,0,NULL,0,'2026-06-06 16:38:03','2026-06-09 14:36:29'),('516363c5-c79a-4491-83b4-b8303ce1f286','Tesorero','Caja','1003560438','gcarranco@hotmail.com','','tesorero','$2y$12$/gRI9LwajMIzc8e/NYxO6.hCsUvfbH3c.yxuEKpkpRT7AXoL2ojxe',1,0,0,NULL,0,'2026-06-06 18:23:36','2026-06-09 14:38:40'),('6600ae1d-e99d-4986-b337-0741de09df84','CARLOS MANUEL','VARGAS CRUZ','1766677788','carlos.vargas@email.com','','1766677788','$2y$12$wx0/HsCyDTfUlKWE8twT/uRPv2o/MEOWXbadf9piFa6So5g39Trie',1,0,0,NULL,0,'2026-06-06 19:35:51','2026-06-06 19:44:55'),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291','Admin','Sistema','1002606083','admin@caja.test','0999999999','admin','$2y$12$IP4hst3.3yCimzqw/bO8JOYscRjkeQADlesFcttSetTnxNCRY.N8G',1,0,0,NULL,0,'2026-06-06 14:16:51','2026-06-09 14:37:35');
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -889,4 +918,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-09 11:09:29
+-- Dump completed on 2026-06-09 14:57:52

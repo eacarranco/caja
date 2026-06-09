@@ -14,17 +14,9 @@ class PortalController extends BaseController {
             $this->render('portal/index', [
                 'titulo' => 'Inicio',
                 'socio' => null,
-                'creditos' => [],
-                'inversiones' => [],
-                'cobros' => [],
                 'cuenta' => null,
-                'pendientes' => [
-                    'aporte_obligatorio_mensual' => 0,
-                    'aporte_obligatorio' => 0,
-                    'aporte_excedente' => 0,
-                    'multas' => 0,
-                    'cuotas_credito' => 0,
-                ],
+                'capital_inversion' => 0,
+                'valores_pagar' => 0,
             ]);
             return;
         }
@@ -34,21 +26,9 @@ class PortalController extends BaseController {
         $stmt->execute([$idSocio]);
         $cuenta = $stmt->fetch();
 
-        $stmt = $this->db->prepare("SELECT c.*, p.nombre AS producto FROM creditos c JOIN productos_financieros p ON c.id_producto = p.id_producto WHERE c.id_socio = ? ORDER BY c.fecha_solicitud DESC");
+        $stmt = $this->db->prepare("SELECT COALESCE(saldo, 0) FROM capital_inversion WHERE id_socio = ?");
         $stmt->execute([$idSocio]);
-        $creditos = $stmt->fetchAll();
-
-        $stmt = $this->db->prepare("SELECT i.*, p.nombre AS producto FROM inversiones i JOIN productos_financieros p ON i.id_producto = p.id_producto WHERE i.id_socio = ? ORDER BY i.fecha_registro DESC");
-        $stmt->execute([$idSocio]);
-        $inversiones = $stmt->fetchAll();
-
-        $stmt = $this->db->prepare("SELECT c.*, ses.numero_sesion FROM cobros c LEFT JOIN sesiones_mensuales ses ON c.id_sesion = ses.id_sesion WHERE c.id_socio = ? AND c.anulado = FALSE ORDER BY c.fecha_registro DESC LIMIT 10");
-        $stmt->execute([$idSocio]);
-        $cobros = $stmt->fetchAll();
-
-        $stmt = $this->db->prepare("SELECT saldo_obligatorio, saldo_excedente FROM cuentas_ahorro WHERE id_socio = ?");
-        $stmt->execute([$idSocio]);
-        $cuentaRes = $stmt->fetch();
+        $saldoCapitalInversion = floatval($stmt->fetchColumn());
 
         $stmt = $this->db->prepare("SELECT IFNULL(SUM(monto), 0) AS multas FROM multas WHERE id_socio = ? AND pagada = FALSE");
         $stmt->execute([$idSocio]);
@@ -58,26 +38,16 @@ class PortalController extends BaseController {
         $stmt->execute([$idSocio]);
         $creditosRes = $stmt->fetch();
 
-        $aporteObligatorioMensual = floatval($cuentaRes['saldo_obligatorio'] ?? 0)
+        $valoresPagar = floatval($cuenta['saldo_obligatorio'] ?? 0)
             + floatval($multasRes['multas'] ?? 0)
             + floatval($creditosRes['cuotas_credito'] ?? 0);
-
-        $pendientes = [
-            'aporte_obligatorio' => $cuentaRes['saldo_obligatorio'] ?? 0,
-            'aporte_obligatorio_mensual' => $aporteObligatorioMensual,
-            'aporte_excedente' => $cuentaRes['saldo_excedente'] ?? 0,
-            'multas' => $multasRes['multas'] ?? 0,
-            'cuotas_credito' => $creditosRes['cuotas_credito'] ?? 0,
-        ];
 
         $this->render('portal/index', [
             'titulo' => 'Inicio',
             'socio' => $socio,
-            'creditos' => $creditos,
-            'inversiones' => $inversiones,
-            'cobros' => $cobros,
             'cuenta' => $cuenta,
-            'pendientes' => $pendientes,
+            'capital_inversion' => $saldoCapitalInversion,
+            'valores_pagar' => $valoresPagar,
         ]);
     }
 
@@ -434,7 +404,29 @@ class PortalController extends BaseController {
     }
 
     public function inversion() {
-        $this->redirect('/portal');
+        $this->requireAuth();
+        $cedula = $_SESSION['usuario_cedula'] ?? '';
+        $stmt = $this->db->prepare("SELECT id_socio FROM socios WHERE cedula = ?");
+        $stmt->execute([$cedula]);
+        $idSocio = $stmt->fetchColumn();
+        if (!$idSocio) $this->redirect('/portal');
+
+        $capital = $this->db->prepare("SELECT * FROM capital_inversion WHERE id_socio = ?");
+        $capital->execute([$idSocio]);
+        $capitalRow = $capital->fetch();
+
+        $stmt = $this->db->prepare("SELECT i.*, p.nombre AS producto FROM inversiones i JOIN productos_financieros p ON i.id_producto = p.id_producto WHERE i.id_socio = ? ORDER BY i.fecha_registro DESC");
+        $stmt->execute([$idSocio]);
+        $inversiones = $stmt->fetchAll();
+
+        $productos = $this->db->query("SELECT id_producto, nombre, tasa_interes_anual, plazo_min_meses, plazo_max_meses, monto_min, monto_max FROM productos_financieros WHERE tipo = 'inversion' AND activo = TRUE ORDER BY nombre")->fetchAll();
+
+        $this->render('portal/inversion', [
+            'titulo' => 'Inversion',
+            'capital' => $capitalRow,
+            'inversiones' => $inversiones,
+            'productos' => $productos,
+        ]);
     }
 
     public function simularCredito() {
@@ -460,6 +452,34 @@ class PortalController extends BaseController {
         } catch (Exception $e) {
             $this->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function detalleCapitalInversion() {
+        $this->requireAuth();
+        $cedula = $_SESSION['usuario_cedula'] ?? '';
+        $stmt = $this->db->prepare("SELECT id_socio FROM socios WHERE cedula = ?");
+        $stmt->execute([$cedula]);
+        $idSocio = $stmt->fetchColumn();
+        if (!$idSocio) $this->redirect('/portal');
+
+        $capital = $this->db->prepare("SELECT * FROM capital_inversion WHERE id_socio = ?");
+        $capital->execute([$idSocio]);
+        $capitalRow = $capital->fetch();
+
+        $inv = $this->db->prepare("SELECT i.*, p.nombre AS producto FROM inversiones i JOIN productos_financieros p ON i.id_producto = p.id_producto WHERE i.id_socio = ? ORDER BY i.fecha_registro DESC");
+        $inv->execute([$idSocio]);
+        $inversiones = $inv->fetchAll();
+
+        $historial = $this->db->prepare("SELECT * FROM historial_operaciones WHERE id_socio = ? AND (tipo_operacion = 'deposito_capital_inversion' OR tipo_operacion = 'inversion_apertura' OR tipo_operacion = 'inversion_retiro') ORDER BY fecha_registro DESC");
+        $historial->execute([$idSocio]);
+        $movimientos = $historial->fetchAll();
+
+        $this->render('portal/detalleCapitalInversion', [
+            'titulo' => 'Capital de inversion',
+            'capital' => $capitalRow,
+            'inversiones' => $inversiones,
+            'movimientos' => $movimientos,
+        ]);
     }
 
     public function password() {

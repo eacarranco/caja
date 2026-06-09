@@ -1,8 +1,11 @@
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4>Inversiones</h4>
-        <a href="<?= BASE_URL ?>/inversion/apertura" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Nueva inversión</a>
-        <button class="btn btn-outline-warning" onclick="cerrarVencidas()"><i class="bi bi-clock"></i> Cerrar vencidas</button>
+        <div class="d-flex gap-2">
+            <a href="<?= BASE_URL ?>/inversion/depositar" class="btn btn-success"><i class="bi bi-wallet2"></i> Depositar</a>
+            <a href="<?= BASE_URL ?>/inversion/apertura" class="btn btn-primary"><i class="bi bi-plus-circle"></i> Nueva inversion</a>
+            <button class="btn btn-outline-warning" onclick="cerrarVencidas()"><i class="bi bi-clock"></i> Cerrar vencidas</button>
+        </div>
     </div>
 
     <div class="card card-dashboard">

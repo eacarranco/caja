@@ -51,6 +51,36 @@ class NotificacionHelper {
         ]);
     }
 
+    public static function crearInversion($idSocio, $socioNombre, $monto, $accion) {
+        return self::crear([
+            'id_socio' => $idSocio,
+            'tipo' => 'inversion',
+            'titulo' => "Inversion $accion",
+            'mensaje' => "Inversion de $$monto para $socioNombre ha sido $accion",
+            'enviar_pusher' => true,
+        ]);
+    }
+
+    public static function crearDepositoCapital($idSocio, $socioNombre, $monto) {
+        return self::crear([
+            'id_socio' => $idSocio,
+            'tipo' => 'inversion',
+            'titulo' => 'Deposito a capital de inversion',
+            'mensaje' => "Deposito de $$monto a capital de inversion de $socioNombre",
+            'enviar_pusher' => true,
+        ]);
+    }
+
+    public static function crearRetornoInversion($idSocio, $socioNombre, $monto, $destino) {
+        return self::crear([
+            'id_socio' => $idSocio,
+            'tipo' => 'inversion',
+            'titulo' => 'Retorno de inversion',
+            'mensaje' => "Inversion de $socioNombre por $$monto ha vencido. Destino: $destino",
+            'enviar_pusher' => true,
+        ]);
+    }
+
     private static function enviarPusher($data) {
         if (defined('PUSHER_APP_KEY') && PUSHER_APP_KEY) {
             try {
