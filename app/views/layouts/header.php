@@ -154,6 +154,7 @@
                 <ul class="menu">
                     <li class="sidebar-title">Menu</li>
                     <?php
+                    global $currentUrl;
                     $currentUrl = $_GET['url'] ?? '';
                     function mazerActive($prefix) {
                         global $currentUrl;
