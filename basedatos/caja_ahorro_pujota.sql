@@ -121,7 +121,6 @@ CREATE TABLE `asistencias` (
 
 LOCK TABLES `asistencias` WRITE;
 /*!40000 ALTER TABLE `asistencias` DISABLE KEYS */;
-INSERT INTO `asistencias` VALUES ('35d2d010-cfc7-4427-834f-cb13437c91fc','392cced6-d52b-464b-9829-51aa9ce12468','9f6023ac-399d-4ecd-8bdf-3abd9409675d','retraso_30min',NULL,NULL,0,'516363c5-c79a-4491-83b4-b8303ce1f286','2026-06-09 15:27:12');
 /*!40000 ALTER TABLE `asistencias` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -176,7 +175,7 @@ CREATE TABLE `capital_inversion` (
 
 LOCK TABLES `capital_inversion` WRITE;
 /*!40000 ALTER TABLE `capital_inversion` DISABLE KEYS */;
-INSERT INTO `capital_inversion` VALUES ('26f9e5ff-0d41-470f-880e-13537981c7ab','c19ef60e-9f5b-4750-a6d2-afd8f8e9ea9a',0.00,NULL),('6b80fc2c-5101-4c7e-9590-d11f2291f7ea','32d4ffda-eec7-4299-885f-f320557da01e',0.00,NULL),('9b0d26e3-e951-4abb-b954-38baf9127bab','392cced6-d52b-464b-9829-51aa9ce12468',2000.00,'2026-06-09 15:19:32'),('a08f3ba6-ec4c-4537-b30e-2e015bcecc40','c26b7a29-755b-4665-8912-397c05d48a27',0.00,NULL),('b69e3e03-c419-41ba-890a-29cfe7f1521f','00e16557-e3cf-4738-8516-7f3fb6ddb96d',0.00,NULL),('e0c2adc3-686a-4832-b5db-e248ceff3389','caaf8155-4c10-4e84-aa7b-ba4183906421',0.00,NULL),('ea33dbee-6357-48f3-804f-7b2923696a97','5afb15ad-ced5-431b-9fc2-970cf4919433',0.00,NULL),('edd4f598-07ea-4bbb-8746-1f5abfba8e3f','9e52d148-927b-4784-b290-b8d9f9b1c35f',0.00,NULL);
+INSERT INTO `capital_inversion` VALUES ('26f9e5ff-0d41-470f-880e-13537981c7ab','c19ef60e-9f5b-4750-a6d2-afd8f8e9ea9a',0.00,NULL),('6b80fc2c-5101-4c7e-9590-d11f2291f7ea','32d4ffda-eec7-4299-885f-f320557da01e',0.00,NULL),('9b0d26e3-e951-4abb-b954-38baf9127bab','392cced6-d52b-464b-9829-51aa9ce12468',0.00,NULL),('a08f3ba6-ec4c-4537-b30e-2e015bcecc40','c26b7a29-755b-4665-8912-397c05d48a27',0.00,NULL),('b69e3e03-c419-41ba-890a-29cfe7f1521f','00e16557-e3cf-4738-8516-7f3fb6ddb96d',0.00,NULL),('e0c2adc3-686a-4832-b5db-e248ceff3389','caaf8155-4c10-4e84-aa7b-ba4183906421',0.00,NULL),('ea33dbee-6357-48f3-804f-7b2923696a97','5afb15ad-ced5-431b-9fc2-970cf4919433',0.00,NULL),('edd4f598-07ea-4bbb-8746-1f5abfba8e3f','9e52d148-927b-4784-b290-b8d9f9b1c35f',0.00,NULL);
 /*!40000 ALTER TABLE `capital_inversion` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -245,7 +244,6 @@ CREATE TABLE `cobros` (
 
 LOCK TABLES `cobros` WRITE;
 /*!40000 ALTER TABLE `cobros` DISABLE KEYS */;
-INSERT INTO `cobros` VALUES ('329543ee-79ca-4c0b-b226-e154cc59a632','392cced6-d52b-464b-9829-51aa9ce12468',NULL,'deposito_capital_inversion',NULL,2000.00,'efectivo',NULL,'e34136ae12d3e25ee739b9657fb719c66158d8e99d6183ad6aaff285ab7a1d96','516363c5-c79a-4491-83b4-b8303ce1f286',1,'Error de buena fe.','2026-06-09 15:57:50','516363c5-c79a-4491-83b4-b8303ce1f286','2026-06-09 15:19:32');
 /*!40000 ALTER TABLE `cobros` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -396,7 +394,6 @@ CREATE TABLE `historial_operaciones` (
 
 LOCK TABLES `historial_operaciones` WRITE;
 /*!40000 ALTER TABLE `historial_operaciones` DISABLE KEYS */;
-INSERT INTO `historial_operaciones` VALUES ('2fef842a-3ab3-476b-bb3d-389f191d8d60','392cced6-d52b-464b-9829-51aa9ce12468','deposito_capital_inversion',2000.00,NULL,NULL,'329543ee-79ca-4c0b-b226-e154cc59a632',NULL,'516363c5-c79a-4491-83b4-b8303ce1f286',NULL,NULL,'::1','2026-06-09 15:19:32'),('729ab2d9-ca01-46be-9182-ab07ccd30852','392cced6-d52b-464b-9829-51aa9ce12468','anulacion',2000.00,NULL,NULL,'329543ee-79ca-4c0b-b226-e154cc59a632',NULL,'516363c5-c79a-4491-83b4-b8303ce1f286',NULL,NULL,'::1','2026-06-09 15:57:50');
 /*!40000 ALTER TABLE `historial_operaciones` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -513,7 +510,6 @@ CREATE TABLE `notificaciones` (
 
 LOCK TABLES `notificaciones` WRITE;
 /*!40000 ALTER TABLE `notificaciones` DISABLE KEYS */;
-INSERT INTO `notificaciones` VALUES ('a1d80b68-64fc-4ad5-a14e-807efab0ca25',NULL,'392cced6-d52b-464b-9829-51aa9ce12468','inversion','Deposito a capital de inversion','Deposito de $2000 a capital de inversion de CARRANCO GONZALEZ GAVINO ALEXANDER',1,1,'2026-06-09 15:19:32','2026-06-09 15:20:07');
 /*!40000 ALTER TABLE `notificaciones` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -613,7 +609,7 @@ CREATE TABLE `productos_financieros` (
 
 LOCK TABLES `productos_financieros` WRITE;
 /*!40000 ALTER TABLE `productos_financieros` DISABLE KEYS */;
-INSERT INTO `productos_financieros` VALUES ('802ad839-cfec-46aa-869f-9910912ea142','Inversión 12 Meses','inversion',7.00,'simple',12,12,100.00,10000.00,0,10.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,1),('900f2e04-b730-4bbf-9d83-d9c79ea6849e','Crédito Ordinario','credito',6.00,'simple',1,12,50.00,1500.00,1,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,1),('97daba5b-f71d-49aa-a826-b7f01c81fac1','Crédito Agrícola','credito',5.00,'frances',3,24,100.00,5000.00,1,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,1),('b53305e5-5102-49c0-9176-d164d3e98c58','Inversión 120 días','inversion',6.00,'simple',3,3,50.00,5000.00,0,5.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,1),('c5f8ab97-9808-4919-9e05-b6f89f473538','Crédito Emergente','credito',6.00,'simple',1,6,10.00,300.00,0,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,1);
+INSERT INTO `productos_financieros` VALUES ('802ad839-cfec-46aa-869f-9910912ea142','Inversión 12 Meses','inversion',7.00,'simple',12,12,100.00,10000.00,0,10.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,1),('900f2e04-b730-4bbf-9d83-d9c79ea6849e','Crédito Ordinario','credito',6.00,'simple',1,12,50.00,1500.00,1,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,1),('97daba5b-f71d-49aa-a826-b7f01c81fac1','Crédito Agrícola','credito',5.00,'frances',3,24,100.00,5000.00,1,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,1),('b53305e5-5102-49c0-9176-d164d3e98c58','Inversión 120 días','inversion',6.00,'simple',3,3,50.00,5000.00,0,5.00,1,'2026-06-06 14:16:51',NULL,0,0.00,0,0.00,1),('c5f8ab97-9808-4919-9e05-b6f89f473538','Crédito Emergente','credito',6.00,'simple',1,6,10.00,300.00,0,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,1,0.00,1);
 /*!40000 ALTER TABLE `productos_financieros` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -755,7 +751,6 @@ CREATE TABLE `sesiones_mensuales` (
 
 LOCK TABLES `sesiones_mensuales` WRITE;
 /*!40000 ALTER TABLE `sesiones_mensuales` DISABLE KEYS */;
-INSERT INTO `sesiones_mensuales` VALUES ('9f6023ac-399d-4ecd-8bdf-3abd9409675d',1,'2026-05-30','Sesión Ordinaria Mayo 2026','abierta','2026-06-09 15:26:33',NULL,NULL,NULL,0.00,0.00,0.00);
 /*!40000 ALTER TABLE `sesiones_mensuales` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -894,7 +889,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES ('1673019a-c66d-4bb8-9158-1729fa6b064a','Gavino','Carranco','1002003000','gavinocg@gmail.com','0996755645','gcarranco','$2y$12$QkuzAcoAFQ7C9f5GMMeGS.1smyFeCvsvJeESlsmkB00oBEfzlLYjO',1,0,0,NULL,0,'2026-06-06 16:38:03','2026-06-09 14:36:29'),('516363c5-c79a-4491-83b4-b8303ce1f286','Tesorero','Caja','1003560438','gcarranco@hotmail.com','','tesorero','$2y$12$/gRI9LwajMIzc8e/NYxO6.hCsUvfbH3c.yxuEKpkpRT7AXoL2ojxe',1,0,0,NULL,0,'2026-06-06 18:23:36','2026-06-09 15:17:51'),('6600ae1d-e99d-4986-b337-0741de09df84','CARLOS MANUEL','VARGAS CRUZ','1766677788','carlos.vargas@email.com','','1766677788','$2y$12$wx0/HsCyDTfUlKWE8twT/uRPv2o/MEOWXbadf9piFa6So5g39Trie',1,0,0,NULL,0,'2026-06-06 19:35:51','2026-06-06 19:44:55'),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291','Admin','Sistema','1002606083','admin@caja.test','0999999999','admin','$2y$12$IP4hst3.3yCimzqw/bO8JOYscRjkeQADlesFcttSetTnxNCRY.N8G',1,0,0,NULL,0,'2026-06-06 14:16:51','2026-06-09 14:37:35');
+INSERT INTO `usuarios` VALUES ('1673019a-c66d-4bb8-9158-1729fa6b064a','Gavino','Carranco','1002003000','gavinocg@gmail.com','0996755645','gcarranco','$2y$12$QkuzAcoAFQ7C9f5GMMeGS.1smyFeCvsvJeESlsmkB00oBEfzlLYjO',1,0,0,NULL,0,'2026-06-06 16:38:03','2026-06-09 14:36:29'),('516363c5-c79a-4491-83b4-b8303ce1f286','Tesorero','Caja','1003560438','gcarranco@hotmail.com','','tesorero','$2y$12$/gRI9LwajMIzc8e/NYxO6.hCsUvfbH3c.yxuEKpkpRT7AXoL2ojxe',1,0,0,NULL,0,'2026-06-06 18:23:36','2026-06-09 15:17:51'),('6600ae1d-e99d-4986-b337-0741de09df84','CARLOS MANUEL','VARGAS CRUZ','1766677788','carlos.vargas@email.com','','1766677788','$2y$12$wx0/HsCyDTfUlKWE8twT/uRPv2o/MEOWXbadf9piFa6So5g39Trie',1,0,0,NULL,0,'2026-06-06 19:35:51','2026-06-06 19:44:55'),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291','Admin','Sistema','1002606083','admin@caja.test','0999999999','admin','$2y$12$IP4hst3.3yCimzqw/bO8JOYscRjkeQADlesFcttSetTnxNCRY.N8G',1,0,0,NULL,0,'2026-06-06 14:16:51','2026-06-09 16:04:24');
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -915,4 +910,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-09 16:00:42
+-- Dump completed on 2026-06-09 16:06:05
