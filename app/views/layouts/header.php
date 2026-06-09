@@ -135,9 +135,7 @@
                             <li class="submenu-item <?= mazerActiveP('portal/solicitarCredito') ?>">
                                 <a href="<?= $baseUrl ?>/portal/solicitarCredito" class="submenu-link">Crédito</a>
                             </li>
-                            <li class="submenu-item <?= mazerActiveP('portal/solicitarCertificado') ?>">
-                                <a href="<?= $baseUrl ?>/portal/solicitarCertificado" class="submenu-link">Certificado</a>
-                            </li>
+
                             <li class="submenu-item <?= mazerActiveP('portal/solicitarRetiro') ?>">
                                 <a href="<?= $baseUrl ?>/portal/solicitarRetiro" class="submenu-link">Retiro</a>
                             </li>
@@ -257,6 +255,12 @@
                         <a href="<?= $baseUrl ?>/reporte/listar" class="sidebar-link">
                             <i class="bi bi-file-earmark-bar-graph-fill"></i>
                             <span>Reportes</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item <?= mazerActive('reporte/certificados') ?>">
+                        <a href="<?= $baseUrl ?>/reporte/certificados" class="sidebar-link">
+                            <i class="bi bi-file-earmark-check-fill"></i>
+                            <span>Certificados</span>
                         </a>
                     </li>
                     <?php endif; ?>

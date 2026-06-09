@@ -86,6 +86,7 @@ $routeMap = [
     'reporte/morosidad' => ['controller' => 'ReporteController', 'method' => 'morosidad'],
     'reporte/cobros' => ['controller' => 'ReporteController', 'method' => 'cobros'],
     'reporte/historialOperaciones' => ['controller' => 'ReporteController', 'method' => 'historialOperaciones'],
+    'reporte/certificados' => ['controller' => 'ReporteController', 'method' => 'certificados'],
     'credito' => ['controller' => 'CreditoController', 'method' => 'listar'],
     'credito/solicitar' => ['controller' => 'CreditoController', 'method' => 'solicitar'],
     'credito/ver' => ['controller' => 'CreditoController', 'method' => 'ver'],
@@ -112,7 +113,7 @@ $routeMap = [
     'portal/pagar' => ['controller' => 'PortalController', 'method' => 'pagar'],
     'portal/solicitarCredito' => ['controller' => 'PortalController', 'method' => 'solicitarCredito'],
     'portal/simularCredito' => ['controller' => 'PortalController', 'method' => 'simularCredito'],
-    'portal/solicitarCertificado' => ['controller' => 'PortalController', 'method' => 'solicitarCertificado'],
+
     'portal/inversion' => ['controller' => 'PortalController', 'method' => 'inversion'],
     'portal/detalleCapitalInversion' => ['controller' => 'PortalController', 'method' => 'detalleCapitalInversion'],
     'portal/detalleAhorro' => ['controller' => 'PortalController', 'method' => 'detalleAhorro'],

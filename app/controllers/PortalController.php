@@ -331,27 +331,6 @@ class PortalController extends BaseController {
         ]);
     }
 
-    public function solicitarCertificado() {
-        $this->requireAuth();
-        $cedula = $_SESSION['usuario_cedula'] ?? '';
-        $stmt = $this->db->prepare("SELECT id_socio FROM socios WHERE cedula = ?");
-        $stmt->execute([$cedula]);
-        $socio = $stmt->fetch();
-        if (!$socio) $this->redirect('/portal');
-
-        $idSocio = $socio['id_socio'];
-
-        $stmt = $this->db->prepare("SELECT CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) AS nombre FROM socios WHERE id_socio = ?");
-        $stmt->execute([$idSocio]);
-        $socioData = $stmt->fetch();
-
-        $this->render('portal/certificaciones', [
-            'titulo' => 'Certificaciones',
-            'id_socio' => $idSocio,
-            'socio_nombre' => $socioData['nombre'] ?? '',
-        ]);
-    }
-
     public function detalleAhorro() {
         $this->requireAuth();
         $cedula = $_SESSION['usuario_cedula'] ?? '';

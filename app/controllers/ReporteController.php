@@ -140,4 +140,43 @@ class ReporteController extends BaseController {
         fclose($output);
         exit;
     }
+
+    public function certificados() {
+        $this->requireAuth();
+        $errors = [];
+        $socio = null;
+        $socios = $this->db->query("SELECT id_socio, cedula, CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) AS nombre FROM socios ORDER BY apellido1, nombre1")->fetchAll();
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $idSocio = $_POST['id_socio'] ?? '';
+            $accion = $_POST['accion'] ?? '';
+
+            if (empty($idSocio)) $errors['id_socio'] = 'Seleccione un socio';
+
+            if (empty($errors)) {
+                $destinos = [
+                    'estado_cuenta' => BASE_URL . '/documento/estadoCuenta/' . $idSocio,
+                    'constancia' => BASE_URL . '/documento/constanciaSocio/' . $idSocio,
+                    'libre_deuda' => BASE_URL . '/documento/libreDeuda/' . $idSocio,
+                ];
+                if (isset($destinos[$accion])) {
+                    header('Location: ' . $destinos[$accion]);
+                    exit;
+                }
+            }
+
+            if (!empty($idSocio)) {
+                $st = $this->db->prepare("SELECT CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) AS nombre FROM socios WHERE id_socio = ?");
+                $st->execute([$idSocio]);
+                $socio = $st->fetch();
+            }
+        }
+
+        $this->render('reportes/certificados', [
+            'titulo' => 'Certificados',
+            'socios' => $socios,
+            'errors' => $errors,
+            'socioSel' => $socio,
+        ]);
+    }
 }
