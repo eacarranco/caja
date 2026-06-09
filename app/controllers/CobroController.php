@@ -107,10 +107,28 @@ class CobroController extends BaseController {
             $this->validateCSRF();
             $stmt = $this->db->prepare("UPDATE cobros SET anulado = TRUE, motivo_anulacion = ?, fecha_anulacion = NOW(), usuario_anula = ? WHERE id_cobro = ? AND anulado = FALSE");
             $stmt->execute([$_POST['motivo'] ?? '', $_SESSION['usuario_id'], $id]);
-            $cobro = $this->db->prepare("SELECT id_socio, monto, tipo, id_sesion FROM cobros WHERE id_cobro = ?");
+            $cobro = $this->db->prepare("SELECT id_socio, monto, tipo, id_sesion, id_referencia FROM cobros WHERE id_cobro = ?");
             $cobro->execute([$id]); $c = $cobro->fetch();
             if ($c) {
-                $this->historialInsert($c['id_socio'], 'anulacion', $c['monto'], $id, $c['id_sesion']);
+                if ($c['tipo'] === 'deposito_capital_inversion') {
+                    $this->db->prepare("UPDATE capital_inversion SET saldo = saldo - ?, fecha_ultimo_movimiento = NOW() WHERE id_socio = ?")->execute([$c['monto'], $c['id_socio']]);
+                    $this->historialInsert($c['id_socio'], 'anulacion', $c['monto'], $id, $c['id_sesion']);
+                } elseif ($c['tipo'] === 'inversion' && !empty($c['id_referencia'])) {
+                    $inv = $this->db->prepare("SELECT estado, destino_final FROM inversiones WHERE id_inversion = ?");
+                    $inv->execute([$c['id_referencia']]);
+                    $i = $inv->fetch();
+                    $tipoHist = 'anulacion';
+                    if ($i && $i['estado'] === 'activa') {
+                        $this->db->prepare("UPDATE inversiones SET estado = 'cancelada' WHERE id_inversion = ?")->execute([$c['id_referencia']]);
+                        if ($i['destino_final'] === 'capital_inversion') {
+                            $this->db->prepare("UPDATE capital_inversion SET saldo = saldo + ?, fecha_ultimo_movimiento = NOW() WHERE id_socio = ?")->execute([$c['monto'], $c['id_socio']]);
+                        }
+                        $tipoHist = 'anulacion_inversion';
+                    }
+                    $this->historialInsert($c['id_socio'], $tipoHist, $c['monto'], $c['id_referencia'], $c['id_sesion']);
+                } else {
+                    $this->historialInsert($c['id_socio'], 'anulacion', $c['monto'], $id, $c['id_sesion']);
+                }
             }
             $this->json(['mensaje' => 'Cobro anulado']);
         }
