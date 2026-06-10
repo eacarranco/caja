@@ -112,9 +112,12 @@ class CobroController extends BaseController {
             $cobro = $this->db->prepare("SELECT id_socio, monto, tipo, id_sesion, id_referencia FROM cobros WHERE id_cobro = ?");
             $cobro->execute([$id]); $c = $cobro->fetch();
             if ($c) {
+                $motivo = $_POST['motivo'] ?? 'Sin motivo';
+
                 if ($c['tipo'] === 'deposito_capital_inversion') {
                     $this->db->prepare("UPDATE capital_inversion SET saldo = saldo - ?, fecha_ultimo_movimiento = NOW() WHERE id_socio = ?")->execute([$c['monto'], $c['id_socio']]);
                     $this->historialInsert($c['id_socio'], 'anulacion', $c['monto'], $id, $c['id_sesion']);
+
                 } elseif ($c['tipo'] === 'inversion' && !empty($c['id_referencia'])) {
                     $inv = $this->db->prepare("SELECT estado, destino_final FROM inversiones WHERE id_inversion = ?");
                     $inv->execute([$c['id_referencia']]);
@@ -128,12 +131,58 @@ class CobroController extends BaseController {
                         $tipoHist = 'anulacion_inversion';
                     }
                     $this->historialInsert($c['id_socio'], $tipoHist, $c['monto'], $c['id_referencia'], $c['id_sesion']);
+
+                } elseif ($c['tipo'] === 'aporte_obligatorio') {
+                    $this->db->prepare("UPDATE cuentas_ahorro SET saldo_obligatorio = GREATEST(saldo_obligatorio - ?, 0), saldo_disponible = GREATEST(saldo_disponible - ?, 0), fecha_ultimo_movimiento = NOW() WHERE id_socio = ?")->execute([$c['monto'], $c['monto'], $c['id_socio']]);
+                    $this->historialInsert($c['id_socio'], 'anulacion', $c['monto'], $id, $c['id_sesion']);
+
+                } elseif ($c['tipo'] === 'aporte_excedente') {
+                    $this->db->prepare("UPDATE cuentas_ahorro SET saldo_excedente = GREATEST(saldo_excedente - ?, 0), saldo_disponible = GREATEST(saldo_disponible - ?, 0), fecha_ultimo_movimiento = NOW() WHERE id_socio = ?")->execute([$c['monto'], $c['monto'], $c['id_socio']]);
+                    $this->historialInsert($c['id_socio'], 'anulacion', $c['monto'], $id, $c['id_sesion']);
+
+                } elseif ($c['tipo'] === 'cuota_credito' && !empty($c['id_referencia'])) {
+                    $amort = $this->db->prepare("SELECT estado FROM amortizaciones WHERE id_amortizacion = ?");
+                    $amort->execute([$c['id_referencia']]);
+                    if ($amort->fetchColumn() === 'pagada') {
+                        $this->db->prepare("UPDATE amortizaciones SET estado = 'pendiente', id_cobro = NULL WHERE id_amortizacion = ?")->execute([$c['id_referencia']]);
+                    }
+                    $this->historialInsert($c['id_socio'], 'anulacion', $c['monto'], $id, $c['id_sesion']);
+
+                } elseif ($c['tipo'] === 'multa' && !empty($c['id_referencia'])) {
+                    $this->db->prepare("UPDATE multas SET pagada = FALSE WHERE id_multa = ?")->execute([$c['id_referencia']]);
+                    $this->historialInsert($c['id_socio'], 'anulacion', $c['monto'], $id, $c['id_sesion']);
+
                 } else {
                     $this->historialInsert($c['id_socio'], 'anulacion', $c['monto'], $id, $c['id_sesion']);
                 }
+
+                // Notificacion portal + Pusher
+                try {
+                    $stSoc = $this->db->prepare("SELECT CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) AS nombre, correo_electronico FROM socios WHERE id_socio = ?");
+                    $stSoc->execute([$c['id_socio']]);
+                    $socData = $stSoc->fetch();
+                    $nombreSocio = $socData['nombre'] ?? 'Socio';
+                    $correoSocio = $socData['correo_electronico'] ?? '';
+
+                    NotificacionHelper::crear([
+                        'id_socio' => $c['id_socio'],
+                        'tipo' => 'anulacion',
+                        'titulo' => 'Cobro anulado',
+                        'mensaje' => "Se ha anulado un cobro de $$c[monto] ($c[tipo]). Motivo: $motivo",
+                        'enviar_pusher' => true,
+                    ]);
+
+                    if ($correoSocio) {
+                        require_once ROOT_PATH . '/app/helpers/EmailHelper.php';
+                        EmailHelper::enviarNotificacion($correoSocio, $nombreSocio, 'Cobro anulado', "Se ha anulado un cobro por \$$c[monto]. Motivo: $motivo");
+                    }
+                } catch (Exception $e) {
+                    error_log("Error notificacion anulacion: " . $e->getMessage());
+                }
+
                 try { PusherHelper::actualizarPortal($c['id_socio']); } catch (Exception $e) {}
             }
-            $this->json(['mensaje' => 'Cobro anulado']);
+            $this->json(['mensaje' => 'Cobro anulado. Se ha notificado al socio.']);
         }
     }
 

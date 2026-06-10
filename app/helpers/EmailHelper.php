@@ -65,4 +65,49 @@ class EmailHelper {
             <div class="footer"><p>' . APP_NAME . ' - Este es un correo automático</p></div>
         </div></body></html>';
     }
+
+    public static function enviarNotificacion($email, $nombre, $asunto, $mensajeTexto) {
+        $config = self::getConfig();
+        $mailer = new PHPMailer(true);
+        try {
+            $mailer->isSMTP();
+            $mailer->Host = $config['smtp']['host'];
+            $mailer->SMTPAuth = true;
+            $mailer->Username = $config['smtp']['username'];
+            $mailer->Password = $config['smtp']['password'];
+            $mailer->SMTPSecure = $config['smtp']['encryption'];
+            $mailer->Port = $config['smtp']['port'];
+            $mailer->CharSet = 'UTF-8';
+            $mailer->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true]];
+
+            $mailer->setFrom($config['smtp']['from_email'], $config['smtp']['from_name']);
+            $mailer->addAddress($email, $nombre);
+
+            $mailer->isHTML(true);
+            $mailer->Subject = $asunto . ' - ' . APP_NAME;
+            $body = '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><style>
+                body{font-family:Arial,sans-serif;line-height:1.6;color:#333;margin:0;padding:0}
+                .container{max-width:600px;margin:20px auto;padding:20px}
+                .header{background:#c0392b;color:#fff;padding:20px;text-align:center;border-radius:8px 8px 0 0}
+                .content{padding:30px;background:#f8f9fa;border:1px solid #ddd}
+                .footer{text-align:center;padding:15px;color:#999;font-size:11px}
+            </style></head><body>
+            <div class="container">
+                <div class="header"><h2>' . APP_NAME . '</h2></div>
+                <div class="content">
+                    <h3>Hola ' . htmlspecialchars($nombre) . ',</h3>
+                    <p>' . nl2br(htmlspecialchars($mensajeTexto)) . '</p>
+                </div>
+                <div class="footer"><p>' . APP_NAME . ' - Este es un correo automático</p></div>
+            </div></body></html>';
+            $mailer->Body = $body;
+            $mailer->AltBody = strip_tags($mensajeTexto);
+
+            $mailer->send();
+            return true;
+        } catch (Exception $e) {
+            error_log("Email notificacion error: " . $e->getMessage());
+            return false;
+        }
+    }
 }
