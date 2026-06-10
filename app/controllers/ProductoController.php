@@ -8,11 +8,24 @@ class ProductoController extends BaseController {
         $this->requirePermission('param.financiero');
         $stmt = $this->db->query("SELECT * FROM productos_financieros ORDER BY tipo, nombre");
         $productos = $stmt->fetchAll();
+
+        // Check dependencies for each product
+        $dependencias = [];
+        foreach ($productos as $p) {
+            $id = $p['id_producto'];
+            $creditos = $this->db->prepare("SELECT COUNT(*) FROM creditos WHERE id_producto = ?");
+            $creditos->execute([$id]);
+            $inversiones = $this->db->prepare("SELECT COUNT(*) FROM inversiones WHERE id_producto = ?");
+            $inversiones->execute([$id]);
+            $dependencias[$id] = ($creditos->fetchColumn() + $inversiones->fetchColumn()) > 0;
+        }
+
         $this->render('productos/listar', [
             'titulo' => 'Productos financieros',
             'productos' => $productos,
             'tipos' => $this->tipos,
             'metodos' => $this->metodos,
+            'dependencias' => $dependencias,
         ]);
     }
 
@@ -108,6 +121,27 @@ class ProductoController extends BaseController {
             'tipos' => $this->tipos,
             'metodos' => $this->metodos,
         ]);
+    }
+
+    public function eliminar($id) {
+        $this->requirePermission('producto.editar');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') $this->json(['error' => 'Metodo no permitido'], 405);
+        $this->validateCSRF();
+
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM creditos WHERE id_producto = ?");
+        $stmt->execute([$id]);
+        $creditos = $stmt->fetchColumn();
+
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM inversiones WHERE id_producto = ?");
+        $stmt->execute([$id]);
+        $inversiones = $stmt->fetchColumn();
+
+        if ($creditos > 0 || $inversiones > 0) {
+            $this->json(['error' => 'No se puede eliminar: tiene ' . $creditos . ' credito(s) y ' . $inversiones . ' inversion(es) asociados. Solo puede desactivarlo.'], 400);
+        }
+
+        $this->db->prepare("DELETE FROM productos_financieros WHERE id_producto = ?")->execute([$id]);
+        $this->json(['mensaje' => 'Producto eliminado']);
     }
 
     public function toggleEstado($id) {

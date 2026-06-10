@@ -38,6 +38,11 @@
                         </td>
                         <td>
                             <a href="<?= BASE_URL ?>/producto/editar/<?= $p['id_producto'] ?>" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            <?php if (empty($dependencias[$p['id_producto']])): ?>
+                            <a href="#" onclick="eliminar('<?= $p['id_producto'] ?>', '<?= htmlspecialchars($p['nombre'], ENT_QUOTES) ?>')" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            <?php endif; ?>
                             <a href="#" onclick="toggleEstado('<?= $p['id_producto'] ?>')" class="btn btn-sm btn-outline-<?= $p['activo'] ? 'warning' : 'success' ?>"
                                title="<?= $p['activo'] ? 'Desactivar' : 'Activar' ?>">
                                <i class="bi bi-<?= $p['activo'] ? 'pause-circle' : 'play-circle' ?>"></i>
@@ -55,6 +60,17 @@
 function toggleEstado(id) {
     if (!confirm('¿Cambiar estado de este producto?')) return;
     fetch('<?= BASE_URL ?>/producto/toggleEstado/' + id, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'csrf_token=<?= CSRFMiddleware::generarToken() ?>'
+    }).then(function(r) { return r.json(); }).then(function(d) {
+        if (d.error) { alert(d.error); } else { location.reload(); }
+    });
+}
+
+function eliminar(id, nombre) {
+    if (!confirm('¿Eliminar el producto "' + nombre + '"? Esta accion no se puede deshacer.')) return;
+    fetch('<?= BASE_URL ?>/producto/eliminar/' + id, {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: 'csrf_token=<?= CSRFMiddleware::generarToken() ?>'
