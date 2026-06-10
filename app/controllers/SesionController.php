@@ -424,8 +424,10 @@ class SesionController extends BaseController {
                                             WHERE a.id_sesion = ?");
         $asistencias->execute([$idSesion]);
 
-        $insertMulta = $this->db->prepare("INSERT IGNORE INTO multas (id_multa, id_socio, id_sesion, tipo, monto) VALUES (?, ?, ?, ?, ?)");
+        $upsertMulta = $this->db->prepare("INSERT INTO multas (id_multa, id_socio, id_sesion, tipo, monto) VALUES (?, ?, ?, ?, ?)
+            ON DUPLICATE KEY UPDATE monto = VALUES(monto)");
         $insertOblig = $this->db->prepare("INSERT IGNORE INTO obligaciones_sesion (id_obligacion, id_sesion, id_socio, tipo, concepto, monto, id_referencia) VALUES (?, ?, ?, 'multa', ?, ?, ?)");
+        $updateOblig = $this->db->prepare("UPDATE obligaciones_sesion SET monto = ? WHERE id_referencia = ? AND tipo = 'multa' AND pagada = FALSE");
         $generadas = [];
 
         foreach ($asistencias as $a) {
@@ -439,12 +441,22 @@ class SesionController extends BaseController {
             }
             if ($monto > 0) {
                 $idMulta = UUIDGenerator::generar();
-                $insertMulta->execute([$idMulta, $a['id_socio'], $idSesion, $tipo, $monto]);
-                if ($insertMulta->rowCount() > 0) {
+                $upsertMulta->execute([$idMulta, $a['id_socio'], $idSesion, $tipo, $monto]);
+
+                if ($upsertMulta->rowCount() == 1) {
+                    // Nueva multa insertada
                     $concepto = "Multa por " . str_replace('_', ' ', ucfirst($tipo)) . " - Sesion #{$sesion['numero_sesion']} del " . date('d/m/Y', strtotime($sesion['fecha_sesion']));
                     $insertOblig->execute([UUIDGenerator::generar(), $idSesion, $a['id_socio'], $concepto, $monto, $idMulta]);
-                    $generadas[] = ['id_socio' => $a['id_socio'], 'tipo' => $tipo, 'monto' => $monto];
+                } else {
+                    // Multa existente actualizada -> buscar id_multa real y actualizar obligacion
+                    $realId = $this->db->prepare("SELECT id_multa FROM multas WHERE id_socio = ? AND id_sesion = ? AND tipo = ?");
+                    $realId->execute([$a['id_socio'], $idSesion, $tipo]);
+                    $idMultaReal = $realId->fetchColumn();
+                    if ($idMultaReal) {
+                        $updateOblig->execute([$monto, $idMultaReal]);
+                    }
                 }
+                $generadas[] = ['id_socio' => $a['id_socio'], 'tipo' => $tipo, 'monto' => $monto];
             }
         }
         return $generadas;
