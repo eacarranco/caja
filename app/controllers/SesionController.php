@@ -375,11 +375,11 @@ class SesionController extends BaseController {
             if ($monto > 0) {
                 $idMulta = UUIDGenerator::generar();
                 $insertMulta->execute([$idMulta, $a['id_socio'], $idSesion, $tipo, $monto]);
-
-                $concepto = "Multa por " . str_replace('_', ' ', ucfirst($tipo)) . " - Sesion #{$sesion['numero_sesion']} del " . date('d/m/Y', strtotime($sesion['fecha_sesion']));
-                $insertOblig->execute([UUIDGenerator::generar(), $idSesion, $a['id_socio'], $concepto, $monto, $idMulta]);
-
-                $generadas[] = ['id_socio' => $a['id_socio'], 'tipo' => $tipo, 'monto' => $monto];
+                if ($insertMulta->rowCount() > 0) {
+                    $concepto = "Multa por " . str_replace('_', ' ', ucfirst($tipo)) . " - Sesion #{$sesion['numero_sesion']} del " . date('d/m/Y', strtotime($sesion['fecha_sesion']));
+                    $insertOblig->execute([UUIDGenerator::generar(), $idSesion, $a['id_socio'], $concepto, $monto, $idMulta]);
+                    $generadas[] = ['id_socio' => $a['id_socio'], 'tipo' => $tipo, 'monto' => $monto];
+                }
             }
         }
         return $generadas;
