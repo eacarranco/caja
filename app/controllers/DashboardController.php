@@ -17,7 +17,7 @@ class DashboardController extends BaseController {
                                    ORDER BY c.fecha_registro DESC LIMIT 5");
         $ultimosCobros = $stmt->fetchAll();
 
-        $stmt2 = $this->db->query("SELECT id_sesion, numero_sesion, fecha, estado FROM sesiones_mensuales ORDER BY fecha DESC LIMIT 3");
+        $stmt2 = $this->db->query("SELECT id_sesion, numero_sesion, fecha_sesion, estado FROM sesiones_mensuales ORDER BY fecha_sesion DESC LIMIT 3");
         $ultimasSesiones = $stmt2->fetchAll();
 
         $permisos = RBAC::obtenerPermisosUsuario($_SESSION['usuario_id']);

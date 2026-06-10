@@ -69,7 +69,7 @@
                         <?php foreach ($ultimasSesiones as $s): ?>
                         <tr>
                             <td>#<?= $s['numero_sesion'] ?></td>
-                            <td><?= $s['fecha'] ?></td>
+                            <td><?= $s['fecha_sesion'] ?></td>
                             <td><span class="badge <?= $s['estado'] === 'abierta' ? 'bg-success' : 'bg-secondary' ?>"><?= ucfirst($s['estado']) ?></span></td>
                         </tr>
                         <?php endforeach; ?>
