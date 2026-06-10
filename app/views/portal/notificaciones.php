@@ -1,6 +1,6 @@
 <div class="container-fluid">
     <h4>Notificaciones</h4>
-    <a href="<?= BASE_URL ?>/portal" class="btn btn-outline-secondary btn-sm mb-3"><i class="bi bi-arrow-left"></i> Volver</a>
+
     <?php if (empty($notificaciones)): ?>
     <div class="alert alert-info">Sin notificaciones</div>
     <?php else: ?>

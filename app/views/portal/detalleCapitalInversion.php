@@ -1,8 +1,5 @@
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Capital de Inversion</h4>
-        <a href="<?= BASE_URL ?>/portal" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
-    </div>
+    <h4>Capital de Inversion</h4>
 
     <div class="row g-3 mb-4">
         <div class="col-md-4">

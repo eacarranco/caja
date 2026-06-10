@@ -31,7 +31,5 @@
         </div>
     </div>
 
-    <div class="text-center mt-4">
-        <a href="<?= BASE_URL ?>/portal" class="btn btn-outline-primary"><i class="bi bi-arrow-left"></i> Volver a Inicio</a>
-    </div>
+
 </div>

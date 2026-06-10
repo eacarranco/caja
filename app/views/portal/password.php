@@ -1,6 +1,5 @@
 <div class="container-fluid">
     <h4>Cambiar contrasena</h4>
-    <a href="<?= BASE_URL ?>/portal" class="btn btn-outline-secondary btn-sm mb-3"><i class="bi bi-arrow-left"></i> Volver</a>
     <?php if (!empty($exito)): ?><div class="alert alert-success"><?= $exito ?></div><?php endif; ?>
     <?php if (!empty($errors)): ?><div class="alert alert-danger"><?= implode('<br>', $errors) ?></div><?php endif; ?>
     <form method="POST" class="row g-3" style="max-width:400px">

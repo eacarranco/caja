@@ -1,6 +1,6 @@
 <div class="container-fluid">
     <h4>Solicitar retiro de ahorro</h4>
-    <a href="<?= BASE_URL ?>/portal" class="btn btn-sm btn-outline-secondary mb-3"><i class="bi bi-arrow-left"></i> Volver al portal</a>
+
 
     <div class="row g-3">
         <div class="col-md-6">

@@ -1,8 +1,5 @@
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Inversion</h4>
-        <a href="<?= BASE_URL ?>/portal" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
-    </div>
+    <h4>Inversion</h4>
 
     <?php if (isset($_GET['ok'])): ?>
     <div class="alert alert-success alert-dismissible fade show">Inversion creada exitosamente.<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>

@@ -1,8 +1,5 @@
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Estado de cuenta - Capital Ahorro</h4>
-        <a href="<?= BASE_URL ?>/portal" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
-    </div>
+    <h4>Estado de cuenta - Capital Ahorro</h4>
 
     <div class="row g-3 mb-3">
         <div class="col-md-6">

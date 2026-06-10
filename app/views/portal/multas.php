@@ -1,6 +1,6 @@
 <div class="container-fluid">
     <h4>Mis multas</h4>
-    <a href="<?= BASE_URL ?>/portal" class="btn btn-sm btn-outline-secondary mb-3"><i class="bi bi-arrow-left"></i> Volver al portal</a>
+
 
     <?php if (empty($multas)): ?>
     <div class="card card-dashboard"><div class="card-body text-muted">Sin multas registradas</div></div>

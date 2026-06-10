@@ -1,8 +1,5 @@
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4>Solicitar crédito</h4>
-        <a href="<?= BASE_URL ?>/portal" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
-    </div>
+    <h4>Solicitar crédito</h4>
 
     <?php if (!empty($errors['general'])): ?>
     <div class="alert alert-danger alert-dismissible fade show"><i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($errors['general']) ?><button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
