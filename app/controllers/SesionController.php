@@ -6,6 +6,7 @@ class SesionController extends BaseController {
 
     public function listar() {
         $this->requirePermission('cobro.aporte');
+        $abierta = $this->db->query("SELECT id_sesion FROM sesiones_mensuales WHERE estado = 'abierta' LIMIT 1")->fetchColumn();
         $stmt = $this->db->query("SELECT s.*, u.nombres AS usuario_cierre_nombre
                                    FROM sesiones_mensuales s
                                    LEFT JOIN usuarios u ON s.usuario_cierre = u.id_usuario
@@ -14,7 +15,16 @@ class SesionController extends BaseController {
         $this->render('sesiones/listar', [
             'titulo' => 'Sesiones mensuales',
             'sesiones' => $sesiones,
+            'hayAbierta' => !empty($abierta),
         ]);
+    }
+
+    public function reaperturar($id) {
+        $this->requirePermission('cobro.cierre_sesion');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') $this->redirect('/sesion/listar');
+        $this->validateCSRF();
+        $this->db->prepare("UPDATE sesiones_mensuales SET estado = 'abierta', fecha_cierre = NULL, usuario_cierre = NULL WHERE id_sesion = ? AND estado = 'cerrada'")->execute([$id]);
+        $this->redirect('/sesion/checkin/' . $id);
     }
 
     public function abrir() {

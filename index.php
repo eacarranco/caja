@@ -70,6 +70,7 @@ $routeMap = [
     'producto/eliminar' => ['controller' => 'ProductoController', 'method' => 'eliminar'],
     'sesion' => ['controller' => 'SesionController', 'method' => 'listar'],
     'sesion/abrir' => ['controller' => 'SesionController', 'method' => 'abrir'],
+    'sesion/reaperturar' => ['controller' => 'SesionController', 'method' => 'reaperturar'],
     'sesion/checkin' => ['controller' => 'SesionController', 'method' => 'checkin'],
     'cobro' => ['controller' => 'CobroController', 'method' => 'listar'],
     'cobro/registrar' => ['controller' => 'CobroController', 'method' => 'registrar'],
