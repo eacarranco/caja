@@ -228,9 +228,13 @@ class SesionController extends BaseController {
             if ($accion === 'asistencia') {
                 $idSocio = $_POST['id_socio'] ?? '';
                 $tipo = $_POST['tipo'] ?? 'falta';
-                $stmt = $this->db->prepare("SELECT COUNT(*) FROM asistencias WHERE id_socio = ? AND id_sesion = ?");
+                $stmt = $this->db->prepare("SELECT COUNT(*), MAX(tipo) FROM asistencias WHERE id_socio = ? AND id_sesion = ?");
                 $stmt->execute([$idSocio, $id]);
-                if ($stmt->fetchColumn() > 0) {
+                $row = $stmt->fetch();
+                $existe = $row[0] > 0;
+                $oldTipo = $existe ? $row[1] : null;
+
+                if ($existe) {
                     $stmt = $this->db->prepare("UPDATE asistencias SET tipo = ?, usuario_registra = ? WHERE id_socio = ? AND id_sesion = ?");
                     $stmt->execute([$tipo, $_SESSION['usuario_id'], $idSocio, $id]);
                 } else {
@@ -238,15 +242,22 @@ class SesionController extends BaseController {
                     $stmt->execute([UUIDGenerator::generar(), $idSocio, $id, $tipo, $_SESSION['usuario_id']]);
                 }
 
-                // Si la asistencia es a tiempo, eliminar multa existente por este concepto
+                // Eliminar multa del tipo anterior si existia
+                $tiposMultaAnterior = [];
+                if ($oldTipo === 'retraso_10min') $tiposMultaAnterior[] = 'retraso_10min';
+                elseif ($oldTipo === 'retraso_30min') $tiposMultaAnterior[] = 'retraso_30min';
+                elseif ($oldTipo === 'falta') $tiposMultaAnterior[] = 'inasistencia';
+
                 if ($tipo === 'a_tiempo') {
-                    $tiposMulta = ['retraso_10min', 'retraso_30min', 'inasistencia'];
-                    foreach ($tiposMulta as $tm) {
-                        $this->db->prepare("DELETE FROM obligaciones_sesion WHERE id_sesion = ? AND id_socio = ? AND tipo = 'multa' AND id_referencia IN (SELECT id_multa FROM multas WHERE id_socio = ? AND id_sesion = ? AND tipo = ?)")
-                            ->execute([$id, $idSocio, $idSocio, $id, $tm]);
-                        $this->db->prepare("DELETE FROM multas WHERE id_socio = ? AND id_sesion = ? AND tipo = ?")
-                            ->execute([$idSocio, $id, $tm]);
-                    }
+                    // Si cambia a a_tiempo, eliminar cualquier multa existente
+                    $tiposMultaAnterior = ['retraso_10min', 'retraso_30min', 'inasistencia'];
+                }
+
+                foreach ($tiposMultaAnterior as $tm) {
+                    $this->db->prepare("DELETE FROM obligaciones_sesion WHERE id_sesion = ? AND id_socio = ? AND tipo = 'multa' AND id_referencia IN (SELECT id_multa FROM multas WHERE id_socio = ? AND id_sesion = ? AND tipo = ?)")
+                        ->execute([$id, $idSocio, $idSocio, $id, $tm]);
+                    $this->db->prepare("DELETE FROM multas WHERE id_socio = ? AND id_sesion = ? AND tipo = ?")
+                        ->execute([$idSocio, $id, $tm]);
                 }
 
                 $this->redirect('/sesion/checkin/' . $id);
