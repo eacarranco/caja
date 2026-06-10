@@ -186,21 +186,38 @@ class MultaController extends BaseController {
                 $archivo = $nombre;
             }
 
-            $this->db->prepare("UPDATE multas SET justificacion = ?, justificacion_pdf = COALESCE(?, justificacion_pdf), impugnada = TRUE WHERE id_multa = ?")
-                ->execute([$texto, $archivo, $id]);
-
+            $this->db->beginTransaction();
             try {
-                require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php';
-                NotificacionHelper::crear([
-                    'id_socio' => $multa['id_socio'],
-                    'tipo' => 'multa',
-                    'titulo' => 'Multa impugnada',
-                    'mensaje' => 'Su multa ha sido registrada como impugnada y queda sin efecto.',
-                    'enviar_pusher' => true,
-                ]);
-            } catch (Exception $e) {}
+                $this->db->prepare("UPDATE multas SET justificacion = ?, justificacion_pdf = COALESCE(?, justificacion_pdf), impugnada = TRUE WHERE id_multa = ?")
+                    ->execute([$texto, $archivo, $id]);
 
-            $this->json(['mensaje' => 'Multa impugnada correctamente']);
+                // Marcar la obligacion como pagada (para que no cuente en valores pendientes)
+                $this->db->prepare("UPDATE obligaciones_sesion SET pagada = TRUE WHERE id_referencia = ? AND tipo = 'multa' AND pagada = FALSE")
+                    ->execute([$id]);
+
+                $this->db->commit();
+
+                try {
+                    require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php';
+                    NotificacionHelper::crear([
+                        'id_socio' => $multa['id_socio'],
+                        'tipo' => 'multa',
+                        'titulo' => 'Multa impugnada',
+                        'mensaje' => 'Su multa ha sido registrada como impugnada y queda sin efecto.',
+                        'enviar_pusher' => true,
+                    ]);
+                } catch (Exception $e) {}
+
+                try {
+                    require_once ROOT_PATH . '/app/helpers/PusherHelper.php';
+                    PusherHelper::actualizarPortal($multa['id_socio']);
+                } catch (Exception $e) {}
+
+                $this->json(['mensaje' => 'Multa impugnada correctamente']);
+            } catch (Exception $e) {
+                $this->db->rollBack();
+                $this->json(['error' => $e->getMessage()], 500);
+            }
         }
     }
 
