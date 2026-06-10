@@ -58,7 +58,7 @@ class AsistenciaController extends BaseController {
         $whereClause = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
         $stmt = $this->db->prepare("SELECT a.*, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS socio,
-                                     s.cedula, ses.numero_sesion, ses.fecha AS fecha_sesion
+                                     s.cedula, ses.numero_sesion, ses.fecha_sesion
                                      FROM asistencias a
                                      JOIN socios s ON a.id_socio = s.id_socio
                                      JOIN sesiones_mensuales ses ON a.id_sesion = ses.id_sesion
