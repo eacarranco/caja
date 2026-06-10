@@ -58,15 +58,10 @@
             <?php endif; ?>
             <?php endif; ?>
 
-            <?php if (!$multa['pagada']): ?>
+            <?php if (!$multa['pagada'] && !$multa['impugnada']): ?>
             <hr>
-            <?php if (!$multa['impugnada']): ?>
             <button type="button" class="btn btn-sm btn-warning" onclick="impugnarMulta('<?= $multa['id_multa'] ?>')"><i class="bi bi-shield-exclamation"></i> Impugnar</button>
-            <?php endif; ?>
-            <form method="POST" action="<?= BASE_URL ?>/multa/marcarPagada/<?= $multa['id_multa'] ?>" class="d-inline" onsubmit="return confirm('Marcar como pagada?')">
-                <input type="hidden" name="csrf_token" value="<?= CSRFMiddleware::generarToken() ?>">
-                <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-cash-coin"></i> Marcar pagada</button>
-            </form>
+            <span class="text-muted ms-2 small">El pago debe realizarse a traves de una sesion abierta.</span>
             <?php if ($esPresidente): ?>
             <a href="#" onclick="eliminarMulta('<?= $multa['id_multa'] ?>')" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Eliminar (Presidente)</a>
             <?php endif; ?>
