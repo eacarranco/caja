@@ -86,25 +86,32 @@
                                         <div class="small text-muted"><?= htmlspecialchars($n['mensaje']) ?></div>
                                     </div>
                                 </div>
-                                <div class="ms-3 d-flex align-items-start gap-1" style="min-width:80px">
-                                    <?php if ($buzonActual === 'entrada'): ?>
-                                        <?php if (!$n['leida']): ?>
-                                        <a href="#" onclick="marcarLeida('<?= $n['id_notificacion'] ?>')" class="btn btn-sm btn-outline-success" title="Marcar como leida"><i class="bi bi-check-lg"></i></a>
-                                        <?php else: ?>
-                                        <a href="#" onclick="marcarNoLeida('<?= $n['id_notificacion'] ?>')" class="btn btn-sm btn-outline-secondary" title="Marcar como no leida"><i class="bi bi-envelope"></i></a>
-                                        <a href="#" onclick="archivar('<?= $n['id_notificacion'] ?>')" class="btn btn-sm btn-outline-info" title="Archivar"><i class="bi bi-archive"></i></a>
-                                        <a href="#" onclick="eliminarNotif('<?= $n['id_notificacion'] ?>')" class="btn btn-sm btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></a>
-                                        <?php endif; ?>
-                                    <?php elseif ($buzonActual === 'archivadas'): ?>
-                                        <a href="#" onclick="restaurar('<?= $n['id_notificacion'] ?>')" class="btn btn-sm btn-outline-primary" title="Mover a entrada"><i class="bi bi-inbox"></i></a>
-                                        <a href="#" onclick="eliminarNotif('<?= $n['id_notificacion'] ?>')" class="btn btn-sm btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></a>
-                                    <?php elseif ($buzonActual === 'papelera'): ?>
-                                        <a href="#" onclick="restaurar('<?= $n['id_notificacion'] ?>')" class="btn btn-sm btn-outline-primary" title="Restaurar"><i class="bi bi-inbox"></i></a>
-                                        <a href="#" onclick="destruir('<?= $n['id_notificacion'] ?>')" class="btn btn-sm btn-outline-danger" title="Eliminar definitivamente"><i class="bi bi-trash-fill"></i></a>
-                                        <?php if ($n['fecha_eliminacion']): ?>
-                                        <small class="text-muted" style="font-size:10px"><?= $retencionDias ?> dias</small>
-                                        <?php endif; ?>
-                                    <?php endif; ?>
+                                <div class="ms-2 position-relative">
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <?php if ($buzonActual === 'entrada'): ?>
+                                                <?php if (!$n['leida']): ?>
+                                                <li><a class="dropdown-item" href="#" onclick="marcarLeida('<?= $n['id_notificacion'] ?>')"><i class="bi bi-check-lg text-success"></i> Marcar como leida</a></li>
+                                                <?php else: ?>
+                                                <li><a class="dropdown-item" href="#" onclick="marcarNoLeida('<?= $n['id_notificacion'] ?>')"><i class="bi bi-envelope text-secondary"></i> Marcar como no leida</a></li>
+                                                <?php endif; ?>
+                                                <li><a class="dropdown-item" href="#" onclick="archivar('<?= $n['id_notificacion'] ?>')"><i class="bi bi-archive text-info"></i> Archivar</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="eliminarNotif('<?= $n['id_notificacion'] ?>')"><i class="bi bi-trash"></i> Eliminar</a></li>
+                                            <?php elseif ($buzonActual === 'archivadas'): ?>
+                                                <li><a class="dropdown-item" href="#" onclick="restaurar('<?= $n['id_notificacion'] ?>')"><i class="bi bi-inbox text-primary"></i> Mover a entrada</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="eliminarNotif('<?= $n['id_notificacion'] ?>')"><i class="bi bi-trash"></i> Eliminar</a></li>
+                                            <?php elseif ($buzonActual === 'papelera'): ?>
+                                                <li><a class="dropdown-item" href="#" onclick="restaurar('<?= $n['id_notificacion'] ?>')"><i class="bi bi-inbox text-primary"></i> Restaurar</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-danger" href="#" onclick="destruir('<?= $n['id_notificacion'] ?>')"><i class="bi bi-trash-fill"></i> Eliminar definitivamente</a></li>
+                                            <?php endif; ?>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
