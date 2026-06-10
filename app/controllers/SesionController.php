@@ -328,8 +328,8 @@ class SesionController extends BaseController {
                 } catch (Exception $e) {}
             }
 
-            // Notificar cierre solo a la directiva (usuarios con rol distinto de Socio)
-            $admins = $this->db->query("SELECT DISTINCT u.id_usuario FROM usuarios u JOIN roles_usuarios ru ON u.id_usuario = ru.id_usuario JOIN roles r ON ru.id_rol = r.id_rol WHERE r.nombre != 'Socio'")->fetchAll(PDO::FETCH_COLUMN);
+            // Notificar cierre solo a directiva (Presidente, Tesorero, Secretario, Asistente Tesoreria)
+            $admins = $this->db->query("SELECT DISTINCT u.id_usuario FROM usuarios u JOIN roles_usuarios ru ON u.id_usuario = ru.id_usuario JOIN roles r ON ru.id_rol = r.id_rol WHERE r.nombre IN ('Presidente','Tesorero','Secretario/a','Asistente de Tesoreria')")->fetchAll(PDO::FETCH_COLUMN);
             foreach ($admins as $uid) {
                 try {
                     NotificacionHelper::crear([
