@@ -18,7 +18,7 @@
             <select name="sesion" class="form-select form-select-sm">
                 <option value="">Todas las sesiones</option>
                 <?php foreach ($sesiones as $ses): ?>
-                <option value="<?= $ses['id_sesion'] ?>" <?= $filtroSesion === $ses['id_sesion'] ? 'selected' : '' ?>>#<?= $ses['numero_sesion'] ?> Ã¢â‚¬â€ <?= $ses['fecha'] ?></option>
+                                <option value="<?= $ses['id_sesion'] ?>" <?= $filtroSesion === $ses['id_sesion'] ? 'selected' : '' ?>>#<?= $ses['numero_sesion'] ?> — <?= $ses['fecha'] ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -53,7 +53,7 @@
                             <?php elseif ($a['justificacion_aprobada'] === '0'): ?><span class="badge bg-danger">Rechazada</span>
                             <?php endif; ?>
                             <?php else: ?>
-                            <span class="text-muted">Ã¢â‚¬â€</span>
+                            <span class="text-muted">—</span>
                             <?php endif; ?>
                         </td>
                         <?php if (RBAC::tienePermiso($_SESSION['usuario_id'], 'socio.cambiar_estado')): ?>
