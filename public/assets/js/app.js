@@ -60,7 +60,16 @@ if (typeof Pusher !== 'undefined' && typeof PUSHER_KEY !== 'undefined' && PUSHER
     var channel = pusher.subscribe('canal-general');
     channel.bind('notificacion', function(data) {
         actualizarNotifBadge();
-        if (data.titulo) {
+        // Check if the notification is for this user
+        var paraMi = false;
+        if (!data.id_socio && !data.id_usuario) {
+            paraMi = true; // General notification for everyone
+        } else if (data.id_socio && typeof SOCIO_ID !== 'undefined' && SOCIO_ID && data.id_socio === SOCIO_ID) {
+            paraMi = true; // Notification for this socio
+        } else if (data.id_usuario && typeof USUARIO_ID !== 'undefined' && USUARIO_ID && data.id_usuario === USUARIO_ID) {
+            paraMi = true; // Notification for this admin user
+        }
+        if (paraMi && data.titulo) {
             showToast(data.titulo + ': ' + (data.mensaje || ''), 'info');
         }
     });

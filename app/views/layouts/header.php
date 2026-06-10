@@ -14,6 +14,10 @@
     <link href="<?= $baseUrl ?>/public/assets/css/style.css" rel="stylesheet">
     <script>
     var BASE_URL = '<?= $baseUrl ?>';
+    <?php if ($loggedIn): ?>
+    var USUARIO_ID = '<?= $_SESSION['usuario_id'] ?? '' ?>';
+    var SOCIO_ID = '<?= $idSocio ?? '' ?>';
+    <?php endif; ?>
     <?php if (!empty(PUSHER_APP_KEY)): ?>
     var PUSHER_KEY = '<?= PUSHER_APP_KEY ?>';
     var PUSHER_CLUSTER = '<?= PUSHER_APP_CLUSTER ?>';
