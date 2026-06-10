@@ -182,7 +182,7 @@ class DocumentoController extends BaseController {
             @media print{.no-print{display:none}}
         </style></head><body>' . $html . '</body></html>';
 
-        file_put_contents(dirname(__DIR__, 1) . '/storage/documentos/comprobante_sesion_' . $s['numero_sesion'] . '.html', $htmlCompleto);
+        file_put_contents(ROOT_PATH . '/storage/documentos/comprobante_sesion_' . $s['numero_sesion'] . '.html', $htmlCompleto);
         header('Location: ' . BASE_URL . '/storage/documentos/comprobante_sesion_' . $s['numero_sesion'] . '.html');
         exit;
     }
@@ -253,8 +253,9 @@ class DocumentoController extends BaseController {
         </style></head><body>' . $html . '</body></html>';
 
         $filename = 'comprobante_socio_' . substr($idSocio, 0, 8) . '_sesion_' . $s['numero_sesion'] . '.html';
-        file_put_contents(dirname(__DIR__, 1) . '/storage/documentos/' . $filename, $htmlCompleto);
+        file_put_contents(ROOT_PATH . '/storage/documentos/' . $filename, $htmlCompleto);
         header('Location: ' . BASE_URL . '/storage/documentos/' . $filename);
         exit;
     }
-}
+
+    public function actaCierre($idSesion) {
