@@ -172,9 +172,36 @@ class SesionController extends BaseController {
             $this->redirect('/sesion/listar');
         }
 
-        $socios = $this->db->query("SELECT s.id_socio, s.cedula, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS nombre_completo
-                                     FROM socios s WHERE s.estado = 'activo'
-                                     ORDER BY s.apellido1, s.apellido2, s.nombre1, s.nombre2")->fetchAll();
+        // Búsqueda y paginación
+        $buscar = trim($_GET['buscar'] ?? '');
+        $pagina = max(1, intval($_GET['pagina'] ?? 1));
+        $porPagina = 20;
+        $offset = ($pagina - 1) * $porPagina;
+
+        // Contar total de socios activos (para paginación)
+        $whereSocio = "s.estado = 'activo'";
+        $paramsCount = [];
+        if ($buscar) {
+            $whereSocio .= " AND (s.cedula LIKE ? OR CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) LIKE ?)";
+            $paramsCount[] = "%$buscar%";
+            $paramsCount[] = "%$buscar%";
+        }
+        $totalSocios = $this->db->prepare("SELECT COUNT(*) FROM socios s WHERE $whereSocio");
+        $totalSocios->execute($paramsCount);
+        $totalPaginas = ceil($totalSocios->fetchColumn() / $porPagina);
+
+        // Obtener socios de la página actual
+        $paramsSocio = $paramsCount;
+        $sqlSocio = "SELECT s.id_socio, s.cedula, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS nombre_completo
+                     FROM socios s WHERE $whereSocio
+                     ORDER BY s.apellido1, s.apellido2, s.nombre1, s.nombre2
+                     LIMIT $porPagina OFFSET $offset";
+        $socios = $this->db->prepare($sqlSocio);
+        $socios->execute($paramsSocio);
+        $socios = $socios->fetchAll();
+
+        // Obtener IDs de socios para filtrar obligaciones
+        $socioIds = array_column($socios, 'id_socio');
 
         $asistencias = [];
         $stmt = $this->db->prepare("SELECT * FROM asistencias WHERE id_sesion = ?");
@@ -183,12 +210,15 @@ class SesionController extends BaseController {
             $asistencias[$row['id_socio']] = $row;
         }
 
-        // Obtener obligaciones de esta sesion con estado de pago
+        // Obtener obligaciones solo de los socios visibles
         $obligaciones = [];
-        $stmt = $this->db->prepare("SELECT o.* FROM obligaciones_sesion o WHERE o.id_sesion = ? ORDER BY o.id_socio, o.tipo");
-        $stmt->execute([$id]);
-        foreach ($stmt->fetchAll() as $o) {
-            $obligaciones[$o['id_socio']][] = $o;
+        if (!empty($socioIds)) {
+            $placeholders = implode(',', array_fill(0, count($socioIds), '?'));
+            $stmt = $this->db->prepare("SELECT o.* FROM obligaciones_sesion o WHERE o.id_sesion = ? AND o.id_socio IN ($placeholders) ORDER BY o.id_socio, o.tipo");
+            $stmt->execute(array_merge([$id], $socioIds));
+            foreach ($stmt->fetchAll() as $o) {
+                $obligaciones[$o['id_socio']][] = $o;
+            }
         }
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
@@ -260,7 +290,17 @@ class SesionController extends BaseController {
             'socios' => $socios,
             'asistencias' => $asistencias,
             'obligaciones' => $obligaciones,
+            'buscar' => $buscar,
+            'pagina' => $pagina,
+            'totalPaginas' => $totalPaginas,
         ]);
+    }
+
+    public function obligacionesJSON($idSesion, $idSocio) {
+        $this->requireAuth();
+        $stmt = $this->db->prepare("SELECT o.* FROM obligaciones_sesion o WHERE o.id_sesion = ? AND o.id_socio = ? AND o.pagada = FALSE ORDER BY o.tipo");
+        $stmt->execute([$idSesion, $idSocio]);
+        $this->json($stmt->fetchAll());
     }
 
     private function procesarPagoObligacion($idObligacion, $idSesion) {

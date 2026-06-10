@@ -75,6 +75,7 @@ $routeMap = [
     'sesion/editar' => ['controller' => 'SesionController', 'method' => 'editar'],
     'sesion/reaperturar' => ['controller' => 'SesionController', 'method' => 'reaperturar'],
     'sesion/checkin' => ['controller' => 'SesionController', 'method' => 'checkin'],
+    'sesion/obligaciones' => ['controller' => 'SesionController', 'method' => 'obligacionesJSON'],
     'cobro' => ['controller' => 'CobroController', 'method' => 'listar'],
     'cobro/registrar' => ['controller' => 'CobroController', 'method' => 'registrar'],
     'cobro/historialSesion' => ['controller' => 'CobroController', 'method' => 'historialSesion'],

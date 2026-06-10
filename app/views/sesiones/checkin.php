@@ -13,6 +13,19 @@
     <div class="alert alert-danger"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
     <?php endif; ?>
 
+    <!-- Buscador -->
+    <form method="GET" class="row g-2 mb-3">
+        <div class="col-auto" style="min-width:300px">
+            <div class="input-group">
+                <input type="text" name="buscar" class="form-control" placeholder="Buscar por nombre o cedula..." value="<?= htmlspecialchars($buscar) ?>">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
+                <?php if ($buscar): ?>
+                <a href="<?= BASE_URL ?>/sesion/checkin/<?= $sesion['id_sesion'] ?>" class="btn btn-outline-secondary"><i class="bi bi-x-circle"></i></a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </form>
+
     <div class="row">
         <div class="col-12">
             <div class="card card-dashboard">
@@ -31,7 +44,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($socios as $s):
+                                <?php if (empty($socios)): ?>
+                                <tr><td colspan="6" class="text-center text-muted py-3">No se encontraron socios</td></tr>
+                                <?php else: foreach ($socios as $s):
                                     $socOblig = $obligaciones[$s['id_socio']] ?? [];
                                     $totalSocio = array_sum(array_map(function($o) { return floatval($o['monto']); }, $socOblig));
                                     $pagadas = array_filter($socOblig, function($o) { return $o['pagada']; });
@@ -89,7 +104,7 @@
                                         <?php endif; ?>
                                     </td>
                                 </tr>
-                                <?php endforeach; ?>
+                                <?php endforeach; endif; ?>
                             </tbody>
                         </table>
                     </div>
@@ -98,73 +113,97 @@
         </div>
     </div>
 
-<!-- Modal Cobro -->
-<div class="modal fade" id="modalCobro" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <form method="POST" action="<?= BASE_URL ?>/sesion/checkin/<?= $sesion['id_sesion'] ?>">
-                <?= CSRFMiddleware::campoHTML() ?>
-                <input type="hidden" name="accion" value="pagar_seleccion">
-                <input type="hidden" name="id_socio" id="cobroIdSocio" value="">
-                <div class="modal-header">
-                    <h5 class="modal-title">Cobro a: <strong id="cobroNombreSocio"></strong></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="seleccionarTodo" onchange="toggleSeleccionarTodo()">
-                            <label class="form-check-label fw-bold" for="seleccionarTodo">Seleccionar / Deseleccionar todo</label>
+    <!-- Paginacion -->
+    <?php if ($totalPaginas > 1): ?>
+    <nav class="mt-3">
+        <ul class="pagination pagination-sm justify-content-center">
+            <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+            <li class="page-item <?= $i === $pagina ? 'active' : '' ?>">
+                <a class="page-link" href="?pagina=<?= $i ?>&buscar=<?= urlencode($buscar) ?>"><?= $i ?></a>
+            </li>
+            <?php endfor; ?>
+        </ul>
+    </nav>
+    <?php endif; ?>
+
+    <!-- Modal Cobro (carga via AJAX) -->
+    <div class="modal fade" id="modalCobro" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <form method="POST" action="<?= BASE_URL ?>/sesion/checkin/<?= $sesion['id_sesion'] ?>">
+                    <?= CSRFMiddleware::campoHTML() ?>
+                    <input type="hidden" name="accion" value="pagar_seleccion">
+                    <input type="hidden" name="id_socio" id="cobroIdSocio" value="">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cobro a: <strong id="cobroNombreSocio"></strong></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-center py-3" id="cobroLoading"><div class="spinner-border text-primary"></div> Cargando...</div>
+                        <div class="mb-3" id="cobroSelectAll" style="display:none">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="seleccionarTodo" onchange="toggleSeleccionarTodo()">
+                                <label class="form-check-label fw-bold" for="seleccionarTodo">Seleccionar / Deseleccionar todo</label>
+                            </div>
+                        </div>
+                        <div id="obligacionesLista" class="list-group"></div>
+                        <div class="mt-3 text-end" id="cobroTotal" style="display:none">
+                            <strong>Total seleccionado: $<span id="totalSeleccionado">0.00</span></strong>
                         </div>
                     </div>
-                    <div id="obligacionesLista" class="list-group"></div>
-                    <div class="mt-3 text-end">
-                        <strong>Total seleccionado: $<span id="totalSeleccionado">0.00</span></strong>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success" id="btnCobrar" style="display:none"><i class="bi bi-cash-coin"></i> Cobrar seleccionados</button>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success" id="btnCobrar"><i class="bi bi-cash-coin"></i> Cobrar seleccionados</button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-var obligacionesData = {};
-
-<?php foreach ($socios as $s):
-    $pends = array_values(array_filter($obligaciones[$s['id_socio']] ?? [], function($o) { return !$o['pagada']; }));
-    if (!empty($pends)): ?>
-obligacionesData['<?= $s['id_socio'] ?>'] = <?= json_encode($pends) ?>;
-<?php endif; endforeach; ?>
+var sesionId = '<?= $sesion['id_sesion'] ?>';
 
 function abrirModalCobro(idSocio, nombre) {
     document.getElementById('cobroIdSocio').value = idSocio;
     document.getElementById('cobroNombreSocio').textContent = nombre;
-    var lista = document.getElementById('obligacionesLista');
-    lista.innerHTML = '';
+    document.getElementById('obligacionesLista').innerHTML = '';
     document.getElementById('seleccionarTodo').checked = false;
-
-    var obligs = obligacionesData[idSocio] || [];
-    var total = 0;
-
-    obligs.forEach(function(o, idx) {
-        var div = document.createElement('div');
-        div.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
-        div.innerHTML = '<div class="form-check">' +
-            '<input type="checkbox" class="form-check-input oblig-check" name="obligaciones[]" value="' + o.id_obligacion + '" id="chk_' + idx + '" onchange="actualizarTotalCobro()">' +
-            '<label class="form-check-label" for="chk_' + idx + '">' + o.concepto + '</label>' +
-            '</div>' +
-            '<strong>$' + parseFloat(o.monto).toFixed(2) + '</strong>';
-        lista.appendChild(div);
-        total += parseFloat(o.monto);
-    });
-
     document.getElementById('totalSeleccionado').textContent = '0.00';
-    var modal = new bootstrap.Modal(document.getElementById('modalCobro'));
-    modal.show();
+    document.getElementById('cobroLoading').style.display = 'block';
+    document.getElementById('cobroSelectAll').style.display = 'none';
+    document.getElementById('cobroTotal').style.display = 'none';
+    document.getElementById('btnCobrar').style.display = 'none';
+
+    fetch(BASE_URL + '/sesion/obligaciones/' + sesionId + '/' + idSocio)
+        .then(function(r) { return r.json(); })
+        .then(function(obligs) {
+            document.getElementById('cobroLoading').style.display = 'none';
+            var lista = document.getElementById('obligacionesLista');
+            lista.innerHTML = '';
+            if (!obligs || obligs.length === 0) {
+                lista.innerHTML = '<div class="text-center text-muted py-3">No tiene obligaciones pendientes</div>';
+                return;
+            }
+            document.getElementById('cobroSelectAll').style.display = 'block';
+            document.getElementById('cobroTotal').style.display = 'block';
+            document.getElementById('btnCobrar').style.display = 'inline-block';
+            obligs.forEach(function(o, idx) {
+                var div = document.createElement('div');
+                div.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+                div.innerHTML = '<div class="form-check">' +
+                    '<input type="checkbox" class="form-check-input oblig-check" name="obligaciones[]" value="' + o.id_obligacion + '" id="chk_' + idx + '" onchange="actualizarTotalCobro()">' +
+                    '<label class="form-check-label" for="chk_' + idx + '">' + o.concepto + '</label>' +
+                    '</div>' +
+                    '<strong>$' + parseFloat(o.monto).toFixed(2) + '</strong>';
+                lista.appendChild(div);
+            });
+            var modal = new bootstrap.Modal(document.getElementById('modalCobro'));
+            modal.show();
+        })
+        .catch(function(e) {
+            document.getElementById('cobroLoading').innerHTML = '<span class="text-danger">Error al cargar obligaciones</span>';
+        });
 }
 
 function toggleSeleccionarTodo() {
