@@ -262,6 +262,7 @@ class SesionController extends BaseController {
 
     private function ejecutarCierre($sesion) {
         $id = $sesion['id_sesion'];
+        $numSesion = $sesion['numero_sesion'];
 
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM cobros WHERE id_sesion = ?");
         $stmt->execute([$id]);
@@ -290,13 +291,14 @@ class SesionController extends BaseController {
 
         $saldo = $total_recaudado - $total_desembolsado;
 
-        $acta = 'acta_sesion_' . $sesion['numero_sesion'] . '_' . date('Ymd') . '.pdf';
+        $acta = 'acta_sesion_' . $numSesion . '_' . date('Ymd') . '.pdf';
 
         $stmt = $this->db->prepare("SELECT tipo, COUNT(*) AS total, SUM(monto) AS suma FROM cobros WHERE id_sesion = ? AND anulado = FALSE GROUP BY tipo");
         $stmt->execute([$id]);
         $resumen = $stmt->fetchAll();
 
-        $this->generarMultasAsistencia($id, $sesion);
+        // Generar multas y obligaciones
+        $multasGeneradas = $this->generarMultasAsistencia($id, $sesion);
 
         $sesion['total_recaudado'] = $total_recaudado;
         $sesion['total_desembolsado'] = $total_desembolsado;
@@ -304,13 +306,48 @@ class SesionController extends BaseController {
         $sesion['fecha_cierre'] = date('Y-m-d H:i:s');
         $htmlFile = PDFGenerator::generarActaCierre($sesion, $resumen, pathinfo($acta, PATHINFO_FILENAME));
 
-        $stmt = $this->db->prepare("UPDATE sesiones_mensuales SET
-            estado = 'cerrada', fecha_cierre = NOW(), usuario_cierre = ?,
-            total_recaudado = ?, total_desembolsado = ?, saldo_caja = ?, acta_cierre_pdf = ?
-            WHERE id_sesion = ? AND estado = 'abierta'");
-        $stmt->execute([$_SESSION['usuario_id'], $total_recaudado, $total_desembolsado, $saldo, $htmlFile, $id]);
+        $this->db->beginTransaction();
+        try {
+            $this->db->prepare("UPDATE sesiones_mensuales SET
+                estado = 'cerrada', fecha_cierre = NOW(), usuario_cierre = ?,
+                total_recaudado = ?, total_desembolsado = ?, saldo_caja = ?, acta_cierre_pdf = ?
+                WHERE id_sesion = ? AND estado = 'abierta'")
+                ->execute([$_SESSION['usuario_id'], $total_recaudado, $total_desembolsado, $saldo, $htmlFile, $id]);
 
-        NotificacionHelper::crearSesion($sesion['numero_sesion'], 'cerrada');
+            // Notificar a cada socio con multa
+            foreach ($multasGeneradas as $m) {
+                $tipoMulta = str_replace('_', ' ', ucfirst($m['tipo']));
+                try {
+                    NotificacionHelper::crear([
+                        'id_socio' => $m['id_socio'],
+                        'tipo' => 'multa',
+                        'titulo' => 'Multa generada',
+                        'mensaje' => "Se ha generado una multa por {$tipoMulta} de \${$m['monto']} en la sesion #{$numSesion}",
+                        'enviar_pusher' => true,
+                    ]);
+                } catch (Exception $e) {}
+            }
+
+            // Notificar cierre solo a la directiva (usuarios con rol distinto de Socio)
+            $admins = $this->db->query("SELECT DISTINCT u.id_usuario FROM usuarios u JOIN roles_usuarios ru ON u.id_usuario = ru.id_usuario JOIN roles r ON ru.id_rol = r.id_rol WHERE r.nombre != 'Socio'")->fetchAll(PDO::FETCH_COLUMN);
+            foreach ($admins as $uid) {
+                try {
+                    NotificacionHelper::crear([
+                        'id_usuario' => $uid,
+                        'tipo' => 'sesion',
+                        'titulo' => "Sesion #{$numSesion} cerrada",
+                        'mensaje' => "La sesion #{$numSesion} ha sido cerrada. Total recaudado: \${$total_recaudado}",
+                        'enviar_pusher' => true,
+                    ]);
+                } catch (Exception $e) {}
+            }
+
+            $this->db->commit();
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            $_SESSION['error'] = 'Error al cerrar la sesion: ' . $e->getMessage();
+            $this->redirect('/sesion/checkin/' . $id);
+        }
         $this->redirect('/sesion/listar');
     }
 
@@ -320,9 +357,9 @@ class SesionController extends BaseController {
                                             WHERE a.id_sesion = ?");
         $asistencias->execute([$idSesion]);
 
-        // Buscar si hay una sesion abierta o crear las multas como obligaciones para la siguiente
-        // Por ahora, insertar multas en tabla multas Y como obligaciones en la siguiente sesion abierta
         $insertMulta = $this->db->prepare("INSERT IGNORE INTO multas (id_multa, id_socio, id_sesion, tipo, monto) VALUES (?, ?, ?, ?, ?)");
+        $insertOblig = $this->db->prepare("INSERT IGNORE INTO obligaciones_sesion (id_obligacion, id_sesion, id_socio, tipo, concepto, monto, id_referencia) VALUES (?, ?, ?, 'multa', ?, ?, ?)");
+        $generadas = [];
 
         foreach ($asistencias as $a) {
             $monto = 0;
@@ -336,7 +373,13 @@ class SesionController extends BaseController {
             if ($monto > 0) {
                 $idMulta = UUIDGenerator::generar();
                 $insertMulta->execute([$idMulta, $a['id_socio'], $idSesion, $tipo, $monto]);
+
+                $concepto = "Multa por " . str_replace('_', ' ', ucfirst($tipo)) . " - Sesion #{$sesion['numero_sesion']} del " . date('d/m/Y', strtotime($sesion['fecha_sesion']));
+                $insertOblig->execute([UUIDGenerator::generar(), $idSesion, $a['id_socio'], $concepto, $monto, $idMulta]);
+
+                $generadas[] = ['id_socio' => $a['id_socio'], 'tipo' => $tipo, 'monto' => $monto];
             }
         }
+        return $generadas;
     }
 }
