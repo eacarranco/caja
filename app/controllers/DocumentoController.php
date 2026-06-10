@@ -26,6 +26,7 @@ class DocumentoController extends BaseController {
             'medio_pago' => $c['medio_pago'],
             'tipo' => $c['tipo'],
             'hash' => $c['hash_integridad'],
+            'anulado' => !empty($c['anulado']),
         ];
         $filename = PDFGenerator::generarComprobante($data, 'comprobante_' . substr($idCobro, 0, 8));
         header('Location: ' . BASE_URL . '/storage/documentos/' . $filename);

@@ -167,11 +167,12 @@ class PDFGenerator {
         $h .= '<table>';
         $h .= '<tr><td width="120"><strong>Fecha:</strong></td><td>' . $data['fecha'] . '</td></tr>';
         $h .= '<tr><td><strong>Socio:</strong></td><td>' . htmlspecialchars($data['socio']) . '</td></tr>';
-        $h .= '<tr><td><strong>Cédula:</strong></td><td>' . htmlspecialchars($data['cedula'] ?? '') . '</td></tr>';
+        $h .= '<tr><td><strong>Cedula:</strong></td><td>' . htmlspecialchars($data['cedula'] ?? '') . '</td></tr>';
         $h .= '<tr><td><strong>Concepto:</strong></td><td>' . htmlspecialchars($data['concepto']) . '</td></tr>';
-        $h .= '<tr><td><strong>Sesión:</strong></td><td>' . htmlspecialchars($data['sesion'] ?? '') . '</td></tr>';
+        $h .= '<tr><td><strong>Sesion:</strong></td><td>' . htmlspecialchars($data['sesion'] ?? '') . '</td></tr>';
         $h .= '<tr><td><strong>Monto:</strong></td><td style="font-size:14pt;font-weight:bold">$ ' . number_format($data['monto'], 2) . '</td></tr>';
         $h .= '<tr><td><strong>Medio de pago:</strong></td><td>' . htmlspecialchars($data['medio_pago'] ?? '') . '</td></tr>';
+        $h .= '<tr><td><strong>Estado:</strong></td><td>' . ($data['anulado'] ? '<span style="color:red;font-weight:bold">ANULADO</span>' : '<span style="color:green;font-weight:bold">COBRADO</span>') . '</td></tr>';
         $h .= '</table>';
         $h .= '<div class="hash"><strong>Hash integridad:</strong> ' . $data['hash'] . '</div>';
         return $h;
