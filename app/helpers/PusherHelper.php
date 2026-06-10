@@ -72,12 +72,9 @@ class PusherHelper {
             $stmt->execute([$socioId]);
             $capitalInv = floatval($stmt->fetchColumn());
 
-            $stmt = $db->prepare("SELECT IFNULL(SUM(monto), 0) AS multas FROM multas WHERE id_socio = ? AND pagada = FALSE");
+            $stmt = $db->prepare("SELECT COALESCE(SUM(monto), 0) FROM obligaciones_sesion WHERE id_socio = ? AND pagada = FALSE");
             $stmt->execute([$socioId]);
-            $multas = floatval($stmt->fetchColumn());
-
-            $aporteMensual = floatval($db->query("SELECT valor FROM parametros WHERE codigo = 'aporte_obligatorio_mensual'")->fetchColumn() ?: 10);
-            $valoresPagar = $aporteMensual + $multas;
+            $valoresPagar = floatval($stmt->fetchColumn());
 
             $data = [
                 'id_socio' => $socioId,

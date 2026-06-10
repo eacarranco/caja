@@ -44,6 +44,15 @@ class SesionController extends BaseController {
                 // Generar obligaciones para todos los socios activos
                 $this->generarObligaciones($id, $fechaSesion);
 
+                // Notificar a todos los socios via Pusher
+                try {
+                    require_once ROOT_PATH . '/app/helpers/PusherHelper.php';
+                    $socios = $this->db->query("SELECT id_socio FROM socios WHERE estado = 'activo'")->fetchAll(PDO::FETCH_COLUMN);
+                    foreach ($socios as $sid) {
+                        PusherHelper::actualizarPortal($sid);
+                    }
+                } catch (Exception $e) {}
+
                 $this->redirect('/sesion/checkin/' . $id);
             }
         }
