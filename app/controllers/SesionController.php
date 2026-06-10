@@ -267,6 +267,14 @@ class SesionController extends BaseController {
                         ->execute([$idSocio, $id, $tm]);
                 }
 
+                // Actualizar portal del socio si se modificaron multas
+                if (!empty($tiposMultaAnterior)) {
+                    try {
+                        require_once ROOT_PATH . '/app/helpers/PusherHelper.php';
+                        PusherHelper::actualizarPortal($idSocio);
+                    } catch (Exception $e) {}
+                }
+
                 $this->redirect('/sesion/checkin/' . $id);
             }
 
