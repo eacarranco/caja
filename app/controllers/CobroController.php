@@ -20,7 +20,7 @@ class CobroController extends BaseController {
     public function listar() {
         $this->requirePermission('cobro.aporte');
         $stmt = $this->db->query("SELECT c.*, s.cedula, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS socio,
-                                   ses.numero_sesion, ses.fecha AS fecha_sesion
+                                   ses.numero_sesion, ses.fecha_sesion
                                    FROM cobros c
                                    JOIN socios s ON c.id_socio = s.id_socio
                                    LEFT JOIN sesiones_mensuales ses ON c.id_sesion = ses.id_sesion
