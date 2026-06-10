@@ -86,6 +86,15 @@ class CobroController extends BaseController {
                 $stmt->execute([$idSocio]);
                 $nombreSocio = $stmt->fetchColumn();
                 NotificacionHelper::crearCobro($idSocio, $nombreSocio, $monto, $this->tiposCobro[$tipo]);
+                // Sync obligaciones
+                try {
+                    $mapOblig = ['aporte_obligatorio' => 'cuota_mensual', 'cuota_credito' => 'cuota_credito', 'multa' => 'multa'];
+                    $tipoOblig = $mapOblig[$tipo] ?? null;
+                    if ($tipoOblig && $idSesion) {
+                        $this->db->prepare("UPDATE obligaciones_sesion SET pagada = TRUE, id_cobro = ? WHERE id_socio = ? AND id_sesion = ? AND tipo = ? AND pagada = FALSE LIMIT 1")
+                            ->execute([$idCobro, $idSocio, $idSesion, $tipoOblig]);
+                    }
+                } catch (Exception $e) {}
                 try { PusherHelper::actualizarPortal($idSocio); } catch (Exception $e) {}
 
                 $this->json(['mensaje' => 'Cobro registrado', 'id_cobro' => $idCobro]);
@@ -154,6 +163,11 @@ class CobroController extends BaseController {
                 } else {
                     $this->historialInsert($c['id_socio'], 'anulacion', $c['monto'], $id, $c['id_sesion']);
                 }
+
+                // Revertir obligacion si estaba marcada como pagada
+                try {
+                    $this->db->prepare("UPDATE obligaciones_sesion SET pagada = FALSE, id_cobro = NULL WHERE id_cobro = ?")->execute([$id]);
+                } catch (Exception $e) {}
 
                 // Notificacion portal + Pusher
                 try {

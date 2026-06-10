@@ -30,12 +30,9 @@ class PortalController extends BaseController {
         $stmt->execute([$idSocio]);
         $saldoCapitalInversion = floatval($stmt->fetchColumn());
 
-        $stmt = $this->db->prepare("SELECT IFNULL(SUM(monto), 0) AS multas FROM multas WHERE id_socio = ? AND pagada = FALSE");
+        $stmt = $this->db->prepare("SELECT COALESCE(SUM(monto), 0) FROM obligaciones_sesion WHERE id_socio = ? AND pagada = FALSE");
         $stmt->execute([$idSocio]);
-        $multasRes = $stmt->fetch();
-
-        $aporteMensual = floatval($this->db->query("SELECT valor FROM parametros WHERE codigo = 'aporte_obligatorio_mensual'")->fetchColumn() ?: 10);
-        $valoresPagar = $aporteMensual + floatval($multasRes['multas'] ?? 0);
+        $valoresPagar = floatval($stmt->fetchColumn());
 
         $this->render('portal/index', [
             'titulo' => 'Inicio',
@@ -208,28 +205,26 @@ class PortalController extends BaseController {
         $cedula = $_SESSION['usuario_cedula'] ?? '';
         $stmt = $this->db->prepare("SELECT id_socio FROM socios WHERE cedula = ?");
         $stmt->execute([$cedula]);
-        $socio = $stmt->fetch();
-        $pendientes = [];
+        $idSocio = $stmt->fetchColumn();
 
-        if ($socio) {
-            $idSocio = $socio['id_socio'];
+        $obligaciones = [];
+        $totalPendiente = 0;
 
-            $aporteMensual = floatval($this->db->query("SELECT valor FROM parametros WHERE codigo = 'aporte_obligatorio_mensual'")->fetchColumn() ?: 10);
-
-            $stmt = $this->db->prepare("SELECT IFNULL(SUM(monto), 0) AS multas_pendientes FROM multas WHERE id_socio = ? AND pagada = FALSE");
+        if ($idSocio) {
+            $stmt = $this->db->prepare("SELECT o.*, ses.numero_sesion, ses.fecha_sesion
+                                         FROM obligaciones_sesion o
+                                         JOIN sesiones_mensuales ses ON o.id_sesion = ses.id_sesion
+                                         WHERE o.id_socio = ? AND o.pagada = FALSE
+                                         ORDER BY ses.fecha_sesion DESC, o.tipo");
             $stmt->execute([$idSocio]);
-            $multas = $stmt->fetch();
-
-            $pendientes = [
-                'aporte_mensual' => $aporteMensual,
-                'multas' => $multas['multas_pendientes'] ?? 0,
-                'total' => $aporteMensual + floatval($multas['multas_pendientes'] ?? 0),
-            ];
+            $obligaciones = $stmt->fetchAll();
+            $totalPendiente = array_sum(array_map(function($o) { return floatval($o['monto']); }, $obligaciones));
         }
 
         $this->render('portal/pagar', [
             'titulo' => 'Pagar',
-            'pendientes' => $pendientes,
+            'obligaciones' => $obligaciones,
+            'totalPendiente' => $totalPendiente,
         ]);
     }
 

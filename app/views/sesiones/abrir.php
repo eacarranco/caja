@@ -14,15 +14,20 @@
                 <?= CSRFMiddleware::campoHTML() ?>
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label">Fecha *</label>
-                        <input type="date" name="fecha" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                        <label class="form-label">Fecha de la reunion *</label>
+                        <input type="date" name="fecha_sesion" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                        <small class="text-muted">Fecha programada. Las obligaciones se calculan con corte a este dia.</small>
                     </div>
-                    <div class="col-md-8">
-                        <label class="form-label">Título (opcional)</label>
-                        <input type="text" name="titulo" class="form-control" placeholder="Ej: Sesión Ordinaria Junio 2026">
+                    <div class="col-md-4">
+                        <label class="form-label">Fecha de apertura</label>
+                        <input type="date" name="fecha" class="form-control" value="<?= date('Y-m-d') ?>">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Titulo (opcional)</label>
+                        <input type="text" name="titulo" class="form-control" placeholder="Ej: Sesion Ordinaria Junio 2026">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary mt-3"><i class="bi bi-play-circle"></i> Abrir sesión</button>
+                <button type="submit" class="btn btn-primary mt-3"><i class="bi bi-play-circle"></i> Abrir sesion</button>
             </form>
         </div>
     </div>

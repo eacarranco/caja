@@ -1,35 +1,47 @@
 <div class="container-fluid">
-    <h4>Valores a pagar</h4>
+    <h4>Valores pendientes de pago</h4>
 
-    <div class="row g-3">
-        <div class="col-md-6">
-            <div class="card card-dashboard text-center h-100">
-                <div class="card-body py-4">
-                    <div class="fs-1 text-primary mb-2"><i class="bi bi-piggy-bank"></i></div>
-                    <h5>Cuota ahorro obligatorio</h5>
-                    <h3 class="text-primary mb-0">$ <?= number_format($pendientes['aporte_mensual'] ?? 0, 2) ?></h3>
-                    <small class="text-muted">Aporte mensual fijo segun parametros</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card card-dashboard text-center h-100">
-                <div class="card-body py-4">
-                    <div class="fs-1 text-danger mb-2"><i class="bi bi-exclamation-triangle"></i></div>
-                    <h5>Multas pendientes</h5>
-                    <h3 class="text-danger mb-0">$ <?= number_format($pendientes['multas'] ?? 0, 2) ?></h3>
-                    <small class="text-muted">Multas generadas no pagadas</small>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card mt-3">
+    <?php if (empty($obligaciones)): ?>
+    <div class="alert alert-success"><i class="bi bi-check-circle"></i> No tienes valores pendientes de pago.</div>
+    <?php else: ?>
+    <div class="card mb-3">
         <div class="card-body text-center">
-            <h5>Total a pagar: <strong class="text-primary">$ <?= number_format($pendientes['total'] ?? 0, 2) ?></strong></h5>
-            <p class="text-muted mb-0">Valores a pagar en la siguiente Reunion.</p>
+            <h5>Total pendiente: <strong class="text-danger">$ <?= number_format($totalPendiente, 2) ?></strong></h5>
+            <p class="text-muted mb-0">Los pagos deben realizarse en la proxima sesion por el tesorero.</p>
         </div>
     </div>
 
-
+    <?php
+    $sesionActual = null;
+    foreach ($obligaciones as $o):
+        $keySesion = $o['numero_sesion'] . '|' . $o['fecha_sesion'];
+        if ($keySesion !== $sesionActual):
+            $sesionActual = $keySesion;
+    ?>
+    <div class="card mb-3">
+        <div class="card-header">
+            <strong>Sesion #<?= $o['numero_sesion'] ?> — <?= date('d/m/Y', strtotime($o['fecha_sesion'])) ?></strong>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-sm mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Concepto</th>
+                        <th class="text-end">Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+        <?php endif; ?>
+                    <tr>
+                        <td><?= htmlspecialchars($o['concepto']) ?></td>
+                        <td class="text-end text-danger">$<?= number_format($o['monto'], 2) ?></td>
+                    </tr>
+        <?php if ($keySesion !== $sesionActual || $o === end($obligaciones)): ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+        <?php endif; ?>
+    <?php endforeach; ?>
+    <?php endif; ?>
 </div>

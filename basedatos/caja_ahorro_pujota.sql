@@ -244,6 +244,7 @@ CREATE TABLE `cobros` (
 
 LOCK TABLES `cobros` WRITE;
 /*!40000 ALTER TABLE `cobros` DISABLE KEYS */;
+INSERT INTO `cobros` VALUES ('1e18ac91-288d-4366-9893-78bb5c266ca2','392cced6-d52b-464b-9829-51aa9ce12468','92b1cd2b-d913-4e6c-9e46-c4bbe16de43a','aporte_obligatorio',NULL,10.00,'efectivo',NULL,'f620583e98f8403d9877ef18d5967c7d68ef84b0b041b79312aac969eb5f871b','516363c5-c79a-4491-83b4-b8303ce1f286',1,'Erro de registro de información de Socio.','2026-06-10 10:24:45','516363c5-c79a-4491-83b4-b8303ce1f286','2026-06-10 10:23:54');
 /*!40000 ALTER TABLE `cobros` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -320,7 +321,7 @@ CREATE TABLE `cuentas_ahorro` (
 
 LOCK TABLES `cuentas_ahorro` WRITE;
 /*!40000 ALTER TABLE `cuentas_ahorro` DISABLE KEYS */;
-INSERT INTO `cuentas_ahorro` VALUES ('35091853-e6e7-4dcd-a292-5c97229a972a','32d4ffda-eec7-4299-885f-f320557da01e',0.00,0.00,0.00,NULL),('72f76cda-20e3-460a-8533-fab738f82b92','c19ef60e-9f5b-4750-a6d2-afd8f8e9ea9a',0.00,0.00,0.00,NULL),('7638e37c-72e9-48ba-bfba-0f885133e41a','caaf8155-4c10-4e84-aa7b-ba4183906421',0.00,0.00,0.00,NULL),('95dba24c-5c65-4262-8053-e783ea1c0621','5afb15ad-ced5-431b-9fc2-970cf4919433',0.00,0.00,0.00,NULL),('a09b3d26-dff6-4218-8a1a-f9edc4f10cc7','00e16557-e3cf-4738-8516-7f3fb6ddb96d',0.00,0.00,0.00,NULL),('a8ecf0a7-776c-42dc-b573-1e4433d16989','c26b7a29-755b-4665-8912-397c05d48a27',0.00,0.00,0.00,NULL),('ab9d9a6b-f5dd-4850-95fc-c98de0635c18','9e52d148-927b-4784-b290-b8d9f9b1c35f',0.00,0.00,0.00,NULL),('c3df6ac3-fc84-4376-8228-1aaabb9beea0','392cced6-d52b-464b-9829-51aa9ce12468',0.00,0.00,0.00,NULL);
+INSERT INTO `cuentas_ahorro` VALUES ('35091853-e6e7-4dcd-a292-5c97229a972a','32d4ffda-eec7-4299-885f-f320557da01e',0.00,0.00,0.00,NULL),('72f76cda-20e3-460a-8533-fab738f82b92','c19ef60e-9f5b-4750-a6d2-afd8f8e9ea9a',0.00,0.00,0.00,NULL),('7638e37c-72e9-48ba-bfba-0f885133e41a','caaf8155-4c10-4e84-aa7b-ba4183906421',0.00,0.00,0.00,NULL),('95dba24c-5c65-4262-8053-e783ea1c0621','5afb15ad-ced5-431b-9fc2-970cf4919433',0.00,0.00,0.00,NULL),('a09b3d26-dff6-4218-8a1a-f9edc4f10cc7','00e16557-e3cf-4738-8516-7f3fb6ddb96d',0.00,0.00,0.00,NULL),('a8ecf0a7-776c-42dc-b573-1e4433d16989','c26b7a29-755b-4665-8912-397c05d48a27',0.00,0.00,0.00,NULL),('ab9d9a6b-f5dd-4850-95fc-c98de0635c18','9e52d148-927b-4784-b290-b8d9f9b1c35f',0.00,0.00,0.00,NULL),('c3df6ac3-fc84-4376-8228-1aaabb9beea0','392cced6-d52b-464b-9829-51aa9ce12468',0.00,0.00,0.00,'2026-06-10 10:24:45');
 /*!40000 ALTER TABLE `cuentas_ahorro` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -394,6 +395,7 @@ CREATE TABLE `historial_operaciones` (
 
 LOCK TABLES `historial_operaciones` WRITE;
 /*!40000 ALTER TABLE `historial_operaciones` DISABLE KEYS */;
+INSERT INTO `historial_operaciones` VALUES ('1376bce4-342e-4e91-97d5-37db4d4b9687','392cced6-d52b-464b-9829-51aa9ce12468','anulacion',10.00,NULL,NULL,'1e18ac91-288d-4366-9893-78bb5c266ca2','92b1cd2b-d913-4e6c-9e46-c4bbe16de43a','516363c5-c79a-4491-83b4-b8303ce1f286',NULL,NULL,'::1','2026-06-10 10:24:45'),('5efd57a5-9569-4453-9424-f52fc91697cf','392cced6-d52b-464b-9829-51aa9ce12468','aporte_obligatorio',10.00,NULL,NULL,'1e18ac91-288d-4366-9893-78bb5c266ca2','92b1cd2b-d913-4e6c-9e46-c4bbe16de43a','516363c5-c79a-4491-83b4-b8303ce1f286',NULL,NULL,'::1','2026-06-10 10:23:54');
 /*!40000 ALTER TABLE `historial_operaciones` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -510,7 +512,43 @@ CREATE TABLE `notificaciones` (
 
 LOCK TABLES `notificaciones` WRITE;
 /*!40000 ALTER TABLE `notificaciones` DISABLE KEYS */;
+INSERT INTO `notificaciones` VALUES ('7adc68fd-36be-4e72-810d-8b58fa9f1565',NULL,'392cced6-d52b-464b-9829-51aa9ce12468','anulacion','Cobro anulado','Se ha anulado un cobro de $10.00 (aporte_obligatorio). Motivo: Erro de registro de información de Socio.',0,1,'2026-06-10 10:24:45',NULL),('a2535571-572b-472f-a010-1183ab4ea92e',NULL,'392cced6-d52b-464b-9829-51aa9ce12468','cobro','Cobro registrado','Cobro de Aporte obligatorio por $10 a CARRANCO GONZALEZ GAVINO ALEXANDER',1,1,'2026-06-10 10:23:54','2026-06-10 10:24:12');
 /*!40000 ALTER TABLE `notificaciones` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `obligaciones_sesion`
+--
+
+DROP TABLE IF EXISTS `obligaciones_sesion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `obligaciones_sesion` (
+  `id_obligacion` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador unico de la obligacion (UUID)',
+  `id_sesion` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK a la sesion donde se genero',
+  `id_socio` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio',
+  `tipo` enum('cuota_mensual','cuota_credito','multa','otro') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Tipo de obligacion',
+  `concepto` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Descripcion detallada de la obligacion',
+  `monto` decimal(12,2) NOT NULL COMMENT 'Monto a pagar',
+  `id_referencia` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK a amortizacion, multa, etc',
+  `pagada` tinyint(1) DEFAULT '0' COMMENT 'Indica si ya fue pagada',
+  `id_cobro` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK al cobro cuando se paga',
+  `fecha_registro` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creacion',
+  PRIMARY KEY (`id_obligacion`),
+  KEY `id_sesion` (`id_sesion`),
+  KEY `id_socio` (`id_socio`),
+  CONSTRAINT `obligaciones_sesion_ibfk_1` FOREIGN KEY (`id_sesion`) REFERENCES `sesiones_mensuales` (`id_sesion`),
+  CONSTRAINT `obligaciones_sesion_ibfk_2` FOREIGN KEY (`id_socio`) REFERENCES `socios` (`id_socio`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Obligaciones de pago generadas al abrir una sesion — calculadas segun fecha de reunion';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `obligaciones_sesion`
+--
+
+LOCK TABLES `obligaciones_sesion` WRITE;
+/*!40000 ALTER TABLE `obligaciones_sesion` DISABLE KEYS */;
+/*!40000 ALTER TABLE `obligaciones_sesion` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -613,7 +651,7 @@ CREATE TABLE `productos_financieros` (
 
 LOCK TABLES `productos_financieros` WRITE;
 /*!40000 ALTER TABLE `productos_financieros` DISABLE KEYS */;
-INSERT INTO `productos_financieros` VALUES ('802ad839-cfec-46aa-869f-9910912ea142','Inversión 12 Meses','inversion',7.00,'simple',12,12,100.00,10000.00,0,10.00,1,'2026-06-06 14:16:51',NULL,0,0.00,'dolares',0,0.00,0,0,'meses',1),('900f2e04-b730-4bbf-9d83-d9c79ea6849e','Crédito Ordinario','credito',6.00,'simple',1,12,50.00,1500.00,1,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,'dolares',0,0.00,0,0,'meses',1),('97daba5b-f71d-49aa-a826-b7f01c81fac1','Crédito Agrícola','credito',5.00,'frances',3,24,100.00,5000.00,1,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,'dolares',0,0.00,0,0,'meses',1),('b53305e5-5102-49c0-9176-d164d3e98c58','Inversión 120 días','inversion',6.00,'simple',3,3,50.00,5000.00,0,5.00,1,'2026-06-06 14:16:51',NULL,0,0.00,'dolares',0,0.00,0,0,'meses',1),('c5f8ab97-9808-4919-9e05-b6f89f473538','Crédito Emergente','credito',6.00,'simple',1,6,10.00,300.00,0,0.00,1,'2026-06-06 14:16:51',NULL,0,0.00,'dolares',1,0.00,0,0,'meses',1);
+INSERT INTO `productos_financieros` VALUES ('95f3f25d-542c-455c-a160-c65b99b9e778','Crédito Ordinario','credito',6.00,'simple',1,12,50.00,1000.00,0,0.00,1,'2026-06-09 16:32:07','<p><b>Condiciones de Crédito</b></p><p><b>Denominación:</b> Crédito Ordinario</p><p>Estas son las condiciones del producto de crédito.</p><p>De aceptar estas condiciones.</p><p>Atentamente,</p><p>La Administración.</p>',0,50.00,'porcentaje',0,0.00,15,6,'meses',1),('b53305e5-5102-49c0-9176-d164d3e98c58','Inversión 3 meses','inversion',6.00,'simple',3,3,50.00,5000.00,0,5.00,1,'2026-06-06 14:16:51','<p><br></p>',0,0.00,'dolares',0,0.00,0,0,'meses',1);
 /*!40000 ALTER TABLE `productos_financieros` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -733,6 +771,7 @@ DROP TABLE IF EXISTS `sesiones_mensuales`;
 CREATE TABLE `sesiones_mensuales` (
   `id_sesion` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador único de la sesión mensual (UUID)',
   `numero_sesion` int NOT NULL COMMENT 'Número correlativo de la sesión mensual',
+  `fecha_sesion` date DEFAULT NULL COMMENT 'Fecha programada de la reunion (corte para calculo de obligaciones)',
   `fecha` date NOT NULL COMMENT 'Fecha de la sesión mensual',
   `titulo` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Título o nombre de la sesión',
   `estado` enum('abierta','cerrada') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'abierta' COMMENT 'Estado de la sesión: abierta (en curso) o cerrada (finalizada)',
@@ -755,6 +794,7 @@ CREATE TABLE `sesiones_mensuales` (
 
 LOCK TABLES `sesiones_mensuales` WRITE;
 /*!40000 ALTER TABLE `sesiones_mensuales` DISABLE KEYS */;
+INSERT INTO `sesiones_mensuales` VALUES ('92b1cd2b-d913-4e6c-9e46-c4bbe16de43a',1,NULL,'2026-06-28','Sesión Ordinaria Junio 2026','abierta','2026-06-10 10:23:40',NULL,NULL,NULL,0.00,0.00,0.00);
 /*!40000 ALTER TABLE `sesiones_mensuales` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -893,7 +933,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES ('1673019a-c66d-4bb8-9158-1729fa6b064a','Gavino','Carranco','1002003000','gavinocg@gmail.com','0996755645','gcarranco','$2y$12$QkuzAcoAFQ7C9f5GMMeGS.1smyFeCvsvJeESlsmkB00oBEfzlLYjO',1,0,0,NULL,0,'2026-06-06 16:38:03','2026-06-09 14:36:29'),('516363c5-c79a-4491-83b4-b8303ce1f286','Tesorero','Caja','1003560438','gcarranco@hotmail.com','','tesorero','$2y$12$/gRI9LwajMIzc8e/NYxO6.hCsUvfbH3c.yxuEKpkpRT7AXoL2ojxe',1,0,0,NULL,0,'2026-06-06 18:23:36','2026-06-09 15:17:51'),('6600ae1d-e99d-4986-b337-0741de09df84','CARLOS MANUEL','VARGAS CRUZ','1766677788','carlos.vargas@email.com','','1766677788','$2y$12$wx0/HsCyDTfUlKWE8twT/uRPv2o/MEOWXbadf9piFa6So5g39Trie',1,0,0,NULL,0,'2026-06-06 19:35:51','2026-06-06 19:44:55'),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291','Admin','Sistema','1002606083','admin@caja.test','0999999999','admin','$2y$12$IP4hst3.3yCimzqw/bO8JOYscRjkeQADlesFcttSetTnxNCRY.N8G',1,0,0,NULL,0,'2026-06-06 14:16:51','2026-06-09 16:04:24');
+INSERT INTO `usuarios` VALUES ('1673019a-c66d-4bb8-9158-1729fa6b064a','Gavino','Carranco','1002003000','gavinocg@gmail.com','0996755645','gcarranco','$2y$12$QkuzAcoAFQ7C9f5GMMeGS.1smyFeCvsvJeESlsmkB00oBEfzlLYjO',1,0,0,NULL,0,'2026-06-06 16:38:03','2026-06-10 08:47:06'),('516363c5-c79a-4491-83b4-b8303ce1f286','Tesorero','Caja','1003560438','gcarranco@hotmail.com','','tesorero','$2y$12$/gRI9LwajMIzc8e/NYxO6.hCsUvfbH3c.yxuEKpkpRT7AXoL2ojxe',1,0,0,NULL,0,'2026-06-06 18:23:36','2026-06-10 10:03:58'),('6600ae1d-e99d-4986-b337-0741de09df84','CARLOS MANUEL','VARGAS CRUZ','1766677788','carlos.vargas@email.com','','1766677788','$2y$12$wx0/HsCyDTfUlKWE8twT/uRPv2o/MEOWXbadf9piFa6So5g39Trie',1,0,0,NULL,0,'2026-06-06 19:35:51','2026-06-06 19:44:55'),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291','Admin','Sistema','1002606083','admin@caja.test','0999999999','admin','$2y$12$IP4hst3.3yCimzqw/bO8JOYscRjkeQADlesFcttSetTnxNCRY.N8G',1,0,0,NULL,0,'2026-06-06 14:16:51','2026-06-10 09:34:50');
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -914,4 +954,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-09 16:24:45
+-- Dump completed on 2026-06-10 10:52:59

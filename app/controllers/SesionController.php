@@ -35,10 +35,15 @@ class SesionController extends BaseController {
 
                 $id = UUIDGenerator::generar();
                 $fecha = $_POST['fecha'] ?? date('Y-m-d');
+                $fechaSesion = $_POST['fecha_sesion'] ?? $fecha;
                 $titulo = trim($_POST['titulo'] ?? '');
 
-                $stmt = $this->db->prepare("INSERT INTO sesiones_mensuales (id_sesion, numero_sesion, fecha, titulo) VALUES (?, ?, ?, ?)");
-                $stmt->execute([$id, $num, $fecha, $titulo]);
+                $stmt = $this->db->prepare("INSERT INTO sesiones_mensuales (id_sesion, numero_sesion, fecha_sesion, fecha, titulo) VALUES (?, ?, ?, ?, ?)");
+                $stmt->execute([$id, $num, $fechaSesion, $fecha, $titulo]);
+
+                // Generar obligaciones para todos los socios activos
+                $this->generarObligaciones($id, $fechaSesion);
+
                 $this->redirect('/sesion/checkin/' . $id);
             }
         }
@@ -47,6 +52,53 @@ class SesionController extends BaseController {
             'titulo' => 'Abrir sesión mensual',
             'errors' => $errors,
         ]);
+    }
+
+    private function generarObligaciones($idSesion, $fechaCorte) {
+        $socios = $this->db->query("SELECT id_socio, cedula FROM socios WHERE estado = 'activo'")->fetchAll();
+        $aporteMensual = floatval($this->db->query("SELECT valor FROM parametros WHERE codigo = 'aporte_obligatorio_mensual'")->fetchColumn() ?: 10);
+        $insertOblig = $this->db->prepare("INSERT INTO obligaciones_sesion (id_obligacion, id_sesion, id_socio, tipo, concepto, monto, id_referencia) VALUES (?, ?, ?, ?, ?, ?, ?)");
+
+        foreach ($socios as $s) {
+            $idSocio = $s['id_socio'];
+
+            // 1. Cuota mensual obligatoria
+            $insertOblig->execute([
+                UUIDGenerator::generar(), $idSesion, $idSocio, 'cuota_mensual',
+                "Cuota mensual - Sesion #" . $this->db->query("SELECT numero_sesion FROM sesiones_mensuales WHERE id_sesion = '$idSesion'")->fetchColumn() . " del " . date('d/m/Y', strtotime($fechaCorte)),
+                $aporteMensual, null
+            ]);
+
+            // 2. Cuotas de credito vencidas (fecha_vencimiento <= fechaCorte)
+            $cuotas = $this->db->prepare("SELECT a.id_amortizacion, a.numero_cuota, a.total, cr.id_credito, p.nombre AS producto
+                                           FROM amortizaciones a
+                                           JOIN creditos cr ON a.id_credito = cr.id_credito
+                                           JOIN productos_financieros p ON cr.id_producto = p.id_producto
+                                           WHERE cr.id_socio = ? AND a.estado IN ('pendiente','vencida') AND a.fecha_vencimiento <= ?");
+            $cuotas->execute([$idSocio, $fechaCorte]);
+            foreach ($cuotas as $c) {
+                $insertOblig->execute([
+                    UUIDGenerator::generar(), $idSesion, $idSocio, 'cuota_credito',
+                    "Cuota #{$c['numero_cuota']} - {$c['producto']} (vence " . date('d/m/Y', strtotime($c['fecha_vencimiento'])) . ")",
+                    $c['total'], $c['id_amortizacion']
+                ]);
+            }
+
+            // 3. Multas no pagadas de sesiones anteriores
+            $multas = $this->db->prepare("SELECT m.id_multa, m.tipo, m.monto, ses.numero_sesion AS multa_sesion
+                                           FROM multas m
+                                           LEFT JOIN sesiones_mensuales ses ON m.id_sesion = ses.id_sesion
+                                           WHERE m.id_socio = ? AND m.pagada = FALSE");
+            $multas->execute([$idSocio]);
+            foreach ($multas as $m) {
+                $tipoMulta = str_replace('_', ' ', ucfirst($m['tipo']));
+                $insertOblig->execute([
+                    UUIDGenerator::generar(), $idSesion, $idSocio, 'multa',
+                    "Multa por {$tipoMulta}" . ($m['multa_sesion'] ? " - Sesion #{$m['multa_sesion']}" : ""),
+                    $m['monto'], $m['id_multa']
+                ]);
+            }
+        }
     }
 
     public function checkin($id) {
@@ -59,14 +111,23 @@ class SesionController extends BaseController {
             $this->redirect('/sesion/listar');
         }
 
-        $socios = $this->db->query("SELECT id_socio, cedula, CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) AS nombre_completo
-                                     FROM socios WHERE estado = 'activo' ORDER BY apellido1, apellido2, nombre1, nombre2")->fetchAll();
+        $socios = $this->db->query("SELECT s.id_socio, s.cedula, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS nombre_completo
+                                     FROM socios s WHERE s.estado = 'activo'
+                                     ORDER BY s.apellido1, s.apellido2, s.nombre1, s.nombre2")->fetchAll();
 
+        $asistencias = [];
         $stmt = $this->db->prepare("SELECT * FROM asistencias WHERE id_sesion = ?");
         $stmt->execute([$id]);
-        $asistencias = [];
         while ($row = $stmt->fetch()) {
             $asistencias[$row['id_socio']] = $row;
+        }
+
+        // Obtener obligaciones de esta sesion con estado de pago
+        $obligaciones = [];
+        $stmt = $this->db->prepare("SELECT o.* FROM obligaciones_sesion o WHERE o.id_sesion = ? ORDER BY o.id_socio, o.tipo");
+        $stmt->execute([$id]);
+        foreach ($stmt->fetchAll() as $o) {
+            $obligaciones[$o['id_socio']][] = $o;
         }
 
         $cobros_stmt = $this->db->prepare("SELECT tipo, COUNT(*) AS total, SUM(monto) AS suma FROM cobros WHERE id_sesion = ? AND anulado = FALSE GROUP BY tipo");
@@ -80,7 +141,6 @@ class SesionController extends BaseController {
             if ($accion === 'asistencia') {
                 $idSocio = $_POST['id_socio'] ?? '';
                 $tipo = $_POST['tipo'] ?? 'falta';
-
                 $stmt = $this->db->prepare("SELECT COUNT(*) FROM asistencias WHERE id_socio = ? AND id_sesion = ?");
                 $stmt->execute([$idSocio, $id]);
                 if ($stmt->fetchColumn() > 0) {
@@ -93,6 +153,22 @@ class SesionController extends BaseController {
                 $this->redirect('/sesion/checkin/' . $id);
             }
 
+            if ($accion === 'pagar_obligacion') {
+                $idObligacion = $_POST['id_obligacion'] ?? '';
+                $this->procesarPagoObligacion($idObligacion, $id);
+                $this->redirect('/sesion/checkin/' . $id);
+            }
+
+            if ($accion === 'pagar_todo_socio') {
+                $idSocio = $_POST['id_socio'] ?? '';
+                $stmt = $this->db->prepare("SELECT id_obligacion FROM obligaciones_sesion WHERE id_sesion = ? AND id_socio = ? AND pagada = FALSE");
+                $stmt->execute([$id, $idSocio]);
+                foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $oid) {
+                    $this->procesarPagoObligacion($oid, $id);
+                }
+                $this->redirect('/sesion/checkin/' . $id);
+            }
+
             if ($accion === 'cierre') {
                 $this->requirePermission('cobro.cierre_sesion');
                 return $this->ejecutarCierre($sesion);
@@ -100,12 +176,60 @@ class SesionController extends BaseController {
         }
 
         $this->render('sesiones/checkin', [
-            'titulo' => 'Sesión #' . $sesion['numero_sesion'] . ' — ' . $sesion['fecha'],
+            'titulo' => 'Sesion #' . $sesion['numero_sesion'] . ' — ' . $sesion['fecha'],
             'sesion' => $sesion,
             'socios' => $socios,
             'asistencias' => $asistencias,
+            'obligaciones' => $obligaciones,
             'resumen_cobros' => $resumen_cobros,
         ]);
+    }
+
+    private function procesarPagoObligacion($idObligacion, $idSesion) {
+        $stmt = $this->db->prepare("SELECT o.*, s.cedula FROM obligaciones_sesion o JOIN socios s ON o.id_socio = s.id_socio WHERE o.id_obligacion = ? AND o.pagada = FALSE");
+        $stmt->execute([$idObligacion]);
+        $o = $stmt->fetch();
+        if (!$o) return;
+
+        $tipoCobro = $o['tipo'] === 'cuota_mensual' ? 'aporte_obligatorio' : ($o['tipo'] === 'cuota_credito' ? 'cuota_credito' : ($o['tipo'] === 'multa' ? 'multa' : 'otro'));
+        $idCobro = UUIDGenerator::generar();
+        $hash = hash('sha256', $o['id_socio'] . $idCobro . $tipoCobro . $o['monto'] . date('Y-m-d H:i:s'));
+
+        $this->db->beginTransaction();
+        try {
+            $this->db->prepare("INSERT INTO cobros (id_cobro, id_socio, id_sesion, tipo, id_referencia, monto, medio_pago, hash_integridad, usuario_registra) VALUES (?, ?, ?, ?, ?, ?, 'efectivo', ?, ?)")
+                ->execute([$idCobro, $o['id_socio'], $idSesion, $tipoCobro, $o['id_referencia'], $o['monto'], $hash, $_SESSION['usuario_id']]);
+
+            // Actualizar cuenta de ahorro
+            if ($tipoCobro === 'aporte_obligatorio') {
+                $this->db->prepare("UPDATE cuentas_ahorro SET saldo_obligatorio = saldo_obligatorio + ?, saldo_disponible = saldo_disponible + ?, fecha_ultimo_movimiento = NOW() WHERE id_socio = ?")
+                    ->execute([$o['monto'], $o['monto'], $o['id_socio']]);
+            }
+
+            // Si es cuota de credito, marcar amortizacion como pagada
+            if ($tipoCobro === 'cuota_credito' && $o['id_referencia']) {
+                $this->db->prepare("UPDATE amortizaciones SET estado = 'pagada', id_cobro = ? WHERE id_amortizacion = ?")->execute([$idCobro, $o['id_referencia']]);
+            }
+
+            // Si es multa, marcar como pagada
+            if ($tipoCobro === 'multa' && $o['id_referencia']) {
+                $this->db->prepare("UPDATE multas SET pagada = TRUE WHERE id_multa = ?")->execute([$o['id_referencia']]);
+            }
+
+            // Marcar obligacion como pagada
+            $this->db->prepare("UPDATE obligaciones_sesion SET pagada = TRUE, id_cobro = ? WHERE id_obligacion = ?")->execute([$idCobro, $idObligacion]);
+
+            $this->historialInsert($o['id_socio'], $tipoCobro, $o['monto'], $idCobro, $idSesion);
+            $this->db->commit();
+
+            try {
+                require_once ROOT_PATH . '/app/helpers/PusherHelper.php';
+                PusherHelper::actualizarPortal($o['id_socio']);
+            } catch (Exception $e) {}
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            error_log("Error pagar obligacion: " . $e->getMessage());
+        }
     }
 
     private function ejecutarCierre($sesion) {
@@ -134,7 +258,7 @@ class SesionController extends BaseController {
         $stmt->execute([$id]);
         $resumen = $stmt->fetchAll();
 
-        $this->generarMultasAsistencia($id);
+        $this->generarMultasAsistencia($id, $sesion);
 
         $sesion['total_recaudado'] = $total_recaudado;
         $sesion['total_desembolsado'] = $total_desembolsado;
@@ -152,11 +276,14 @@ class SesionController extends BaseController {
         $this->redirect('/sesion/listar');
     }
 
-    private function generarMultasAsistencia($idSesion) {
-        $asistencias = $this->db->prepare("SELECT a.*, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS socio
+    private function generarMultasAsistencia($idSesion, $sesion) {
+        $asistencias = $this->db->prepare("SELECT a.*, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS socio_nombre
                                             FROM asistencias a JOIN socios s ON a.id_socio = s.id_socio
                                             WHERE a.id_sesion = ?");
         $asistencias->execute([$idSesion]);
+
+        // Buscar si hay una sesion abierta o crear las multas como obligaciones para la siguiente
+        // Por ahora, insertar multas en tabla multas Y como obligaciones en la siguiente sesion abierta
         $insertMulta = $this->db->prepare("INSERT IGNORE INTO multas (id_multa, id_socio, id_sesion, tipo, monto) VALUES (?, ?, ?, ?, ?)");
 
         foreach ($asistencias as $a) {
@@ -169,7 +296,8 @@ class SesionController extends BaseController {
                 default: continue 2;
             }
             if ($monto > 0) {
-                $insertMulta->execute([UUIDGenerator::generar(), $a['id_socio'], $idSesion, $tipo, $monto]);
+                $idMulta = UUIDGenerator::generar();
+                $insertMulta->execute([$idMulta, $a['id_socio'], $idSesion, $tipo, $monto]);
             }
         }
     }
