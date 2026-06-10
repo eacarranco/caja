@@ -71,7 +71,7 @@ class AsistenciaController extends BaseController {
         $total->execute($params);
         $totalPaginas = ceil($total->fetchColumn() / $porPagina);
 
-        $sesiones = $this->db->query("SELECT id_sesion, numero_sesion, fecha FROM sesiones_mensuales ORDER BY fecha DESC LIMIT 20")->fetchAll();
+        $sesiones = $this->db->query("SELECT id_sesion, numero_sesion, fecha_sesion FROM sesiones_mensuales ORDER BY fecha_sesion DESC LIMIT 20")->fetchAll();
 
         $this->render('asistencias/listar', [
             'titulo' => 'Asistencias',
