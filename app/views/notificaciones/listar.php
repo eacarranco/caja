@@ -45,15 +45,15 @@
                         </div>
                         <div id="batchActions" style="display:none" class="d-flex gap-1">
                             <?php if ($buzonActual === 'entrada'): ?>
-                            <button class="btn btn-sm btn-outline-success" onclick="batchLeer()"><i class="bi bi-check-lg"></i> Leer</button>
-                            <button class="btn btn-sm btn-outline-info" onclick="batchArchivar()"><i class="bi bi-archive"></i> Archivar</button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="batchEliminar()"><i class="bi bi-trash"></i> Eliminar</button>
+                            <button class="btn btn-sm btn-outline-success" onclick="batchLeer()" title="Marcar como leidas"><i class="bi bi-check-lg"></i></button>
+                            <button class="btn btn-sm btn-outline-info" onclick="batchArchivar()" title="Archivar"><i class="bi bi-archive"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="batchEliminar()" title="Mover a papelera"><i class="bi bi-trash"></i></button>
                             <?php elseif ($buzonActual === 'archivadas'): ?>
-                            <button class="btn btn-sm btn-outline-primary" onclick="batchRestaurar()"><i class="bi bi-inbox"></i> Mover a entrada</button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="batchEliminar()"><i class="bi bi-trash"></i> Eliminar</button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="batchRestaurar()" title="Mover a entrada"><i class="bi bi-inbox"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="batchEliminar()" title="Eliminar"><i class="bi bi-trash"></i></button>
                             <?php elseif ($buzonActual === 'papelera'): ?>
-                            <button class="btn btn-sm btn-outline-primary" onclick="batchRestaurar()"><i class="bi bi-inbox"></i> Restaurar</button>
-                            <button class="btn btn-sm btn-outline-danger" onclick="batchDestruir()"><i class="bi bi-trash-fill"></i> Eliminar definitivo</button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="batchRestaurar()" title="Restaurar"><i class="bi bi-inbox"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="batchDestruir()" title="Eliminar definitivo"><i class="bi bi-trash-fill"></i></button>
                             <?php endif; ?>
                         </div>
                         <?php endif; ?>
