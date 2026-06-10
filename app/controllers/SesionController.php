@@ -94,16 +94,21 @@ class SesionController extends BaseController {
             }
 
             // 3. Multas no pagadas de sesiones anteriores
-            $multas = $this->db->prepare("SELECT m.id_multa, m.tipo, m.monto, ses.numero_sesion AS multa_sesion
+            $multas = $this->db->prepare("SELECT m.id_multa, m.tipo, m.monto, ses.numero_sesion AS multa_sesion, ses.fecha_sesion AS multa_fecha
                                            FROM multas m
                                            LEFT JOIN sesiones_mensuales ses ON m.id_sesion = ses.id_sesion
                                            WHERE m.id_socio = ? AND m.pagada = FALSE");
             $multas->execute([$idSocio]);
             foreach ($multas as $m) {
                 $tipoMulta = str_replace('_', ' ', ucfirst($m['tipo']));
+                $concepto = "Multa por {$tipoMulta}";
+                if ($m['multa_sesion']) {
+                    $fechaMulta = $m['multa_fecha'] ? date('d/m/Y', strtotime($m['multa_fecha'])) : '';
+                    $concepto .= " - Sesion #{$m['multa_sesion']}" . ($fechaMulta ? " del {$fechaMulta}" : "");
+                }
                 $insertOblig->execute([
                     UUIDGenerator::generar(), $idSesion, $idSocio, 'multa',
-                    "Multa por {$tipoMulta}" . ($m['multa_sesion'] ? " - Sesion #{$m['multa_sesion']}" : ""),
+                    $concepto,
                     $m['monto'], $m['id_multa']
                 ]);
             }
