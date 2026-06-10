@@ -13,8 +13,8 @@
     <div class="alert alert-danger"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
     <?php endif; ?>
 
-    <div class="row g-3">
-        <div class="col-md-8">
+    <div class="row">
+        <div class="col-12">
             <div class="card card-dashboard">
                 <div class="card-header"><strong><i class="bi bi-people"></i> Planilla de cobro</strong></div>
                 <div class="card-body p-0">
@@ -93,11 +93,7 @@
                 </div>
             </div>
         </div>
-
-        <div class="col-md-4">
-            <div class="card card-dashboard mb-3">
     </div>
-</div>
 
 <!-- Modal Cobro -->
 <div class="modal fade" id="modalCobro" tabindex="-1" aria-hidden="true">
