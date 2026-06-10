@@ -161,7 +161,7 @@ class PortalController extends BaseController {
         $socio = $stmt->fetch();
         if (!$socio) { $this->redirect('/portal'); return; }
 
-        $stmt = $this->db->prepare("SELECT a.*, ses.numero_sesion, ses.fecha AS fecha_sesion
+        $stmt = $this->db->prepare("SELECT a.*, ses.numero_sesion, ses.fecha_sesion
                                     FROM asistencias a
                                     JOIN sesiones_mensuales ses ON a.id_sesion = ses.id_sesion
                                     WHERE a.id_socio = ?
@@ -365,7 +365,7 @@ class PortalController extends BaseController {
         $saldoExcedente = floatval($socio['saldo_excedente'] ?? 0);
 
         // Get all historial_operaciones that affect savings account
-        $stmt = $this->db->prepare("SELECT h.*, ses.numero_sesion, ses.titulo AS sesion_titulo, ses.fecha AS sesion_fecha
+        $stmt = $this->db->prepare("SELECT h.*, ses.numero_sesion, ses.titulo AS sesion_titulo, ses.fecha_sesion AS sesion_fecha
                                      FROM historial_operaciones h
                                      LEFT JOIN sesiones_mensuales ses ON h.id_sesion = ses.id_sesion
                                      WHERE h.id_socio = ?

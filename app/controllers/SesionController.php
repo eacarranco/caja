@@ -10,7 +10,7 @@ class SesionController extends BaseController {
         $stmt = $this->db->query("SELECT s.*, u.nombres AS usuario_cierre_nombre
                                    FROM sesiones_mensuales s
                                    LEFT JOIN usuarios u ON s.usuario_cierre = u.id_usuario
-                                   ORDER BY s.fecha DESC");
+                                   ORDER BY s.fecha_sesion DESC");
         $sesiones = $stmt->fetchAll();
         $this->render('sesiones/listar', [
             'titulo' => 'Sesiones mensuales',
@@ -44,12 +44,11 @@ class SesionController extends BaseController {
                 $num = $stmt->fetchColumn();
 
                 $id = UUIDGenerator::generar();
-                $fecha = $_POST['fecha'] ?? date('Y-m-d');
-                $fechaSesion = $_POST['fecha_sesion'] ?? $fecha;
+                $fechaSesion = $_POST['fecha_sesion'] ?? date('Y-m-d');
                 $titulo = trim($_POST['titulo'] ?? '');
 
-                $stmt = $this->db->prepare("INSERT INTO sesiones_mensuales (id_sesion, numero_sesion, fecha_sesion, fecha, titulo) VALUES (?, ?, ?, ?, ?)");
-                $stmt->execute([$id, $num, $fechaSesion, $fecha, $titulo]);
+                $stmt = $this->db->prepare("INSERT INTO sesiones_mensuales (id_sesion, numero_sesion, fecha_sesion, titulo) VALUES (?, ?, ?, ?)");
+                $stmt->execute([$id, $num, $fechaSesion, $titulo]);
 
                 // Generar obligaciones para todos los socios activos
                 $this->generarObligaciones($id, $fechaSesion);
@@ -210,7 +209,7 @@ class SesionController extends BaseController {
         }
 
         $this->render('sesiones/checkin', [
-            'titulo' => 'Sesion #' . $sesion['numero_sesion'] . ' — ' . $sesion['fecha'],
+            'titulo' => 'Sesion #' . $sesion['numero_sesion'] . ' — ' . $sesion['fecha_sesion'],
             'sesion' => $sesion,
             'socios' => $socios,
             'asistencias' => $asistencias,

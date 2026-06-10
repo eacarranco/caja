@@ -13,16 +13,12 @@
             <form method="POST">
                 <?= CSRFMiddleware::campoHTML() ?>
                 <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Fecha de la reunion *</label>
+                    <div class="col-md-6">
+                        <label class="form-label">Fecha de la sesion *</label>
                         <input type="date" name="fecha_sesion" class="form-control" value="<?= date('Y-m-d') ?>" required>
-                        <small class="text-muted">Fecha programada. Las obligaciones se calculan con corte a este dia.</small>
+                        <small class="text-muted">Las obligaciones se calculan con corte a esta fecha.</small>
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Fecha de apertura</label>
-                        <input type="date" name="fecha" class="form-control" value="<?= date('Y-m-d') ?>">
-                    </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label class="form-label">Titulo (opcional)</label>
                         <input type="text" name="titulo" class="form-control" placeholder="Ej: Sesion Ordinaria Junio 2026">
                     </div>
