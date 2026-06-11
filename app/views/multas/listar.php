@@ -9,7 +9,8 @@
                 <option value="retraso_10min" <?= $filtroTipo === 'retraso_10min' ? 'selected' : '' ?>>Retraso 10 min</option>
                 <option value="retraso_30min" <?= $filtroTipo === 'retraso_30min' ? 'selected' : '' ?>>Retraso 30 min</option>
                 <option value="inasistencia" <?= $filtroTipo === 'inasistencia' ? 'selected' : '' ?>>Inasistencia</option>
-                <option value="mora_crédito" <?= $filtroTipo === 'mora_credito' ? 'selected' : '' ?>>Mora crédito</option>
+                <option value="mora_credito" <?= $filtroTipo === 'mora_credito' ? 'selected' : '' ?>>Mora credito</option>
+                <option value="cuota_impaga" <?= $filtroTipo === 'cuota_impaga' ? 'selected' : '' ?>>Cuota impaga</option>
             </select>
         </div>
         <div class="col-auto">
@@ -35,7 +36,7 @@
                         <?php if (!$esSocio): ?>
                         <td><?= htmlspecialchars($m['socio']) ?></td>
                         <?php endif; ?>
-                        <td><span class="badge bg-<?= $m['tipo'] === 'inasistencia' ? 'danger' : ($m['tipo'] === 'mora_credito' ? 'warning' : 'info') ?>"><?= str_replace('_', ' ', $m['tipo']) ?></span></td>
+                        <td><span class="badge bg-<?= $m['tipo'] === 'inasistencia' ? 'danger' : ($m['tipo'] === 'mora_credito' ? 'warning' : ($m['tipo'] === 'cuota_impaga' ? 'dark' : 'info')) ?>"><?= str_replace('_', ' ', $m['tipo']) ?></span></td>
                         <td><strong>$<?= number_format($m['monto'], 2) ?></strong></td>
                         <td>
                             <?php if ($m['justificacion']): ?>
