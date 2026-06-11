@@ -422,10 +422,6 @@ class SesionController extends BaseController {
                     'id_sesion' => $idSesion,
                     'id_referencia' => $idCobro,
                 ]);
-                    'id_socio' => $o['id_socio'],
-                    'id_sesion' => $idSesion,
-                    'id_referencia' => $idCobro,
-                ]);
             } catch (Exception $e) {}
         } catch (Exception $e) {
             $this->db->rollBack();
