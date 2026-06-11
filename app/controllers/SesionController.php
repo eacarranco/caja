@@ -140,7 +140,7 @@ class SesionController extends BaseController {
                 ]);
             }
 
-            // 3. Multas no pagadas de sesiones anteriores (cada multa solo una vez, sin duplicados)
+            // 3. Multas no pagadas de sesiones anteriores
             $multas = $this->db->prepare("SELECT m.id_multa, m.tipo, m.monto, ses.numero_sesion AS multa_sesion, ses.fecha_sesion AS multa_fecha
                                            FROM multas m
                                            LEFT JOIN sesiones_mensuales ses ON m.id_sesion = ses.id_sesion
@@ -148,10 +148,6 @@ class SesionController extends BaseController {
                                            AND m.id_multa NOT IN (
                                                SELECT o.id_referencia FROM obligaciones_sesion o
                                                WHERE o.tipo = 'multa' AND o.pagada = TRUE AND o.id_referencia IS NOT NULL
-                                           )
-                                           AND m.id_multa NOT IN (
-                                               SELECT o.id_referencia FROM obligaciones_sesion o
-                                               WHERE o.tipo = 'multa' AND o.pagada = FALSE AND o.id_referencia IS NOT NULL
                                            )
                                            AND m.impugnada = FALSE");
             $multas->execute([$idSocio]);
@@ -162,6 +158,8 @@ class SesionController extends BaseController {
                     $fechaMulta = $m['multa_fecha'] ? date('d/m/Y', strtotime($m['multa_fecha'])) : '';
                     $concepto .= " - Sesion #{$m['multa_sesion']}" . ($fechaMulta ? " del {$fechaMulta}" : "");
                 }
+                // Eliminar obligacion anterior impaga para esta multa (cada multa solo una vez)
+                $this->db->prepare("DELETE FROM obligaciones_sesion WHERE id_referencia = ? AND tipo = 'multa' AND pagada = FALSE")->execute([$m['id_multa']]);
                 $insertOblig->execute([
                     UUIDGenerator::generar(), $idSesion, $idSocio, 'multa',
                     $concepto,
