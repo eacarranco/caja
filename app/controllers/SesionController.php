@@ -593,6 +593,7 @@ class SesionController extends BaseController {
                     // Nueva multa insertada
                     $concepto = "Multa por " . str_replace('_', ' ', ucfirst($tipo)) . " - Sesion #{$sesion['numero_sesion']} del " . date('d/m/Y', strtotime($sesion['fecha_sesion']));
                     $insertOblig->execute([UUIDGenerator::generar(), $idSesion, $a['id_socio'], $concepto, $monto, $idMulta]);
+                    $generadas[] = ['id_socio' => $a['id_socio'], 'tipo' => $tipo, 'monto' => $monto];
                 } else {
                     // Multa existente actualizada -> buscar id_multa real y actualizar obligacion
                     $realId = $this->db->prepare("SELECT id_multa FROM multas WHERE id_socio = ? AND id_sesion = ? AND tipo = ?");
@@ -602,7 +603,6 @@ class SesionController extends BaseController {
                         $updateOblig->execute([$monto, $idMultaReal]);
                     }
                 }
-                $generadas[] = ['id_socio' => $a['id_socio'], 'tipo' => $tipo, 'monto' => $monto];
             }
         }
         return $generadas;

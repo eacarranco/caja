@@ -114,7 +114,7 @@ class NotificacionController extends BaseController {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') $this->json(['error' => 'Metodo no permitido'], 405);
         $this->validateCSRF();
         $owner = $this->getOwnerFilter();
-        $this->db->prepare("UPDATE notificaciones SET buzon = 'papelera', fecha_eliminacion = NOW(), leida = 1 WHERE id_notificacion = ? AND {$owner['sql']}")->execute(array_merge([$id], $owner['params']));
+        $this->db->prepare("UPDATE notificaciones SET buzon = 'papelera', fecha_eliminacion = NOW() WHERE id_notificacion = ? AND {$owner['sql']}")->execute(array_merge([$id], $owner['params']));
         $this->json(['mensaje' => 'Movida a papelera']);
     }
 
