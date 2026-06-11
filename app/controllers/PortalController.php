@@ -364,26 +364,22 @@ class PortalController extends BaseController {
         $saldoObligatorio = floatval($socio['saldo_obligatorio'] ?? 0);
         $saldoExcedente = floatval($socio['saldo_excedente'] ?? 0);
 
-        // Get historial_operaciones that affect savings account only
+        // Get historial_operaciones that affect savings account only (no multas, no anulaciones)
         $stmt = $this->db->prepare("SELECT h.*, ses.numero_sesion, ses.titulo AS sesion_titulo, ses.fecha_sesion AS sesion_fecha
                                      FROM historial_operaciones h
                                      LEFT JOIN sesiones_mensuales ses ON h.id_sesion = ses.id_sesion
                                      WHERE h.id_socio = ?
-                                     AND h.tipo_operacion IN ('aporte_obligatorio','aporte_excedente','retiro_ahorro','interes_ganado','anulacion')
+                                     AND h.tipo_operacion IN ('aporte_obligatorio','aporte_excedente','retiro_ahorro','interes_ganado')
                                      ORDER BY h.fecha_registro DESC");
         $stmt->execute([$idSocio]);
         $movimientos = $stmt->fetchAll();
 
-        // Generate conceptos
+        // Generate conceptos (solo tipos que afectan ahorro)
         $conceptos = [
             'aporte_obligatorio' => 'Aporte obligatorio',
             'aporte_excedente' => 'Aporte excedente',
             'retiro_ahorro' => 'Retiro de ahorro',
             'interes_ganado' => 'Interes ganado',
-            'anulacion' => 'Anulacion',
-            'anulacion' => 'Anulacion',
-            'deposito_capital_inversion' => 'Deposito a capital de inversion',
-            'retiro_capital_inversion' => 'Retiro de capital de inversion',
         ];
 
         $movs = [];
@@ -393,9 +389,7 @@ class PortalController extends BaseController {
         $movimientosAsc = array_reverse($movimientos);
         $runningBalance = 0;
         foreach ($movimientosAsc as $m) {
-            $esDebito = in_array($m['tipo_operacion'], [
-                'retiro_ahorro', 'anulacion'
-            ]);
+            $esDebito = in_array($m['tipo_operacion'], ['retiro_ahorro']);
             $monto = floatval($m['monto']);
             $m['saldo_anterior'] = $runningBalance;
             $runningBalance += $esDebito ? -$monto : $monto;
