@@ -140,7 +140,7 @@ class SesionController extends BaseController {
                 ]);
             }
 
-            // 3. Multas no pagadas de sesiones anteriores (estado real en obligaciones_sesion)
+            // 3. Multas no pagadas de sesiones anteriores (cada multa solo una vez, sin duplicados)
             $multas = $this->db->prepare("SELECT m.id_multa, m.tipo, m.monto, ses.numero_sesion AS multa_sesion, ses.fecha_sesion AS multa_fecha
                                            FROM multas m
                                            LEFT JOIN sesiones_mensuales ses ON m.id_sesion = ses.id_sesion
@@ -148,6 +148,10 @@ class SesionController extends BaseController {
                                            AND m.id_multa NOT IN (
                                                SELECT o.id_referencia FROM obligaciones_sesion o
                                                WHERE o.tipo = 'multa' AND o.pagada = TRUE AND o.id_referencia IS NOT NULL
+                                           )
+                                           AND m.id_multa NOT IN (
+                                               SELECT o.id_referencia FROM obligaciones_sesion o
+                                               WHERE o.tipo = 'multa' AND o.pagada = FALSE AND o.id_referencia IS NOT NULL
                                            )
                                            AND m.impugnada = FALSE");
             $multas->execute([$idSocio]);
@@ -361,10 +365,13 @@ class SesionController extends BaseController {
             }
 
             // Si es multa, marcar como pagada (el estado real esta en obligaciones_sesion)
-            // (ya no se actualiza multas.pagada porque la columna fue eliminada)
-
-            // Marcar obligacion como pagada
-            $this->db->prepare("UPDATE obligaciones_sesion SET pagada = TRUE, id_cobro = ? WHERE id_obligacion = ?")->execute([$idCobro, $idObligacion]);
+            // Marcar TODAS las obligaciones para esta multa como pagadas (evita duplicados entre sesiones)
+            if ($tipoCobro === 'multa' && $o['id_referencia']) {
+                $this->db->prepare("UPDATE obligaciones_sesion SET pagada = TRUE, id_cobro = ? WHERE id_referencia = ? AND tipo = 'multa' AND pagada = FALSE")->execute([$idCobro, $o['id_referencia']]);
+            } else {
+                // Marcar solo esta obligacion como pagada
+                $this->db->prepare("UPDATE obligaciones_sesion SET pagada = TRUE, id_cobro = ? WHERE id_obligacion = ?")->execute([$idCobro, $idObligacion]);
+            }
 
             $this->historialInsert($o['id_socio'], $tipoCobro, $o['monto'], $idCobro, $idSesion);
             $this->db->commit();
