@@ -249,37 +249,74 @@ class SesionController extends BaseController {
                     $stmt->execute([UUIDGenerator::generar(), $idSocio, $id, $tipo, $_SESSION['usuario_id']]);
                 }
 
-                // Eliminar multa del tipo anterior si existia
-                $tiposMultaAnterior = [];
-                if ($oldTipo === 'retraso_10min') $tiposMultaAnterior[] = 'retraso_10min';
-                elseif ($oldTipo === 'retraso_30min') $tiposMultaAnterior[] = 'retraso_30min';
-                elseif ($oldTipo === 'falta') $tiposMultaAnterior[] = 'inasistencia';
+                // Eliminar multas del tipo anterior si existian
+                $tiposEliminar = [];
+                if ($oldTipo === 'retraso_10min') $tiposEliminar[] = 'retraso_10min';
+                elseif ($oldTipo === 'retraso_30min') $tiposEliminar[] = 'retraso_30min';
+                elseif ($oldTipo === 'falta') $tiposEliminar[] = 'inasistencia';
 
                 if ($tipo === 'a_tiempo') {
-                    // Si cambia a a_tiempo, eliminar cualquier multa existente
-                    $tiposMultaAnterior = ['retraso_10min', 'retraso_30min', 'inasistencia'];
+                    $tiposEliminar = ['retraso_10min', 'retraso_30min', 'inasistencia'];
                 }
 
-                foreach ($tiposMultaAnterior as $tm) {
-                    // Obtener IDs de multas a eliminar
+                foreach ($tiposEliminar as $tm) {
                     $idsMultas = $this->db->prepare("SELECT id_multa FROM multas WHERE id_socio = ? AND id_sesion = ? AND tipo = ?");
                     $idsMultas->execute([$idSocio, $id, $tm]);
                     $ids = $idsMultas->fetchAll(PDO::FETCH_COLUMN);
                     if (!empty($ids)) {
-                        $placeholders = implode(',', array_fill(0, count($ids), '?'));
-                        $this->db->prepare("DELETE FROM obligaciones_sesion WHERE id_sesion = ? AND id_socio = ? AND tipo = 'multa' AND id_referencia IN ($placeholders)")
+                        $ph = implode(',', array_fill(0, count($ids), '?'));
+                        $this->db->prepare("DELETE FROM obligaciones_sesion WHERE id_sesion = ? AND id_socio = ? AND tipo = 'multa' AND id_referencia IN ($ph)")
                             ->execute(array_merge([$id, $idSocio], $ids));
                     }
                     $this->db->prepare("DELETE FROM multas WHERE id_socio = ? AND id_sesion = ? AND tipo = ?")
                         ->execute([$idSocio, $id, $tm]);
                 }
 
-                // Actualizar portal del socio si se modificaron multas
-                if (!empty($tiposMultaAnterior)) {
-                    try {
+                // Generar multa inmediatamente segun el tipo de asistencia seleccionado
+                $montoMulta = 0;
+                $tipoMulta = '';
+                switch ($tipo) {
+                    case 'retraso_10min': $montoMulta = MULTA_RETRASO_10MIN; $tipoMulta = 'retraso_10min'; break;
+                    case 'retraso_30min': $montoMulta = MULTA_RETRASO_30MIN; $tipoMulta = 'retraso_30min'; break;
+                    case 'falta': $montoMulta = MULTA_INASISTENCIA; $tipoMulta = 'inasistencia'; break;
+                }
+
+                if ($montoMulta > 0) {
+                    $idMulta = UUIDGenerator::generar();
+                    $upsert = $this->db->prepare("INSERT INTO multas (id_multa, id_socio, id_sesion, tipo, monto) VALUES (?, ?, ?, ?, ?)
+                        ON DUPLICATE KEY UPDATE monto = VALUES(monto)");
+                    $upsert->execute([$idMulta, $idSocio, $id, $tipoMulta, $montoMulta]);
+                    $numSesion = $sesion['numero_sesion'];
+
+                    if ($upsert->rowCount() == 1) {
+                        // Nueva multa — crear obligacion y notificar
+                        $concepto = "Multa por " . str_replace('_', ' ', ucfirst($tipoMulta)) . " - Sesion #{$numSesion} del " . date('d/m/Y', strtotime($sesion['fecha_sesion']));
+                        $this->db->prepare("INSERT INTO obligaciones_sesion (id_obligacion, id_sesion, id_socio, tipo, concepto, monto, id_referencia) VALUES (?, ?, ?, 'multa', ?, ?, ?)")
+                            ->execute([UUIDGenerator::generar(), $id, $idSocio, $concepto, $montoMulta, $idMulta]);
+
+                        $cedula = $this->db->prepare("SELECT cedula FROM socios WHERE id_socio = ?");
+                        $cedula->execute([$idSocio]);
+                        $cedulaVal = $cedula->fetchColumn() ?: '';
+                        $tipoLabel = str_replace('_', ' ', ucfirst($tipoMulta));
+                        NotificacionHelper::crear([
+                            'id_socio' => $idSocio,
+                            'tipo' => 'multa',
+                            'titulo' => 'Multa generada',
+                            'mensaje' => "Se ha generado una multa por {$tipoLabel} de \${$montoMulta} en la sesion #{$numSesion} para el socio {$cedulaVal}",
+                            'enviar_pusher' => true,
+                        ]);
                         require_once ROOT_PATH . '/app/helpers/PusherHelper.php';
                         PusherHelper::actualizarPortal($idSocio);
-                    } catch (Exception $e) {}
+                    } else {
+                        // Multa existente actualizada
+                        $realId = $this->db->prepare("SELECT id_multa FROM multas WHERE id_socio = ? AND id_sesion = ? AND tipo = ?");
+                        $realId->execute([$idSocio, $id, $tipoMulta]);
+                        $idMultaReal = $realId->fetchColumn();
+                        if ($idMultaReal) {
+                            $this->db->prepare("UPDATE obligaciones_sesion SET monto = ? WHERE id_referencia = ? AND tipo = 'multa' AND pagada = FALSE")
+                                ->execute([$montoMulta, $idMultaReal]);
+                        }
+                    }
                 }
 
                 $this->redirect('/sesion/checkin/' . $id);
@@ -461,7 +498,7 @@ class SesionController extends BaseController {
         $resumen = $stmt->fetchAll();
 
         // Generar multas y obligaciones
-        $multasGeneradas = $this->generarMultasAsistencia($id, $sesion);
+        $multasGeneradas = [];
 
         // Multa por cuota impaga (socios que no pagaron su cuota mensual)
         $montoMultaCuota = floatval($this->db->query("SELECT valor FROM parametros WHERE codigo = 'multa_cuota_impaga'")->fetchColumn() ?: 2);
