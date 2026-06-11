@@ -272,6 +272,12 @@ if ($loggedIn) {
                         </a>
                     </li>
                     <?php endif; ?>
+                    <li class="sidebar-item <?= mazerActive('caja') ?>">
+                        <a href="<?= $baseUrl ?>/caja/estadoCuenta" class="sidebar-link">
+                            <i class="bi bi-cash-stack"></i>
+                            <span>Capital de Caja</span>
+                        </a>
+                    </li>
                     <?php if ($uid && RBAC::tienePermiso($uid, 'param.roles')): ?>
                     <li class="sidebar-title">Administración</li>
                     <?php $paramSubActive = (strpos($currentUrl, 'parametro') === 0 || strpos($currentUrl, 'imagen') === 0) ? 'active' : ''; ?>

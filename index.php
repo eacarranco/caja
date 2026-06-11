@@ -4,6 +4,7 @@ define('ROOT_PATH', __DIR__);
 require_once ROOT_PATH . '/config/app.php';
 require_once ROOT_PATH . '/config/database.php';
 require_once ROOT_PATH . '/app/helpers/UUIDGenerator.php';
+require_once ROOT_PATH . '/app/helpers/CajaHelper.php';
 require_once ROOT_PATH . '/app/helpers/Auth.php';
 require_once ROOT_PATH . '/app/helpers/RBAC.php';
 require_once ROOT_PATH . '/app/helpers/Validator.php';
@@ -38,6 +39,11 @@ $routeMap = [
     'documento/comprobanteSesion' => ['controller' => 'DocumentoController', 'method' => 'comprobanteSesion'],
     'documento/comprobanteSocio' => ['controller' => 'DocumentoController', 'method' => 'comprobanteSocio'],
     'documento/actaCierre' => ['controller' => 'DocumentoController', 'method' => 'actaCierre'],
+    'caja' => ['controller' => 'CajaController', 'method' => 'estadoCuenta'],
+    'caja/estadoCuenta' => ['controller' => 'CajaController', 'method' => 'estadoCuenta'],
+    'caja/exportarCSV' => ['controller' => 'CajaController', 'method' => 'exportarCSV'],
+    'caja/exportarXLSX' => ['controller' => 'CajaController', 'method' => 'exportarXLSX'],
+    'caja/exportarPDF' => ['controller' => 'CajaController', 'method' => 'exportarPDF'],
     'notificacion' => ['controller' => 'NotificacionController', 'method' => 'listar'],
     'notificacion/contar' => ['controller' => 'NotificacionController', 'method' => 'contar'],
     'notificacion/archivar' => ['controller' => 'NotificacionController', 'method' => 'archivar'],

@@ -97,6 +97,20 @@ class CobroController extends BaseController {
                 } catch (Exception $e) {}
                 try { PusherHelper::actualizarPortal($idSocio); } catch (Exception $e) {}
 
+                // Registrar movimiento en Caja
+                try {
+                    $labelTipo = $this->tiposCobro[$tipo] ?? $tipo;
+                    CajaHelper::registrar([
+                        'tipo' => $tipo === 'desembolso' ? 'egreso' : 'ingreso',
+                        'concepto' => "$labelTipo - $nombreSocio" . ($idSesion ? " - Sesion #$idSesion" : ''),
+                        'categoria' => $tipo,
+                        'monto' => $monto,
+                        'id_socio' => $idSocio,
+                        'id_sesion' => $idSesion,
+                        'id_referencia' => $idCobro,
+                    ]);
+                } catch (Exception $e) {}
+
                 $this->json(['mensaje' => 'Cobro registrado', 'id_cobro' => $idCobro]);
             }
             $this->json(['error' => implode(', ', $errors)], 400);
@@ -193,6 +207,19 @@ class CobroController extends BaseController {
                 }
 
                 try { PusherHelper::actualizarPortal($c['id_socio']); } catch (Exception $e) {}
+
+                // Revertir movimiento en Caja
+                try {
+                    CajaHelper::registrar([
+                        'tipo' => $c['tipo'] === 'desembolso' ? 'ingreso' : 'egreso',
+                        'concepto' => "Anulacion cobro #" . substr($id, 0, 8) . " ($c[tipo]) - " . ($motivo ?: 'Sin motivo'),
+                        'categoria' => 'anulacion',
+                        'monto' => $c['monto'],
+                        'id_socio' => $c['id_socio'],
+                        'id_sesion' => $c['id_sesion'],
+                        'id_referencia' => $id,
+                    ]);
+                } catch (Exception $e) {}
             }
             $this->json(['mensaje' => 'Cobro anulado. Se ha notificado al socio.']);
         }

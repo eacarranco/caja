@@ -82,6 +82,7 @@ class InversionController extends BaseController {
                     $soc = $st->fetch();
                     try { require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php'; NotificacionHelper::crearInversion($idSocio, $soc['nombre'], $monto, 'apertura'); } catch (Exception $e) {}
                     try { PusherHelper::actualizarPortal($idSocio); } catch (Exception $e) {}
+                    try { CajaHelper::registrar(['tipo'=>'ingreso','concepto'=>"Inversion apertura - {$soc['nombre']} - {$prod['nombre']} - \${$monto}",'categoria'=>'inversion_apertura','monto'=>$monto,'id_socio'=>$idSocio,'id_referencia'=>$id]); } catch (Exception $e) {}
                     PDFGenerator::generarContratoInversion([
                         'inversion' => $id,
                         'socio' => $soc['nombre'] ?? '',
@@ -136,6 +137,10 @@ class InversionController extends BaseController {
                 $this->db->commit();
                 try { $st2 = $this->db->prepare("SELECT CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) AS nombre FROM socios WHERE id_socio = ?"); $st2->execute([$v['id_socio']]); $nom = $st2->fetchColumn(); require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php'; NotificacionHelper::crearRetornoInversion($v['id_socio'], $nom, $devolucion, $v['destino_final']); } catch (Exception $e) {}
                 try { PusherHelper::actualizarPortal($v['id_socio']); } catch (Exception $e) {}
+                // Caja: egreso por retorno de inversion si no reinvierte
+                if ($v['destino_final'] !== 'capital_inversion') {
+                    try { CajaHelper::registrar(['tipo'=>'egreso','concepto'=>"Retorno inversion - {$v['destino_final']}",'categoria'=>'inversion_retiro','monto'=>$devolucion,'id_socio'=>$v['id_socio'],'id_referencia'=>$v['id_inversion']]); } catch (Exception $e) {}
+                }
                 $count++;
             } catch (Exception $e) {
                 $this->db->rollBack();
@@ -167,6 +172,10 @@ class InversionController extends BaseController {
                 $this->historialInsert($inv['id_socio'], 'inversion_retiro', $devolucion, $id);
                 $this->db->commit();
                 try { PusherHelper::actualizarPortal($inv['id_socio']); } catch (Exception $e) {}
+                // Caja: egreso por retiro anticipado si no reinvierte
+                if ($inv['destino_final'] !== 'capital_inversion') {
+                    try { CajaHelper::registrar(['tipo'=>'egreso','concepto'=>"Retiro anticipado inversion",'categoria'=>'inversion_retiro','monto'=>$devolucion,'id_socio'=>$inv['id_socio'],'id_referencia'=>$id]); } catch (Exception $e) {}
+                }
                 $this->json(['mensaje' => 'Retiro procesado', 'devolucion' => round($devolucion, 2), 'penalidad' => round($penalidad, 2)]);
             } catch (Exception $e) {
                 $this->db->rollBack();
@@ -227,6 +236,7 @@ class InversionController extends BaseController {
                     $this->db->commit();
                     try { $st = $this->db->prepare("SELECT CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) AS nombre FROM socios WHERE id_socio = ?"); $st->execute([$idSocio]); $nom = $st->fetchColumn(); require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php'; NotificacionHelper::crearDepositoCapital($idSocio, $nom, $monto); } catch (Exception $e) {}
                     try { PusherHelper::actualizarPortal($idSocio); } catch (Exception $e) {}
+                    try { CajaHelper::registrar(['tipo'=>'ingreso','concepto'=>"Deposito capital inversion - $nom",'categoria'=>'deposito_capital_inversion','monto'=>$monto,'id_socio'=>$idSocio,'id_referencia'=>$idCobro]); } catch (Exception $e) {}
                     $this->redirect('/inversion/listar');
                 } catch (Exception $e) {
                     $this->db->rollBack();

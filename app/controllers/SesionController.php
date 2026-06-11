@@ -384,6 +384,19 @@ class SesionController extends BaseController {
                 require_once ROOT_PATH . '/app/helpers/PusherHelper.php';
                 PusherHelper::actualizarPortal($o['id_socio']);
             } catch (Exception $e) {}
+            // Registrar en Caja
+            try {
+                $numSesionCierre = $this->db->query("SELECT numero_sesion FROM sesiones_mensuales WHERE id_sesion = '$idSesion'")->fetchColumn();
+                CajaHelper::registrar([
+                    'tipo' => 'ingreso',
+                    'concepto' => "{$labelTipo} - {$o['cedula']} - Sesion #{$numSesionCierre}",
+                    'categoria' => $tipoCobro,
+                    'monto' => $o['monto'],
+                    'id_socio' => $o['id_socio'],
+                    'id_sesion' => $idSesion,
+                    'id_referencia' => $idCobro,
+                ]);
+            } catch (Exception $e) {}
         } catch (Exception $e) {
             $this->db->rollBack();
             error_log("Error pagar obligacion: " . $e->getMessage());

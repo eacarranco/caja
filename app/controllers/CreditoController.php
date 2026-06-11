@@ -344,6 +344,21 @@ class CreditoController extends BaseController {
 
                 $this->historialInsert($credito['id_socio'], 'desembolso_credito', $credito['monto_aprobado'], $credito['id_credito']);
                 $this->db->commit();
+
+                try {
+                    $stP = $this->db->prepare("SELECT p.nombre FROM productos_financieros p JOIN creditos c ON c.id_producto = p.id_producto WHERE c.id_credito = ?");
+                    $stP->execute([$id]);
+                    $prodNombre = $stP->fetchColumn() ?: 'Credito';
+                    CajaHelper::registrar([
+                        'tipo' => 'egreso',
+                        'concepto' => "Desembolso credito - $socioNombre - $prodNombre - \${$credito['monto_aprobado']}",
+                        'categoria' => 'desembolso',
+                        'monto' => $credito['monto_aprobado'],
+                        'id_socio' => $credito['id_socio'],
+                        'id_referencia' => $id,
+                    ]);
+                } catch (Exception $e) {}
+
                 NotificacionHelper::crear([
                     'tipo' => 'credito',
                     'titulo' => 'Credito desembolsado',
