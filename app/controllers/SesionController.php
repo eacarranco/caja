@@ -470,6 +470,21 @@ class SesionController extends BaseController {
         // Generar multas y obligaciones
         $multasGeneradas = $this->generarMultasAsistencia($id, $sesion);
 
+        // Multa por cuota impaga (socios que no pagaron su cuota mensual)
+        $montoMultaCuota = floatval($this->db->query("SELECT valor FROM parametros WHERE codigo = 'multa_cuota_impaga'")->fetchColumn() ?: 2);
+        if ($montoMultaCuota > 0) {
+            $sociosSinPago = $this->db->prepare("SELECT s.id_socio FROM socios s WHERE s.estado = 'activo' AND s.id_socio NOT IN (SELECT o.id_socio FROM obligaciones_sesion o WHERE o.id_sesion = ? AND o.tipo = 'cuota_mensual' AND o.pagada = TRUE)");
+            $sociosSinPago->execute([$id]);
+            foreach ($sociosSinPago as $sp) {
+                $idMulta = UUIDGenerator::generar();
+                $this->db->prepare("INSERT IGNORE INTO multas (id_multa, id_socio, id_sesion, tipo, monto) VALUES (?, ?, ?, 'cuota_impaga', ?)")->execute([$idMulta, $sp['id_socio'], $id, $montoMultaCuota]);
+                $concepto = "Multa por cuota impaga - Sesion #{$numSesion} del " . date('d/m/Y', strtotime($sesion['fecha_sesion']));
+                $this->db->prepare("DELETE FROM obligaciones_sesion WHERE id_referencia = ? AND tipo = 'multa' AND pagada = FALSE")->execute([$idMulta]);
+                $this->db->prepare("INSERT IGNORE INTO obligaciones_sesion (id_obligacion, id_sesion, id_socio, tipo, concepto, monto, id_referencia) VALUES (?, ?, ?, 'multa', ?, ?, ?)")->execute([UUIDGenerator::generar(), $id, $sp['id_socio'], $concepto, $montoMultaCuota, $idMulta]);
+                $multasGeneradas[] = ['id_socio' => $sp['id_socio'], 'tipo' => 'cuota_impaga', 'monto' => $montoMultaCuota];
+            }
+        }
+
         $sesion['total_recaudado'] = $total_recaudado;
         $sesion['total_desembolsado'] = $total_desembolsado;
         $sesion['saldo_caja'] = $saldo;
