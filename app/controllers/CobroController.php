@@ -171,13 +171,15 @@ class CobroController extends BaseController {
                     $this->historialInsert($c['id_socio'], 'anulacion', $c['monto'], $id, $c['id_sesion']);
 
                 } elseif ($c['tipo'] === 'multa' && !empty($c['id_referencia'])) {
+                    // Anular multa: marcarla como impugnada para que no reaparezca
+                    $this->db->prepare("UPDATE multas SET impugnada = TRUE WHERE id_multa = ?")->execute([$c['id_referencia']]);
                     $this->historialInsert($c['id_socio'], 'anulacion', $c['monto'], $id, $c['id_sesion']);
 
                 } else {
                     $this->historialInsert($c['id_socio'], 'anulacion', $c['monto'], $id, $c['id_sesion']);
                 }
 
-                // Revertir obligacion si estaba marcada como pagada (excepto multas, quedan pagadas)
+                // Revertir obligacion si estaba marcada como pagada (multas quedan pagadas, la multa se marca impugnada)
                 try {
                     if ($c['tipo'] !== 'multa') {
                         $this->db->prepare("UPDATE obligaciones_sesion SET pagada = FALSE, id_cobro = NULL WHERE id_cobro = ?")->execute([$id]);
