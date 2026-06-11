@@ -1,36 +1,45 @@
 <div class="container-fluid">
     <h4 class="mb-3">Dashboard</h4>
 
-    <div class="row g-3 mb-4">
+    <div class="row row-cols-2 row-cols-md-5 g-3 mb-4">
         <div class="col-md-3">
-            <div class="card card-dashboard text-center">
-                <div class="card-body">
+            <div class="card card-dashboard text-center h-100">
+                <div class="card-body d-flex flex-column justify-content-center">
                     <h2 class="mb-0"><?= $totalSocios ?></h2>
                     <small class="text-muted">Total socios</small>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card card-dashboard text-center">
-                <div class="card-body">
+            <div class="card card-dashboard text-center h-100">
+                <div class="card-body d-flex flex-column justify-content-center">
                     <h2 class="mb-0 text-success"><?= $sociosActivos ?></h2>
                     <small class="text-muted">Socios activos</small>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card card-dashboard text-center">
-                <div class="card-body">
-                    <h2 class="mb-0 <?= $sesionAbierta ? 'text-success' : 'text-muted' ?>"><?= $sesionAbierta ? 'Sí' : 'No' ?></h2>
-                    <small class="text-muted">Sesión abierta</small>
+            <div class="card card-dashboard text-center h-100">
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <h2 class="mb-0 <?= $sesionAbierta ? 'text-success' : 'text-muted' ?>"><?= $sesionAbierta ? 'Si' : 'No' ?></h2>
+                    <small class="text-muted">Sesion abierta</small>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card card-dashboard text-center">
-                <div class="card-body">
+            <div class="card card-dashboard text-center h-100">
+                <div class="card-body d-flex flex-column justify-content-center">
                     <h2 class="mb-0 text-warning"><?= $creditosPendientes ?></h2>
-                    <small class="text-muted">Créditos pendientes</small>
+                    <small class="text-muted">Creditos pendientes</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-dashboard text-center h-100 border-success">
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <h3 class="mb-1 text-success">$ <?= number_format($capitalCaja, 2) ?></h3>
+                    <small class="text-muted">Capital de Caja</small>
+                    <a href="<?= BASE_URL ?>/caja/estadoCuenta" class="btn btn-sm btn-outline-success mt-2"><i class="bi bi-list-ul"></i> Detalle</a>
                 </div>
             </div>
         </div>
