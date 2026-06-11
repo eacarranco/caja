@@ -91,10 +91,13 @@ class NotificacionController extends BaseController {
             $stmt->execute([$cedula]);
             $idSocio = $stmt->fetchColumn();
         }
-        return [
-            'sql' => $idSocio ? '(id_usuario = ? OR id_socio = ?)' : 'id_usuario = ?',
-            'params' => $idSocio ? [$_SESSION['usuario_id'], $idSocio] : [$_SESSION['usuario_id']],
-        ];
+        $conds = ['id_usuario = ?', 'id_usuario IS NULL'];
+        $params = [$_SESSION['usuario_id']];
+        if ($idSocio) {
+            $conds[] = 'id_socio = ?';
+            $params[] = $idSocio;
+        }
+        return ['sql' => '(' . implode(' OR ', $conds) . ')', 'params' => $params];
     }
 
     public function archivar($id) {
