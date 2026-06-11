@@ -434,13 +434,6 @@ class SesionController extends BaseController {
         $id = $sesion['id_sesion'];
         $numSesion = $sesion['numero_sesion'];
 
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM cobros WHERE id_sesion = ?");
-        $stmt->execute([$id]);
-        if ($stmt->fetchColumn() == 0) {
-            $_SESSION['error'] = 'No hay cobros registrados en esta sesion';
-            $this->redirect('/sesion/checkin/' . $id);
-        }
-
         // Validar que todos los socios activos tengan asistencia registrada
         $totalSocios = $this->db->query("SELECT COUNT(*) FROM socios WHERE estado = 'activo'")->fetchColumn();
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM asistencias WHERE id_sesion = ?");
