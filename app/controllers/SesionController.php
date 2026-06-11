@@ -259,11 +259,13 @@ class SesionController extends BaseController {
                     $tiposEliminar = ['retraso_10min', 'retraso_30min', 'inasistencia'];
                 }
 
+                $multasEliminadas = false;
                 foreach ($tiposEliminar as $tm) {
                     $idsMultas = $this->db->prepare("SELECT id_multa FROM multas WHERE id_socio = ? AND id_sesion = ? AND tipo = ?");
                     $idsMultas->execute([$idSocio, $id, $tm]);
                     $ids = $idsMultas->fetchAll(PDO::FETCH_COLUMN);
                     if (!empty($ids)) {
+                        $multasEliminadas = true;
                         $ph = implode(',', array_fill(0, count($ids), '?'));
                         $this->db->prepare("DELETE FROM obligaciones_sesion WHERE id_sesion = ? AND id_socio = ? AND tipo = 'multa' AND id_referencia IN ($ph)")
                             ->execute(array_merge([$id, $idSocio], $ids));
@@ -272,8 +274,8 @@ class SesionController extends BaseController {
                         ->execute([$idSocio, $id, $tm]);
                 }
 
-                // Notificar correccion si se elimino multa por cambio a A tiempo
-                if ($tipo === 'a_tiempo' && !empty($tiposEliminar)) {
+                // Notificar correccion solo si se elimino efectivamente una multa
+                if ($tipo === 'a_tiempo' && $multasEliminadas) {
                     $numSesion = $sesion['numero_sesion'];
                     $cedula = $this->db->prepare("SELECT cedula FROM socios WHERE id_socio = ?");
                     $cedula->execute([$idSocio]);
