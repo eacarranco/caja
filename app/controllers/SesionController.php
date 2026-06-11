@@ -272,6 +272,23 @@ class SesionController extends BaseController {
                         ->execute([$idSocio, $id, $tm]);
                 }
 
+                // Notificar correccion si se elimino multa por cambio a A tiempo
+                if ($tipo === 'a_tiempo' && !empty($tiposEliminar)) {
+                    $numSesion = $sesion['numero_sesion'];
+                    $cedula = $this->db->prepare("SELECT cedula FROM socios WHERE id_socio = ?");
+                    $cedula->execute([$idSocio]);
+                    $cedulaVal = $cedula->fetchColumn() ?: '';
+                    NotificacionHelper::crear([
+                        'id_socio' => $idSocio,
+                        'tipo' => 'asistencia',
+                        'titulo' => 'Correccion de asistencia',
+                        'mensaje' => "Correccion de asistencia - A tiempo en la sesion #{$numSesion} para el socio {$cedulaVal}. Multa eliminada.",
+                        'enviar_pusher' => true,
+                    ]);
+                    require_once ROOT_PATH . '/app/helpers/PusherHelper.php';
+                    PusherHelper::actualizarPortal($idSocio);
+                }
+
                 // Generar multa inmediatamente segun el tipo de asistencia seleccionado
                 $montoMulta = 0;
                 $tipoMulta = '';
