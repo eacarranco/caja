@@ -114,8 +114,17 @@ class NotificacionController extends BaseController {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') $this->json(['error' => 'Metodo no permitido'], 405);
         $this->validateCSRF();
         $owner = $this->getOwnerFilter();
-        $this->db->prepare("UPDATE notificaciones SET buzon = 'papelera', fecha_eliminacion = NOW() WHERE id_notificacion = ? AND {$owner['sql']}")->execute(array_merge([$id], $owner['params']));
-        $this->json(['mensaje' => 'Movida a papelera']);
+        // Si ya esta en papelera, eliminar fisicamente
+        $existe = $this->db->prepare("SELECT buzon FROM notificaciones WHERE id_notificacion = ? AND {$owner['sql']}");
+        $existe->execute(array_merge([$id], $owner['params']));
+        $buzon = $existe->fetchColumn();
+        if ($buzon === 'papelera') {
+            $this->db->prepare("DELETE FROM notificaciones WHERE id_notificacion = ? AND {$owner['sql']}")->execute(array_merge([$id], $owner['params']));
+            $this->json(['mensaje' => 'Eliminada definitivamente']);
+        } else {
+            $this->db->prepare("UPDATE notificaciones SET buzon = 'papelera', fecha_eliminacion = NOW() WHERE id_notificacion = ? AND {$owner['sql']}")->execute(array_merge([$id], $owner['params']));
+            $this->json(['mensaje' => 'Movida a papelera']);
+        }
     }
 
     public function restaurar($id) {
