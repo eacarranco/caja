@@ -59,6 +59,7 @@ if (typeof Pusher !== 'undefined' && typeof PUSHER_KEY !== 'undefined' && PUSHER
     var pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER || 'us2' });
     var channel = pusher.subscribe('canal-general');
     channel.bind('notificacion', function(data) {
+        if (typeof data === 'string') { try { data = JSON.parse(data); } catch(e) { return; } }
         actualizarNotifBadge();
         // Check if the notification is for this user
         var paraMi = false;
