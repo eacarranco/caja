@@ -20,7 +20,7 @@ class CajaController extends BaseController {
         $saldoActual = CajaHelper::obtenerSaldo();
 
         // Resumen por categoria
-        $resumen = $this->db->prepare("SELECT categoria, tipo_movimiento, SUM(monto) AS total FROM caja_movimientos $where GROUP BY categoria, tipo_movimiento ORDER BY categoria");
+        $resumen = $this->db->prepare("SELECT categoria, tipo_movimiento, SUM(monto) AS total FROM caja_movimientos m $where GROUP BY categoria, tipo_movimiento ORDER BY categoria");
         $resumen->execute($params);
         $resumen = $resumen->fetchAll();
 
