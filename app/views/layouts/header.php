@@ -127,12 +127,6 @@ if ($loggedIn) {
                             <span>Inicio</span>
                         </a>
                     </li>
-                    <li class="sidebar-item <?= mazerActiveP('portal/pagar') ?>">
-                        <a href="<?= $baseUrl ?>/portal/pagar" class="sidebar-link">
-                            <i class="bi bi-wallet-fill"></i>
-                            <span>Pagar</span>
-                        </a>
-                    </li>
                     <li class="sidebar-item has-sub <?= $portalSubActive ?>">
                         <a href="#" class="sidebar-link">
                             <i class="bi bi-file-earmark-plus-fill"></i>
@@ -172,12 +166,6 @@ if ($loggedIn) {
                         <a href="<?= $baseUrl ?>/portal/historial" class="sidebar-link">
                             <i class="bi bi-clock-history"></i>
                             <span>Historial</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item <?= mazerActiveP('portal/password') ?>">
-                        <a href="<?= $baseUrl ?>/portal/password" class="sidebar-link">
-                            <i class="bi bi-key-fill"></i>
-                            <span>Contraseña</span>
                         </a>
                     </li>
                 </ul>
