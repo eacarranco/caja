@@ -51,6 +51,16 @@
             </table></div>
         </div>
     </div>
+
+    <?php if ($totalPaginas > 1): ?>
+    <nav class="mt-3"><ul class="pagination pagination-sm">
+        <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+        <li class="page-item <?= $i === $page ? 'active' : '' ?>">
+            <a class="page-link" href="?p=<?= $i ?>"><?= $i ?></a>
+        </li>
+        <?php endfor; ?>
+    </ul></nav>
+    <?php endif; ?>
 </div>
 
 <script>
