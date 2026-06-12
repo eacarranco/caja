@@ -89,7 +89,8 @@ INSERT INTO parametros (codigo, nombre, valor, tipo, modulo) VALUES
 ('pin_2fa_expiracion_min', 'Expiración PIN 2FA (minutos)', '5', 'numero', 'seguridad'),
 ('máx_reenvío_pin_hora', 'Máximo reenvíos PIN por hora', '3', 'numero', 'seguridad'),
 ('logo_sidebar', 'Logo del sidebar', '', 'texto', 'imagen'),
-('logo_sd', 'Logo sin fondo', '', 'texto', 'imagen');
+('logo_sd', 'Logo sin fondo', '', 'texto', 'imagen'),
+('abrev_caja', 'Abreviatura Caja', 'P&amp;S', 'texto', 'imagen');
 
 INSERT INTO provincias (nombre) VALUES ('Pichincha');
 INSERT INTO cantones (id_provincia, nombre) VALUES (1, 'Pedro Moncayo');
