@@ -73,6 +73,32 @@ class MultaController extends BaseController {
         return false;
     }
 
+    private function notificarRolesConPermiso($codigoPermiso, $titulo, $mensaje) {
+        $rows = $this->db->query("
+            SELECT DISTINCT u.id_usuario FROM usuarios u
+            JOIN roles_usuarios ru ON u.id_usuario = ru.id_usuario
+            LEFT JOIN roles r ON ru.id_rol = r.id_rol
+            WHERE r.endosable = 1
+            OR ru.id_rol IN (
+                SELECT rp.id_rol FROM roles_permisos rp
+                JOIN permisos p ON rp.id_permiso = p.id_permiso
+                WHERE p.codigo = '$codigoPermiso' AND rp.permitir = 1
+            )
+        ")->fetchAll(PDO::FETCH_COLUMN);
+        foreach ($rows as $uid) {
+            try {
+                require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php';
+                NotificacionHelper::crear([
+                    'id_usuario' => $uid,
+                    'tipo' => 'multa',
+                    'titulo' => $titulo,
+                    'mensaje' => $mensaje,
+                    'enviar_pusher' => true,
+                ]);
+            } catch (Exception $e) {}
+        }
+    }
+
     public function ver($id) {
         $this->requireAuth();
         $stmt = $this->db->prepare("SELECT m.*, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS socio,
@@ -84,17 +110,34 @@ class MultaController extends BaseController {
         $multa = $stmt->fetch();
         if (!$multa) $this->redirect('/multa/listar');
 
-        // Verificar si la multa tiene alguna obligacion pagada
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM obligaciones_sesion WHERE id_referencia = ? AND tipo = 'multa' AND pagada = TRUE");
         $stmt->execute([$id]);
         $pagada = $stmt->fetchColumn() > 0;
+
+        $puedeAutorizar = $this->tienePermiso('multa.autorizar_impugnacion');
 
         $this->render('multas/ver', [
             'titulo' => 'Multa',
             'multa' => $multa,
             'pagada' => $pagada,
             'esPresidente' => $this->esPresidente(),
+            'puedeAutorizar' => $puedeAutorizar,
         ]);
+    }
+
+    private function tienePermiso($codigo) {
+        $uid = $_SESSION['usuario_id'] ?? '';
+        if (!$uid) return false;
+        $roles = RBAC::obtenerRolesUsuario($uid);
+        foreach ($roles as $r) {
+            if (!empty($r['endosable'])) return true;
+        }
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM roles_permisos rp
+            JOIN permisos p ON rp.id_permiso = p.id_permiso
+            JOIN roles_usuarios ru ON rp.id_rol = ru.id_rol
+            WHERE ru.id_usuario = ? AND p.codigo = ? AND rp.permitir = 1");
+        $stmt->execute([$uid, $codigo]);
+        return $stmt->fetchColumn() > 0;
     }
 
     public function justificar($id) {
@@ -138,13 +181,59 @@ class MultaController extends BaseController {
     }
 
     public function aprobarJustificacion($id) {
-        $this->requirePermission('socio.cambiar_estado');
+        $this->requirePermission('multa.autorizar_impugnacion');
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') $this->json(['error' => 'Método no permitido'], 405);
         $this->validateCSRF();
+
+        $stmt = $this->db->prepare("SELECT m.*, s.cedula FROM multas m JOIN socios s ON m.id_socio = s.id_socio WHERE m.id_multa = ?");
+        $stmt->execute([$id]);
+        $multa = $stmt->fetch();
+        if (!$multa) $this->json(['error' => 'No encontrada'], 404);
+        if (empty($multa['justificacion'])) $this->json(['error' => 'Esta multa no tiene justificacion pendiente'], 400);
+
         $accion = $_POST['accion'] ?? '';
-        $aprobada = $accion === 'aprobar' ? 1 : 0;
-        $this->db->prepare("UPDATE multas SET justificacion_aprobada = ? WHERE id_multa = ?")->execute([$aprobada, $id]);
-        $this->json(['mensaje' => $aprobada ? 'Justificación aprobada' : 'Justificación rechazada']);
+
+        try {
+            require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php';
+            require_once ROOT_PATH . '/app/helpers/PusherHelper.php';
+        } catch (Exception $e) {}
+
+        if ($accion === 'aprobar') {
+            $this->db->beginTransaction();
+            try {
+                $this->db->prepare("UPDATE multas SET estado = 'impugnada', justificacion_aprobada = 1 WHERE id_multa = ?")
+                    ->execute([$id]);
+                $this->db->prepare("UPDATE obligaciones_sesion SET pagada = TRUE WHERE id_referencia = ? AND tipo = 'multa' AND pagada = FALSE")
+                    ->execute([$id]);
+                $this->db->commit();
+
+                NotificacionHelper::crear([
+                    'id_socio' => $multa['id_socio'],
+                    'tipo' => 'multa',
+                    'titulo' => 'Impugnacion aprobada',
+                    'mensaje' => 'Su impugnacion ha sido aprobada. La multa queda sin efecto.',
+                    'enviar_pusher' => true,
+                ]);
+                PusherHelper::actualizarPortal($multa['id_socio']);
+                $this->json(['mensaje' => 'Impugnación aprobada, multa sin efecto']);
+            } catch (Exception $e) {
+                $this->db->rollBack();
+                $this->json(['error' => $e->getMessage()], 500);
+            }
+        } else {
+            $this->db->prepare("UPDATE multas SET justificacion_aprobada = 0 WHERE id_multa = ?")
+                ->execute([$id]);
+
+            NotificacionHelper::crear([
+                'id_socio' => $multa['id_socio'],
+                'tipo' => 'multa',
+                'titulo' => 'Impugnacion rechazada',
+                'mensaje' => 'Su impugnacion ha sido rechazada. La multa sigue vigente.',
+                'enviar_pusher' => true,
+            ]);
+            PusherHelper::actualizarPortal($multa['id_socio']);
+            $this->json(['mensaje' => 'Impugnación rechazada, multa vigente']);
+        }
     }
 
     public function impugnar($id) {
@@ -154,7 +243,6 @@ class MultaController extends BaseController {
         $multa = $stmt->fetch();
         if (!$multa) $this->json(['error' => 'No encontrada'], 404);
 
-        // Verificar si ya fue pagada via obligaciones
         $stmtPag = $this->db->prepare("SELECT COUNT(*) FROM obligaciones_sesion WHERE id_referencia = ? AND tipo = 'multa' AND pagada = TRUE");
         $stmtPag->execute([$id]);
         if ($stmtPag->fetchColumn() > 0) $this->json(['error' => 'No se puede impugnar una multa ya pagada'], 400);
@@ -177,37 +265,22 @@ class MultaController extends BaseController {
                 $archivo = $nombre;
             }
 
-            $this->db->beginTransaction();
-            try {
-                $this->db->prepare("UPDATE multas SET justificacion = ?, justificacion_pdf = COALESCE(?, justificacion_pdf), estado = 'impugnada' WHERE id_multa = ?")
+            if ($archivo) {
+                $this->db->prepare("UPDATE multas SET justificacion = ?, justificacion_pdf = ? WHERE id_multa = ?")
                     ->execute([$texto, $archivo, $id]);
-
-                $this->db->prepare("UPDATE obligaciones_sesion SET pagada = TRUE WHERE id_referencia = ? AND tipo = 'multa' AND pagada = FALSE")
-                    ->execute([$id]);
-
-                $this->db->commit();
-
-                try {
-                    require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php';
-                    NotificacionHelper::crear([
-                        'id_socio' => $multa['id_socio'],
-                        'tipo' => 'multa',
-                        'titulo' => 'Multa impugnada',
-                        'mensaje' => 'Su multa ha sido registrada como impugnada y queda sin efecto.',
-                        'enviar_pusher' => true,
-                    ]);
-                } catch (Exception $e) {}
-
-                try {
-                    require_once ROOT_PATH . '/app/helpers/PusherHelper.php';
-                    PusherHelper::actualizarPortal($multa['id_socio']);
-                } catch (Exception $e) {}
-
-                $this->json(['mensaje' => 'Multa impugnada correctamente']);
-            } catch (Exception $e) {
-                $this->db->rollBack();
-                $this->json(['error' => $e->getMessage()], 500);
+            } else {
+                $this->db->prepare("UPDATE multas SET justificacion = ? WHERE id_multa = ?")
+                    ->execute([$texto, $id]);
             }
+
+            $socioNombre = trim($multa['cedula']);
+            $this->notificarRolesConPermiso(
+                'multa.impugnar',
+                'Impugnacion de multa',
+                "El socio {$socioNombre} ha impugnado una multa. Revise la justificacion en el modulo de multas."
+            );
+
+            $this->json(['mensaje' => 'Impugnacion enviada para revision']);
         }
     }
 
@@ -227,7 +300,6 @@ class MultaController extends BaseController {
         $stmt->execute([$id]);
         if (!$stmt->fetch()) $this->json(['error' => 'No encontrada'], 404);
 
-        // Verificar si tiene obligacion pagada
         $stmtPag = $this->db->prepare("SELECT COUNT(*) FROM obligaciones_sesion WHERE id_referencia = ? AND tipo = 'multa' AND pagada = TRUE");
         $stmtPag->execute([$id]);
         if ($stmtPag->fetchColumn() > 0) $this->json(['error' => 'No se puede eliminar una multa con pagos asociados'], 400);

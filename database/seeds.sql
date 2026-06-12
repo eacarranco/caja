@@ -37,7 +37,9 @@ INSERT INTO permisos (codigo, nombre, descripcion) VALUES
 ('reporte.socios', 'Generar reportes de socios', 'Generar reportes del modulo de socios'),
 ('reporte.financiero', 'Generar reportes financieros', 'Generar reportes del modulo financiero'),
 ('reporte.cobros', 'Generar reportes de cobros', 'Generar reportes del modulo de cobros'),
-('credito.aprobar', 'Aprobar/rechazar creditos', 'Permite aprobar o rechazar solicitudes de credito en la bandeja de aprobacion');
+('credito.aprobar', 'Aprobar/rechazar creditos', 'Permite aprobar o rechazar solicitudes de credito en la bandeja de aprobacion'),
+('multa.impugnar', 'Impugnar multas', 'Permite autorizar la impugnacion de multas presentadas por los socios'),
+('multa.autorizar_impugnacion', 'Autorizar impugnacion', 'Permite autorizar o rechazar impugnaciones de multas presentadas por los socios');
 
 INSERT INTO roles_permisos (id_rol, id_permiso, permitir) VALUES
 (1, 1, TRUE), (1, 2, TRUE), (1, 6, TRUE), (1, 7, TRUE), (1, 8, TRUE), (1, 9, TRUE), (1, 10, TRUE), (1, 11, TRUE), (1, 26, TRUE),

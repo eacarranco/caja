@@ -23,6 +23,23 @@
     </form>
     <?php endif; ?>
 
+    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+        <div></div>
+        <div>
+            <?php
+            $pendientes = 0;
+            foreach ($multas as $m) {
+                if (!empty($m['justificacion']) && ($m['justificacion_aprobada'] === '' || $m['justificacion_aprobada'] === null || $m['justificacion_aprobada'] === '0') && $m['estado'] === 'activa') {
+                    $pendientes++;
+                }
+            }
+            ?>
+            <?php if ($pendientes > 0 && !$esSocio): ?>
+            <span class="badge bg-warning text-dark"><?= $pendientes ?> justificacion(es) pendiente(s) de revision</span>
+            <?php endif; ?>
+        </div>
+    </div>
+
     <div class="card card-dashboard">
         <div class="card-body p-0">
             <div class="table-responsive"><table class="table table-hover mb-0">
@@ -50,8 +67,10 @@
                         </td>
                         <td>
                             <?php if ($m['pagada'] > 0): ?><span class="badge bg-success">Pagada</span>
-                            <?php elseif ($m['estado'] === 'impugnada'): ?><span class="badge bg-secondary">Impugnada</span>
+                            <?php elseif ($m['estado'] === 'impugnada'): ?><span class="badge bg-success">Impugnada (sin efecto)</span>
                             <?php elseif ($m['estado'] === 'anulada'): ?><span class="badge bg-dark">Anulada</span>
+                            <?php elseif (!empty($m['justificacion']) && ($m['justificacion_aprobada'] === '' || $m['justificacion_aprobada'] === null)): ?><span class="badge bg-warning text-dark">En revision</span>
+                            <?php elseif ($m['justificacion_aprobada'] === '0'): ?><span class="badge bg-danger">Rechazada</span>
                             <?php else: ?><span class="badge bg-danger">Pendiente</span><?php endif; ?>
                         </td>
                         <td>

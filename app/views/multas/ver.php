@@ -16,7 +16,9 @@
                     <p><strong>Estado:</strong>
                         <?php if ($pagada): ?><span class="badge bg-success">Pagada</span>
                         <?php elseif ($multa['estado'] === 'anulada'): ?><span class="badge bg-dark">Anulada por directivo</span>
-                        <?php elseif ($multa['estado'] === 'impugnada'): ?><span class="badge bg-secondary">Impugnada (sin efecto)</span>
+                        <?php elseif ($multa['estado'] === 'impugnada'): ?><span class="badge bg-success">Impugnada (sin efecto)</span>
+                        <?php elseif (!empty($multa['justificacion']) && ($multa['justificacion_aprobada'] === '' || $multa['justificacion_aprobada'] === null)): ?><span class="badge bg-warning text-dark">En revision</span>
+                        <?php elseif ($multa['justificacion_aprobada'] === '0'): ?><span class="badge bg-danger">Rechazada</span>
                         <?php else: ?><span class="badge bg-danger">Pendiente</span><?php endif; ?>
                     </p>
                     <?php if ($multa['id_sesion']): ?><p><strong>Sesion:</strong> <?= $multa['id_sesion'] ?></p><?php endif; ?>
@@ -30,31 +32,31 @@
             <?php if ($multa['justificacion_pdf']): ?>
             <a href="<?= BASE_URL ?>/storage/documentos/<?= $multa['justificacion_pdf'] ?>" class="btn btn-sm btn-outline-primary" target="_blank"><i class="bi bi-file-earmark-pdf"></i> Ver archivo</a>
             <?php endif; ?>
-            <?php if (!$multa['estado'] || $multa['estado'] === 'activa'): ?>
             <p class="mt-2">
                 <strong>Estado justificacion:</strong>
-                <?php if ($multa['justificacion_aprobada'] === '1'): ?>
+                <?php if ($multa['estado'] === 'impugnada'): ?>
+                <span class="badge bg-success">Impugnacion aprobada — multa sin efecto</span>
+                <?php elseif ($multa['justificacion_aprobada'] === '1'): ?>
                 <span class="badge bg-success">Aprobada</span>
                 <?php elseif ($multa['justificacion_aprobada'] === '0'): ?>
-                <span class="badge bg-danger">Rechazada</span>
+                <span class="badge bg-danger">Rechazada — multa vigente</span>
                 <?php else: ?>
                 <span class="badge bg-warning">Pendiente de revision</span>
                 <?php endif; ?>
             </p>
-            <?php if ($multa['justificacion_aprobada'] === '' || $multa['justificacion_aprobada'] === null): ?>
+            <?php if ($puedeAutorizar && $multa['estado'] === 'activa' && ($multa['justificacion_aprobada'] === '' || $multa['justificacion_aprobada'] === null || $multa['justificacion_aprobada'] === '0')): ?>
             <div class="mt-2">
-                <form method="POST" action="<?= BASE_URL ?>/multa/aprobarJustificacion/<?= $multa['id_multa'] ?>" class="d-inline" onsubmit="return confirm('Aprobar justificacion?')">
+                <form method="POST" action="<?= BASE_URL ?>/multa/aprobarJustificacion/<?= $multa['id_multa'] ?>" class="d-inline" onsubmit="return confirm('¿Autorizar impugnacion? La multa quedara sin efecto.')">
                     <input type="hidden" name="csrf_token" value="<?= CSRFMiddleware::generarToken() ?>">
                     <input type="hidden" name="accion" value="aprobar">
-                    <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i> Aprobar</button>
+                    <button type="submit" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i> Autorizar impugnacion</button>
                 </form>
-                <form method="POST" action="<?= BASE_URL ?>/multa/aprobarJustificacion/<?= $multa['id_multa'] ?>" class="d-inline" onsubmit="return confirm('Rechazar justificacion?')">
+                <form method="POST" action="<?= BASE_URL ?>/multa/aprobarJustificacion/<?= $multa['id_multa'] ?>" class="d-inline" onsubmit="return confirm('¿Rechazar impugnacion? La multa seguira vigente.')">
                     <input type="hidden" name="csrf_token" value="<?= CSRFMiddleware::generarToken() ?>">
                     <input type="hidden" name="accion" value="rechazar">
-                    <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-x-lg"></i> Rechazar</button>
+                    <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-x-lg"></i> Rechazar impugnacion</button>
                 </form>
             </div>
-            <?php endif; ?>
             <?php endif; ?>
             <?php endif; ?>
 
