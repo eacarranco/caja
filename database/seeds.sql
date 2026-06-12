@@ -79,7 +79,7 @@ INSERT INTO parametros (codigo, nombre, valor, tipo, modulo) VALUES
 ('multa_retraso_10min', 'Multa retraso 10-30 minutos', '1.00', 'decimal', 'financiero'),
 ('multa_retraso_30min', 'Multa retraso >=30 minutos', '5.00', 'decimal', 'financiero'),
 ('multa_inasistencia', 'Multa por inasistencia', '5.00', 'decimal', 'financiero'),
-('multa_mora_crédito', 'Multa por mora de crédito', '5.00', 'decimal', 'financiero'),
+('multa_mora_credito', 'Multa por mora de crédito', '5.00', 'decimal', 'financiero'),
 ('límite_crédito_emergente', 'Límite crédito emergente', '300.00', 'decimal', 'financiero'),
 ('plazo_mínimo_inversión', 'Plazo mínimo inversión (meses)', '6', 'numero', 'financiero'),
 ('intentos_máx_login', 'Intentos máximo de login', '3', 'numero', 'seguridad'),

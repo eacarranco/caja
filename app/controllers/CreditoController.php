@@ -6,16 +6,24 @@ class CreditoController extends BaseController {
 
     public function listar() {
         $this->requirePermission('cobro.desembolso');
-        $stmt = $this->db->query("SELECT c.*, CONCAT(s.apellido1, ' ', COALESCE(s.apellido2,''), ' ', s.nombre1, ' ', COALESCE(s.nombre2,'')) AS socio,
+        $page = max(1, intval($_GET['p'] ?? 1));
+        $porPagina = 20;
+        $offset = ($page - 1) * $porPagina;
+        $total = $this->db->query("SELECT COUNT(*) FROM creditos")->fetchColumn();
+        $totalPaginas = ceil($total / $porPagina);
+        $stmt = $this->db->prepare("SELECT c.*, CONCAT(s.apellido1, ' ', COALESCE(s.apellido2,''), ' ', s.nombre1, ' ', COALESCE(s.nombre2,'')) AS socio,
                                    p.nombre AS producto, p.tipo AS productoTipo
-                                   FROM `creditos` c
+                                   FROM creditos c
                                    JOIN socios s ON c.id_socio = s.id_socio
                                    JOIN productos_financieros p ON c.id_producto = p.id_producto
-                                   ORDER BY c.fecha_solicitud DESC");
+                                   ORDER BY c.fecha_solicitud DESC LIMIT $porPagina OFFSET $offset");
+        $stmt->execute();
         $creditos = $stmt->fetchAll();
         $this->render('creditos/listar', [
             'titulo' => 'Créditos',
             'creditos' => $creditos,
+            'page' => $page,
+            'totalPaginas' => $totalPaginas,
         ]);
     }
 
@@ -63,9 +71,13 @@ class CreditoController extends BaseController {
 
                     if (!empty($garantes)) {
                         $insG = $this->db->prepare("INSERT INTO garantes (id_garante, id_credito, id_socio, monto_garantizado) VALUES (?, ?, ?, ?)");
-                        $montoG = round($monto / count($garantes), 2);
-                        foreach ($garantes as $g) {
+                        $n = count($garantes);
+                        $montoBase = round($monto / $n, 2);
+                        $suma = 0;
+                        foreach ($garantes as $i => $g) {
+                            $montoG = ($i === $n - 1) ? round($monto - $suma, 2) : $montoBase;
                             $insG->execute([UUIDGenerator::generar(), $id, $g, $montoG]);
+                            $suma += $montoG;
                         }
                     }
                     $this->db->commit();
@@ -381,28 +393,35 @@ class CreditoController extends BaseController {
         }
         $this->validateCSRF();
 
-        $tasaMora = (float)($this->db->query("SELECT valor FROM parametros WHERE codigo = 'multa_mora_crédito'")->fetchColumn() ?: 5);
+        $tasaMora = (float)($this->db->query("SELECT valor FROM parametros WHERE codigo = 'multa_mora_credito'")->fetchColumn() ?: 5);
         $tasaMora /= 100;
 
         $stmt = $this->db->query("SELECT a.id_amortizacion, a.id_credito, c.id_socio, a.total, a.fecha_vencimiento, c.monto_aprobado
                                   FROM amortizaciones a
-                                  JOIN `creditos` c ON a.id_credito = c.id_credito
+                                  JOIN creditos c ON a.id_credito = c.id_credito
                                   WHERE a.estado = 'pendiente' AND a.fecha_vencimiento < CURDATE()");
         $vencidas = $stmt->fetchAll();
         $count = 0;
-        foreach ($vencidas as $v) {
-            $this->db->prepare("UPDATE amortizaciones SET estado = 'vencida' WHERE id_amortizacion = ?")->execute([$v['id_amortizacion']]);
 
-            $dias = max(1, (new DateTime())->diff(new DateTime($v['fecha_vencimiento']))->days);
-            $interesMora = round($v['total'] * $tasaMora * ($dias / 30), 2);
+        $this->db->beginTransaction();
+        try {
+            foreach ($vencidas as $v) {
+                $this->db->prepare("UPDATE amortizaciones SET estado = 'vencida' WHERE id_amortizacion = ?")->execute([$v['id_amortizacion']]);
 
-            if ($interesMora > 0) {
-                $this->db->prepare("INSERT INTO multas (id_multa, id_socio, tipo, monto, fecha_generacion) VALUES (?, ?, 'mora_credito', ?, NOW())")
-                    ->execute([UUIDGenerator::generar(), $v['id_socio'], $interesMora]);
+                $dias = max(1, (new DateTime())->diff(new DateTime($v['fecha_vencimiento']))->days);
+                $interesMora = round($v['total'] * $tasaMora * ($dias / 30), 2);
+
+                if ($interesMora > 0) {
+                    $this->db->prepare("INSERT INTO multas (id_multa, id_socio, tipo, monto, fecha_generacion) VALUES (?, ?, 'mora_credito', ?, NOW())")
+                        ->execute([UUIDGenerator::generar(), $v['id_socio'], $interesMora]);
+                }
+                $count++;
+                NotificacionHelper::crearCredito($v['id_socio'], 'mora', $v['total']);
             }
-
-            $count++;
-            NotificacionHelper::crearCredito($v['id_socio'], 'mora', $v['total']);
+            $this->db->commit();
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            $this->json(['error' => $e->getMessage()], 500);
         }
         $this->json(['mensaje' => "$count cuota(s) marcada(s) como vencida(s)" . (($tasaMora > 0) ? ' con intereses moratorios' : '')]);
     }

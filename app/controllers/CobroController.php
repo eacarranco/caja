@@ -19,17 +19,25 @@ class CobroController extends BaseController {
 
     public function listar() {
         $this->requirePermission('cobro.aporte');
-        $stmt = $this->db->query("SELECT c.*, s.cedula, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS socio,
+        $page = max(1, intval($_GET['p'] ?? 1));
+        $porPagina = 30;
+        $offset = ($page - 1) * $porPagina;
+        $total = $this->db->query("SELECT COUNT(*) FROM cobros")->fetchColumn();
+        $totalPaginas = ceil($total / $porPagina);
+        $stmt = $this->db->prepare("SELECT c.*, s.cedula, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS socio,
                                    ses.numero_sesion, ses.fecha_sesion
                                    FROM cobros c
                                    JOIN socios s ON c.id_socio = s.id_socio
                                    LEFT JOIN sesiones_mensuales ses ON c.id_sesion = ses.id_sesion
-                                   ORDER BY c.fecha_registro DESC");
+                                   ORDER BY c.fecha_registro DESC LIMIT $porPagina OFFSET $offset");
+        $stmt->execute();
         $cobros = $stmt->fetchAll();
         $sesionAbierta = $this->db->query("SELECT id_sesion FROM sesiones_mensuales WHERE estado = 'abierta' LIMIT 1")->fetchColumn();
         $this->render('cobros/listar', [
             'titulo' => 'Cobros',
             'cobros' => $cobros,
+            'page' => $page,
+            'totalPaginas' => $totalPaginas,
             'tiposCobro' => $this->tiposCobro,
             'mediosPago' => $this->mediosPago,
             'sesionAbierta' => $sesionAbierta,
@@ -60,45 +68,50 @@ class CobroController extends BaseController {
             if (!is_numeric($monto) || $monto <= 0) $errors['monto'] = 'Monto inválido';
 
             if (empty($errors)) {
-                $idCobro = UUIDGenerator::generar();
-
-                $data = $idSocio . $idSesion . $tipo . $monto . $idCobro . date('Y-m-d H:i:s');
-                $hash = hash('sha256', $data);
-
-                $stmt = $this->db->prepare("INSERT INTO cobros
-                    (id_cobro, id_socio, id_sesion, tipo, monto, medio_pago, hash_integridad, usuario_registra)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$idCobro, $idSocio, $idSesion, $tipo, $monto, $medioPago, $hash, $_SESSION['usuario_id']]);
-
-                $this->actualizarCuentaAhorro($idSocio, $tipo, $monto);
-
-                if ($tipo === 'cuota_credito') {
-                    $this->requirePermission('cobro.cuota_credito');
-                    $this->aplicarPagoCuota($idSocio, $monto, $idCobro);
-                }
-
-                $histTipo = $this->mapearTipoHistorial($tipo);
-                if ($histTipo) {
-                    $this->historialInsert($idSocio, $histTipo, $monto, $idCobro, $idSesion);
-                }
-
-                $stmt = $this->db->prepare("SELECT CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) FROM socios WHERE id_socio = ?");
-                $stmt->execute([$idSocio]);
-                $nombreSocio = $stmt->fetchColumn();
-                NotificacionHelper::crearCobro($idSocio, $nombreSocio, $monto, $this->tiposCobro[$tipo]);
-                // Sync obligaciones
+                $this->db->beginTransaction();
                 try {
+                    $idCobro = UUIDGenerator::generar();
+                    $data = $idSocio . $idSesion . $tipo . $monto . $idCobro . date('Y-m-d H:i:s');
+                    $hash = hash('sha256', $data);
+
+                    $stmt = $this->db->prepare("INSERT INTO cobros
+                        (id_cobro, id_socio, id_sesion, tipo, monto, medio_pago, hash_integridad, usuario_registra)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([$idCobro, $idSocio, $idSesion, $tipo, $monto, $medioPago, $hash, $_SESSION['usuario_id']]);
+
+                    $this->actualizarCuentaAhorro($idSocio, $tipo, $monto);
+
+                    if ($tipo === 'cuota_credito') {
+                        $this->requirePermission('cobro.cuota_credito');
+                        $restante = $this->aplicarPagoCuota($idSocio, $monto, $idCobro);
+                        if ($restante === false) {
+                            $this->db->rollBack();
+                            $this->json(['error' => $_SESSION['error']], 400);
+                            return;
+                        }
+                        if ($restante > 0) {
+                            $_SESSION['info'] = "Se pagaron cuotas por $" . number_format($monto - $restante, 2) . ". Saldo restante no aplicado: $" . number_format($restante, 2);
+                        }
+                    }
+
+                    $histTipo = $this->mapearTipoHistorial($tipo);
+                    if ($histTipo) {
+                        $this->historialInsert($idSocio, $histTipo, $monto, $idCobro, $idSesion);
+                    }
+
+                    $stmt = $this->db->prepare("SELECT CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) FROM socios WHERE id_socio = ?");
+                    $stmt->execute([$idSocio]);
+                    $nombreSocio = $stmt->fetchColumn();
+                    NotificacionHelper::crearCobro($idSocio, $nombreSocio, $monto, $this->tiposCobro[$tipo]);
+
                     $mapOblig = ['aporte_obligatorio' => 'cuota_mensual', 'cuota_credito' => 'cuota_credito', 'multa' => 'multa'];
                     $tipoOblig = $mapOblig[$tipo] ?? null;
                     if ($tipoOblig && $idSesion) {
                         $this->db->prepare("UPDATE obligaciones_sesion SET pagada = TRUE, id_cobro = ? WHERE id_socio = ? AND id_sesion = ? AND tipo = ? AND pagada = FALSE")
                             ->execute([$idCobro, $idSocio, $idSesion, $tipoOblig]);
                     }
-                } catch (Exception $e) {}
-                try { PusherHelper::actualizarPortal($idSocio); } catch (Exception $e) {}
+                    PusherHelper::actualizarPortal($idSocio);
 
-                // Registrar movimiento en Caja
-                try {
                     $labelTipo = $this->tiposCobro[$tipo] ?? $tipo;
                     CajaHelper::registrar([
                         'tipo' => $tipo === 'desembolso' ? 'egreso' : 'ingreso',
@@ -109,9 +122,13 @@ class CobroController extends BaseController {
                         'id_sesion' => $idSesion,
                         'id_referencia' => $idCobro,
                     ]);
-                } catch (Exception $e) {}
 
-                $this->json(['mensaje' => 'Cobro registrado', 'id_cobro' => $idCobro]);
+                    $this->db->commit();
+                    $this->json(['mensaje' => 'Cobro registrado', 'id_cobro' => $idCobro]);
+                } catch (Exception $e) {
+                    $this->db->rollBack();
+                    $this->json(['error' => $e->getMessage()], 500);
+                }
             }
             $this->json(['error' => implode(', ', $errors)], 400);
         }
@@ -250,23 +267,24 @@ class CobroController extends BaseController {
                                     FROM amortizaciones a
                                     JOIN creditos c ON a.id_credito = c.id_credito
                                     WHERE c.id_socio = ? AND a.estado IN ('pendiente','vencida')
-                                    ORDER BY a.fecha_vencimiento ASC LIMIT 1");
+                                    ORDER BY a.fecha_vencimiento ASC");
         $stmt->execute([$idSocio]);
-        $cuota = $stmt->fetch();
-        if ($cuota) {
+        $cuotas = $stmt->fetchAll();
+        $restante = (float)$monto;
+        $pagadas = 0;
+        foreach ($cuotas as $cuota) {
             $totalCuota = (float)$cuota['total'];
-            $montoPagado = (float)$monto;
-            if ($montoPagado < $totalCuota) {
-                $_SESSION['error'] = "El monto ($" . number_format($montoPagado, 2) . ") no cubre el total de la cuota ($" . number_format($totalCuota, 2) . ")";
-                return;
-            }
+            if ($restante < $totalCuota) break;
             $this->db->prepare("UPDATE amortizaciones SET estado = 'pagada', id_cobro = ? WHERE id_amortizacion = ?")
                 ->execute([$idCobro, $cuota['id_amortizacion']]);
-            $vuelto = $montoPagado - $totalCuota;
-            if ($vuelto > 0) {
-                $_SESSION['info'] = "Cuota pagada. Vuelto: $" . number_format($vuelto, 2);
-            }
+            $restante -= $totalCuota;
+            $pagadas++;
         }
+        if ($pagadas === 0) {
+            $_SESSION['error'] = "El monto ($" . number_format((float)$monto, 2) . ") no cubre el total de ninguna cuota pendiente.";
+            return false;
+        }
+        return $restante;
     }
 
     private function actualizarCuentaAhorro($idSocio, $tipo, $monto) {
