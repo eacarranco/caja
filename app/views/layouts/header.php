@@ -81,17 +81,8 @@ if ($loggedIn) {
                     </div>
                     <?php else: ?>
                     <div class="logo">
-                        <a href="<?= $baseUrl ?>/dashboard">
-                            <?php
-                            $logoSrc = $baseUrl . '/public/assets/images/favicon.svg';
-                            try {
-                                $logoStmt = $ndb->prepare("SELECT valor FROM parametros WHERE codigo = 'logo_sidebar'");
-                                $logoStmt->execute();
-                                $logoId = $logoStmt->fetchColumn();
-                                if ($logoId) $logoSrc = $baseUrl . '/archivo/ver/' . $logoId;
-                            } catch (Exception $e) {}
-                            ?>
-                            <img src="<?= $logoSrc ?>" alt="Logo" style="max-height:40px; width:auto">
+                        <a href="<?= $baseUrl ?>/dashboard" class="text-decoration-none text-dark">
+                            <div class="fw-bold fs-6"><?= htmlspecialchars(implode(' / ', $roleNames)) ?></div>
                         </a>
                     </div>
                     <div class="theme-toggle d-flex gap-2 align-items-center mt-2">
