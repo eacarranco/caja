@@ -46,6 +46,16 @@ class InversionController extends BaseController {
             if ($plazo < ($prod['plazo_min_meses'] ?? 1) || $plazo > ($prod['plazo_max_meses'] ?? 999)) $errors['plazo'] = 'Plazo fuera de rango';
 
             if (empty($errors)) {
+                // Validar saldo disponible
+                $stmtCap = $this->db->prepare("SELECT COALESCE(saldo, 0) FROM capital_inversion WHERE id_socio = ?");
+                $stmtCap->execute([$idSocio]);
+                $saldoCap = (float)$stmtCap->fetchColumn();
+                if ($saldoCap < (float)$monto) {
+                    $errors['monto'] = "Saldo insuficiente en capital de inversion. Disponible: $" . number_format($saldoCap, 2);
+                }
+            }
+
+            if (empty($errors)) {
                 $tasa = $prod['tasa_interes_anual'];
                 $factor = $tasa / 100 / 12;
                 $rendimiento = $monto * $factor * $plazo;
@@ -62,8 +72,9 @@ class InversionController extends BaseController {
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
                         ->execute([$id, $idSocio, $idProducto, $monto, $plazo, $tasa, $fechaInicio, $fechaVenc->format('Y-m-d'), round($rendimiento, 2), $destino]);
 
-                    $hasCap = $this->db->query("SELECT COUNT(*) FROM capital_inversion WHERE id_socio = '$idSocio'")->fetchColumn();
-                    if ($hasCap == 0) {
+                    $hasCap = $this->db->prepare("SELECT COUNT(*) FROM capital_inversion WHERE id_socio = ?");
+                    $hasCap->execute([$idSocio]);
+                    if ($hasCap->fetchColumn() == 0) {
                         $this->db->prepare("INSERT INTO capital_inversion (id_capital_inversion, id_socio) VALUES (?, ?)")->execute([UUIDGenerator::generar(), $idSocio]);
                     }
                     $this->db->prepare("UPDATE capital_inversion SET saldo = saldo - ?, fecha_ultimo_movimiento = NOW() WHERE id_socio = ?")->execute([$monto, $idSocio]);
@@ -169,10 +180,15 @@ class InversionController extends BaseController {
                     $this->db->prepare("UPDATE capital_inversion SET saldo = saldo + ?, fecha_ultimo_movimiento = NOW() WHERE id_socio = ?")->execute([$devolucion, $inv['id_socio']]);
                 }
 
+                $idCobro = UUIDGenerator::generar();
+                $hash = hash('sha256', $inv['id_socio'] . $id . 'retiro_inversion' . $devolucion . date('Y-m-d H:i:s'));
+                $this->db->prepare("INSERT INTO cobros (id_cobro, id_socio, id_sesion, tipo, id_referencia, monto, medio_pago, hash_integridad, usuario_registra) VALUES (?, ?, NULL, 'retiro_inversion', ?, ?, 'efectivo', ?, ?)")
+                    ->execute([$idCobro, $inv['id_socio'], $id, $devolucion, $hash, $_SESSION['usuario_id']]);
+
                 $this->historialInsert($inv['id_socio'], 'inversion_retiro', $devolucion, $id);
                 $this->db->commit();
+                try { $st2 = $this->db->prepare("SELECT CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) AS nombre FROM socios WHERE id_socio = ?"); $st2->execute([$inv['id_socio']]); $nom = $st2->fetchColumn(); require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php'; NotificacionHelper::crearInversion($inv['id_socio'], $nom, $devolucion, 'retiro anticipado'); } catch (Exception $e) {}
                 try { PusherHelper::actualizarPortal($inv['id_socio']); } catch (Exception $e) {}
-                // Caja: egreso por retiro anticipado si no reinvierte
                 if ($inv['destino_final'] !== 'capital_inversion') {
                     try { CajaHelper::registrar(['tipo'=>'egreso','concepto'=>"Retiro anticipado inversion",'categoria'=>'inversion_retiro','monto'=>$devolucion,'id_socio'=>$inv['id_socio'],'id_referencia'=>$id]); } catch (Exception $e) {}
                 }
@@ -213,17 +229,21 @@ class InversionController extends BaseController {
             if (empty($errors)) {
                 $this->db->beginTransaction();
                 try {
-                    $hasCap = $this->db->query("SELECT COUNT(*) FROM capital_inversion WHERE id_socio = '$idSocio'")->fetchColumn();
-                    if ($hasCap == 0) {
+                    $hasCap = $this->db->prepare("SELECT COUNT(*) FROM capital_inversion WHERE id_socio = ?");
+                    $hasCap->execute([$idSocio]);
+                    if ($hasCap->fetchColumn() == 0) {
                         $this->db->prepare("INSERT INTO capital_inversion (id_capital_inversion, id_socio) VALUES (?, ?)")->execute([UUIDGenerator::generar(), $idSocio]);
                     }
                     $this->db->prepare("UPDATE capital_inversion SET saldo = saldo + ?, fecha_ultimo_movimiento = NOW() WHERE id_socio = ?")->execute([$monto, $idSocio]);
 
                     $comprobantePdf = null;
                     if ($requiereComprobante && !empty($_FILES['comprobante']['tmp_name'])) {
-                        $ext = strtolower(pathinfo($_FILES['comprobante']['name'], PATHINFO_EXTENSION));
-                        $comprobantePdf = 'comprobante_deposito_' . substr($idSocio, 0, 8) . '_' . date('Ymd_His') . '.' . $ext;
-                        move_uploaded_file($_FILES['comprobante']['tmp_name'], ROOT_PATH . '/storage/documentos/' . $comprobantePdf);
+                        require_once ROOT_PATH . '/app/helpers/FileManager.php';
+                        $fm = new FileManager();
+                        $resultado = $fm->subir($_FILES['comprobante'], 'deposito_capital', null, $_SESSION['usuario_id'], ['jpg','jpeg','png','gif','webp','pdf']);
+                        if ($resultado['exito']) {
+                            $comprobantePdf = $resultado['nombre_archivo'];
+                        }
                     }
 
                     $idSesion = $this->db->query("SELECT id_sesion FROM sesiones_mensuales WHERE estado = 'abierta' LIMIT 1")->fetchColumn();
