@@ -1,7 +1,7 @@
 <div class="container-fluid">
     <h4 class="mb-3">Dashboard</h4>
 
-    <div class="row row-cols-2 row-cols-md-5 g-3 mb-4">
+    <div class="row row-cols-2 row-cols-md-6 g-3 mb-4">
         <div class="col-md-3">
             <div class="card card-dashboard text-center h-100">
                 <div class="card-body d-flex flex-column justify-content-center">
@@ -27,10 +27,18 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card card-dashboard text-center h-100">
+            <div class="card card-dashboard text-center h-100 border-warning">
                 <div class="card-body d-flex flex-column justify-content-center">
                     <h2 class="mb-0 text-warning"><?= $creditosPendientes ?></h2>
                     <small class="text-muted">Creditos pendientes</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card card-dashboard text-center h-100 border-info">
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <h2 class="mb-0 text-info"><?= $inversionesPendientes ?></h2>
+                    <small class="text-muted">Inversiones pendientes</small>
                 </div>
             </div>
         </div>
@@ -113,6 +121,10 @@
                 <?php endif; ?>
                 <?php if (in_array('calculo.intereses', $permisos)): ?>
                 <a href="<?= BASE_URL ?>/calculo/simulador" class="btn btn-outline-info btn-sm">Simulador</a>
+                <?php endif; ?>
+                <?php if (in_array('credito.aprobar', $permisos) || in_array('inversion.aprobar', $permisos)): ?>
+                <a href="<?= BASE_URL ?>/credito/bandejaAprobados" class="btn btn-outline-warning btn-sm">Bandeja créditos</a>
+                <a href="<?= BASE_URL ?>/inversion/pendientes" class="btn btn-outline-info btn-sm">Bandeja inversiones</a>
                 <?php endif; ?>
             </div>
         </div>

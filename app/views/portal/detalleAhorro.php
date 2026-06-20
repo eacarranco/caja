@@ -5,7 +5,7 @@
         <div class="col-md-6">
             <div class="card card-dashboard text-center">
                 <div class="card-body py-2">
-                    <h6 class="text-muted">Saldo obligatorio</h6>
+                    <h6 class="text-muted">Saldo ahorro mensual</h6>
                     <h4 class="text-primary mb-0">$ <?= number_format($saldo_obligatorio, 2) ?></h4>
                 </div>
             </div>

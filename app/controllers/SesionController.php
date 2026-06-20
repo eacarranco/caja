@@ -151,7 +151,7 @@ class SesionController extends BaseController {
                                                SELECT o.id_referencia FROM obligaciones_sesion o
                                                WHERE o.tipo = 'multa' AND o.pagada = TRUE AND o.id_referencia IS NOT NULL
                                            )
-                                           AND m.estado = 'activa'");
+                                            AND m.pagada = FALSE");
             $multas->execute([$idSocio]);
             foreach ($multas as $m) {
                 $tipoMulta = str_replace('_', ' ', ucfirst($m['tipo']));
@@ -421,6 +421,12 @@ class SesionController extends BaseController {
 
             // Actualizar cuenta de ahorro
             if ($tipoCobro === 'aporte_obligatorio') {
+                $stmt = $this->db->prepare("SELECT COUNT(*) FROM cuentas_ahorro WHERE id_socio = ?");
+                $stmt->execute([$o['id_socio']]);
+                if ($stmt->fetchColumn() == 0) {
+                    $this->db->prepare("INSERT INTO cuentas_ahorro (id_cuenta_ahorro, id_socio) VALUES (?, ?)")
+                        ->execute([UUIDGenerator::generar(), $o['id_socio']]);
+                }
                 $this->db->prepare("UPDATE cuentas_ahorro SET saldo_obligatorio = saldo_obligatorio + ?, saldo_disponible = saldo_disponible + ?, fecha_ultimo_movimiento = NOW() WHERE id_socio = ?")
                     ->execute([$o['monto'], $o['monto'], $o['id_socio']]);
             }

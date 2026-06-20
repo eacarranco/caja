@@ -81,8 +81,8 @@ if ($loggedIn) {
                     </div>
                     <?php else: ?>
                     <div class="logo">
-                        <a href="<?= $baseUrl ?>/dashboard" class="text-decoration-none">
-                            <div class="fw-bold" style="font-size:1.8rem; letter-spacing:3px; color:var(--bs-primary); font-family:serif"><?= htmlspecialchars($ndb->query("SELECT valor FROM parametros WHERE codigo = 'abrev_caja'")->fetchColumn() ?: 'Caja') ?></div>
+                        <a href="<?= $baseUrl ?>/dashboard" class="sidebar-link text-decoration-none py-1">
+                            <span><?= htmlspecialchars(explode(' ', trim($_SESSION['usuario_nombres'] ?? ''))[0] ?: 'Caja') ?></span>
                         </a>
                     </div>
                     <div class="theme-toggle d-flex gap-2 align-items-center mt-2">
@@ -223,9 +223,8 @@ if ($loggedIn) {
                             <span>Multas</span>
                         </a>
                     </li>
-                    <?php if ($uid && (RBAC::tienePermiso($uid, 'cobro.desembolso') || RBAC::tienePermiso($uid, 'credito.aprobar'))): ?>
-                    <li class="sidebar-title">Créditos</li>
                     <?php if ($uid && RBAC::tienePermiso($uid, 'cobro.desembolso')): ?>
+                    <li class="sidebar-title">Créditos</li>
                     <li class="sidebar-item <?= mazerActive('credito') && !mazerActive('credito/bandejaAprobados') ? 'active' : '' ?>">
                         <a href="<?= $baseUrl ?>/credito/listar" class="sidebar-link">
                             <i class="bi bi-bank"></i>
@@ -233,22 +232,35 @@ if ($loggedIn) {
                         </a>
                     </li>
                     <?php endif; ?>
-                    <?php if ($uid && RBAC::tienePermiso($uid, 'credito.aprobar')): ?>
-                    <li class="sidebar-item <?= mazerActive('credito/bandejaAprobados') ?>">
-                        <a href="<?= $baseUrl ?>/credito/bandejaAprobados" class="sidebar-link">
-                            <i class="bi bi-inbox"></i>
-                            <span>Bandeja aprobación</span>
-                        </a>
-                    </li>
-                    <?php endif; ?>
-                    <?php endif; ?>
-                    <?php if ($uid && RBAC::tienePermiso($uid, 'cobro.inversion')): ?>
+                    <?php if ($uid && (RBAC::tienePermiso($uid, 'cobro.inversion') || RBAC::tienePermiso($uid, 'cobro.aporte'))): ?>
                     <li class="sidebar-title">Inversiones</li>
-                    <li class="sidebar-item <?= mazerActive('inversion') ?>">
+                    <li class="sidebar-item <?= mazerActive('inversion/listar') ?>">
                         <a href="<?= $baseUrl ?>/inversion/listar" class="sidebar-link">
                             <i class="bi bi-piggy-bank-fill"></i>
                             <span>Inversiones</span>
                         </a>
+                    </li>
+                    <?php endif; ?>
+                    <?php if ($uid && (RBAC::tienePermiso($uid, 'credito.aprobar') || RBAC::tienePermiso($uid, 'inversion.aprobar'))): ?>
+                    <?php $bandejaSubActive = (strpos($currentUrl, 'credito/bandejaAprobados') === 0 || strpos($currentUrl, 'inversion/pendientes') === 0) ? 'active' : ''; ?>
+                    <li class="sidebar-title">Bandeja aprobación</li>
+                    <li class="sidebar-item has-sub <?= $bandejaSubActive ?>">
+                        <a href="#" class="sidebar-link">
+                            <i class="bi bi-inboxes-fill"></i>
+                            <span>Bandeja aprobación</span>
+                        </a>
+                        <ul class="submenu <?= $bandejaSubActive ?>">
+                            <?php if ($uid && RBAC::tienePermiso($uid, 'credito.aprobar')): ?>
+                            <li class="submenu-item <?= mazerActive('credito/bandejaAprobados') ?>">
+                                <a href="<?= $baseUrl ?>/credito/bandejaAprobados" class="submenu-link">Solicitudes Crédito</a>
+                            </li>
+                            <?php endif; ?>
+                            <?php if ($uid && RBAC::tienePermiso($uid, 'inversion.aprobar')): ?>
+                            <li class="submenu-item <?= mazerActive('inversion/pendientes') ?>">
+                                <a href="<?= $baseUrl ?>/inversion/pendientes" class="submenu-link">Solicitudes Inversión</a>
+                            </li>
+                            <?php endif; ?>
+                        </ul>
                     </li>
                     <?php endif; ?>
                     <?php if ($uid && (RBAC::tienePermiso($uid, 'param.financiero') || RBAC::tienePermiso($uid, 'calculo.intereses') || RBAC::tienePermiso($uid, 'reporte.socios') || RBAC::tienePermiso($uid, 'reporte.financiero') || RBAC::tienePermiso($uid, 'reporte.cobros'))): ?>

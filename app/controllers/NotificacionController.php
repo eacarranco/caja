@@ -22,7 +22,7 @@ class NotificacionController extends BaseController {
         $stmt = $this->db->prepare("SELECT n.*, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS socio_nombre
                                      FROM notificaciones n
                                      LEFT JOIN socios s ON n.id_socio = s.id_socio
-                                     WHERE (n.id_usuario = ? OR n.id_usuario IS NULL OR n.id_socio = ?)
+                                      WHERE (n.id_usuario = ? OR (n.id_usuario IS NULL AND n.id_socio IS NULL) OR n.id_socio = ?)
                                      AND n.buzon = ?
                                      ORDER BY n.fecha_creacion DESC LIMIT 50");
         $stmt->execute([$_SESSION['usuario_id'], $idSocio, $buzon]);
@@ -31,7 +31,7 @@ class NotificacionController extends BaseController {
         // Contar por buzon
         $conteos = [];
         foreach (['entrada', 'archivadas', 'papelera'] as $b) {
-            $stmt = $this->db->prepare("SELECT COUNT(*) FROM notificaciones WHERE (id_usuario = ? OR id_usuario IS NULL OR id_socio = ?) AND buzon = ? AND leida = FALSE");
+            $stmt = $this->db->prepare("SELECT COUNT(*) FROM notificaciones WHERE (id_usuario = ? OR (id_usuario IS NULL AND id_socio IS NULL) OR id_socio = ?) AND buzon = ? AND leida = FALSE");
             $stmt->execute([$_SESSION['usuario_id'], $idSocio, $b]);
             $conteos[$b] = (int)$stmt->fetchColumn();
         }
@@ -61,7 +61,7 @@ class NotificacionController extends BaseController {
     public function leerTodas() {
         $this->requireAuth();
         $buzon = $_POST['buzon'] ?? 'entrada';
-        $this->db->prepare("UPDATE notificaciones SET leida = TRUE, fecha_lectura = NOW() WHERE (id_usuario = ? OR id_usuario IS NULL) AND buzon = ? AND leida = FALSE")->execute([$_SESSION['usuario_id'], $buzon]);
+        $this->db->prepare("UPDATE notificaciones SET leida = TRUE, fecha_lectura = NOW() WHERE (id_usuario = ? OR (id_usuario IS NULL AND id_socio IS NULL)) AND buzon = ? AND leida = FALSE")->execute([$_SESSION['usuario_id'], $buzon]);
         $this->json(['mensaje' => 'Todas marcadas como leidas']);
     }
 
@@ -76,7 +76,7 @@ class NotificacionController extends BaseController {
         }
 
         $entrada = 0;
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM notificaciones WHERE (id_usuario = ? OR id_usuario IS NULL OR id_socio = ?) AND buzon = 'entrada' AND leida = FALSE");
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM notificaciones WHERE (id_usuario = ? OR (id_usuario IS NULL AND id_socio IS NULL) OR id_socio = ?) AND buzon = 'entrada' AND leida = FALSE");
         $stmt->execute([$_SESSION['usuario_id'], $idSocio]);
         $entrada += (int)$stmt->fetchColumn();
 
@@ -91,7 +91,7 @@ class NotificacionController extends BaseController {
             $stmt->execute([$cedula]);
             $idSocio = $stmt->fetchColumn();
         }
-        $conds = ['id_usuario = ?', 'id_usuario IS NULL'];
+        $conds = ['id_usuario = ?', '(id_usuario IS NULL AND id_socio IS NULL)'];
         $params = [$_SESSION['usuario_id']];
         if ($idSocio) {
             $conds[] = 'id_socio = ?';

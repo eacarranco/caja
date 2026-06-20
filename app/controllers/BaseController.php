@@ -19,6 +19,10 @@ class BaseController {
             header('Location: ' . BASE_URL . '/login/2fa');
             exit;
         }
+        if (!empty($_SESSION['cambio_contrasena_obligatorio'])) {
+            header('Location: ' . BASE_URL . '/password?forzado=1');
+            exit;
+        }
     }
 
     protected function requirePermission($codigo) {
@@ -101,7 +105,7 @@ class BaseController {
             'aporte_excedente' => 'aporte_excedente',
             'cuota_credito' => 'pago_cuota',
             'multa' => 'pago_multa',
-            'inversion' => 'inversion_apertura',
+
             'desembolso' => 'desembolso_credito',
             'interes' => 'interes_pagado',
         ];

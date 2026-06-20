@@ -25,10 +25,19 @@ class PortalController extends BaseController {
         $stmt = $this->db->prepare("SELECT * FROM cuentas_ahorro WHERE id_socio = ?");
         $stmt->execute([$idSocio]);
         $cuenta = $stmt->fetch();
+        if (!$cuenta) {
+            $this->db->prepare("INSERT INTO cuentas_ahorro (id_cuenta_ahorro, id_socio) VALUES (?, ?)")
+                ->execute([UUIDGenerator::generar(), $idSocio]);
+            $cuenta = ['saldo_obligatorio' => 0, 'saldo_excedente' => 0, 'saldo_disponible' => 0];
+        }
 
         $stmt = $this->db->prepare("SELECT COALESCE(saldo, 0) FROM capital_inversion WHERE id_socio = ?");
         $stmt->execute([$idSocio]);
-        $saldoCapitalInversion = floatval($stmt->fetchColumn());
+        $capDisponible = floatval($stmt->fetchColumn());
+        $stmt = $this->db->prepare("SELECT COALESCE(SUM(monto), 0) FROM inversiones WHERE id_socio = ? AND estado IN ('activa','vencida')");
+        $stmt->execute([$idSocio]);
+        $capInvertido = floatval($stmt->fetchColumn());
+        $saldoCapitalInversion = $capDisponible + $capInvertido;
 
         $stmt = $this->db->prepare("SELECT COALESCE(SUM(monto), 0) FROM obligaciones_sesion WHERE id_socio = ? AND pagada = FALSE");
         $stmt->execute([$idSocio]);
@@ -357,6 +366,45 @@ class PortalController extends BaseController {
         ]);
     }
 
+    public function activarCuenta() {
+        $error = '';
+        $exito = '';
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->validateCSRF();
+            $token = $_POST['token'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $confirmar = $_POST['confirmar'] ?? '';
+
+            if (empty($token)) $error = 'Token inválido';
+            elseif (strlen($password) < 6) $error = 'Mínimo 6 caracteres';
+            elseif ($password !== $confirmar) $error = 'Las contraseñas no coinciden';
+            else {
+                $tokenHash = hash('sha256', $token);
+                $stmt = $this->db->prepare("SELECT id_usuario FROM usuarios WHERE token_activacion = ? AND token_activacion_expira > NOW() AND activo = TRUE");
+                $stmt->execute([$tokenHash]);
+                $idUsuario = $stmt->fetchColumn();
+
+                if (!$idUsuario) $error = 'El enlace ha expirado o es inválido. Contacta al administrador.';
+                else {
+                    $stmt = $this->db->prepare("UPDATE usuarios SET contrasena = ?, token_activacion = NULL, token_activacion_expira = NULL, fecha_contrasena = NOW() WHERE id_usuario = ?");
+                    $stmt->execute([password_hash($password, PASSWORD_BCRYPT), $idUsuario]);
+                    $exito = 'Cuenta activada correctamente. Ahora puedes iniciar sesión con tu cédula y nueva contraseña.';
+                }
+            }
+        }
+
+        $token = $_GET['token'] ?? '';
+        if (empty($token) && empty($_POST)) $error = 'Enlace inválido. Usa el enlace de tu correo de bienvenida.';
+
+        $this->render('portal/activarCuenta', [
+            'titulo' => 'Activar cuenta',
+            'token' => $token,
+            'error' => $error,
+            'exito' => $exito,
+        ], 'layouts/blank');
+    }
+
     public function detalleAhorro() {
         $this->requireAuth();
         $cedula = $_SESSION['usuario_cedula'] ?? '';
@@ -375,7 +423,7 @@ class PortalController extends BaseController {
                                      FROM historial_operaciones h
                                      LEFT JOIN sesiones_mensuales ses ON h.id_sesion = ses.id_sesion
                                      WHERE h.id_socio = ?
-                                     AND h.tipo_operacion IN ('aporte_obligatorio','aporte_excedente','retiro_ahorro','interes_ganado')
+                                      AND h.tipo_operacion IN ('aporte_obligatorio','aporte_excedente','interes_ganado')
                                      ORDER BY h.fecha_registro DESC");
         $stmt->execute([$idSocio]);
         $movimientos = $stmt->fetchAll();
@@ -388,18 +436,16 @@ class PortalController extends BaseController {
             'interes_ganado' => 'Interes ganado',
         ];
 
+        // Calculate running balance from current balance working backwards
+        $currentBalance = $saldoObligatorio + $saldoExcedente;
         $movs = [];
-        $runningBalance = $saldoObligatorio + $saldoExcedente;
-        // Process in reverse chronological order (current query is DESC)
-        // To calculate running balance, we process from oldest to newest
-        $movimientosAsc = array_reverse($movimientos);
-        $runningBalance = 0;
-        foreach ($movimientosAsc as $m) {
+        $runningBalance = $currentBalance;
+        foreach ($movimientos as $m) {
             $esDebito = in_array($m['tipo_operacion'], ['retiro_ahorro']);
             $monto = floatval($m['monto']);
-            $m['saldo_anterior'] = $runningBalance;
-            $runningBalance += $esDebito ? -$monto : $monto;
             $m['saldo_posterior'] = $runningBalance;
+            $runningBalance -= $esDebito ? -$monto : $monto;
+            $m['saldo_anterior'] = $runningBalance;
             $label = $conceptos[$m['tipo_operacion']] ?? $m['tipo_operacion'];
             if ($m['numero_sesion']) {
                 $fechaSesion = $m['sesion_fecha'] ? date('d/m/Y', strtotime($m['sesion_fecha'])) : '';
@@ -408,7 +454,6 @@ class PortalController extends BaseController {
             $m['concepto'] = $label;
             $movs[] = $m;
         }
-        $movs = array_reverse($movs); // Back to newest-first for display
 
         $this->render('portal/detalleAhorro', [
             'titulo' => 'Estado de cuenta',
@@ -421,21 +466,27 @@ class PortalController extends BaseController {
     public function inversion() {
         $this->requireAuth();
         $cedula = $_SESSION['usuario_cedula'] ?? '';
-        $stmt = $this->db->prepare("SELECT id_socio FROM socios WHERE cedula = ?");
+        $stmt = $this->db->prepare("SELECT s.*, c.saldo_obligatorio, c.saldo_excedente FROM socios s LEFT JOIN cuentas_ahorro c ON s.id_socio = c.id_socio WHERE s.cedula = ?");
         $stmt->execute([$cedula]);
-        $idSocio = $stmt->fetchColumn();
-        if (!$idSocio) $this->redirect('/portal');
+        $socio = $stmt->fetch();
+        if (!$socio) $this->redirect('/portal');
+        $idSocio = $socio['id_socio'];
 
         $capital = $this->db->prepare("SELECT * FROM capital_inversion WHERE id_socio = ?");
         $capital->execute([$idSocio]);
         $capitalRow = $capital->fetch();
+        if (!$capitalRow) {
+            $this->db->prepare("INSERT INTO capital_inversion (id_capital_inversion, id_socio) VALUES (?, ?)")
+                ->execute([UUIDGenerator::generar(), $idSocio]);
+            $capitalRow = ['saldo' => 0];
+        }
         $saldoCapital = floatval($capitalRow['saldo'] ?? 0);
 
         $stmt = $this->db->prepare("SELECT i.*, p.nombre AS producto FROM inversiones i JOIN productos_financieros p ON i.id_producto = p.id_producto WHERE i.id_socio = ? ORDER BY i.fecha_registro DESC");
         $stmt->execute([$idSocio]);
         $inversiones = $stmt->fetchAll();
 
-        $productos = $this->db->query("SELECT id_producto, nombre, tasa_interes_anual, plazo_min_meses, plazo_max_meses, monto_min, monto_max FROM productos_financieros WHERE tipo = 'inversion' AND activo = TRUE ORDER BY nombre")->fetchAll();
+        $productos = $this->db->query("SELECT id_producto, nombre, tasa_interes_anual, metodo_interes, plazo_min_meses, plazo_max_meses, monto_min, monto_max, condiciones_html, min_permanencia_meses, min_ahorro, min_ahorro_unidad, requiere_garante, penalidad_retiro_anticipado FROM productos_financieros WHERE tipo = 'inversion' AND activo = TRUE ORDER BY nombre")->fetchAll();
 
         $errors = [];
 
@@ -454,9 +505,13 @@ class PortalController extends BaseController {
                 if ($p['id_producto'] === $idProducto) { $prod = $p; break; }
             }
             if (!$prod) $errors['id_producto'] = 'Producto invalido';
-            if (!is_numeric($monto) || $monto <= 0) $errors['monto'] = 'Monto invalido';
-            if ($monto > $saldoCapital) $errors['monto'] = 'Saldo insuficiente en capital de inversion. Disponible: $' . number_format($saldoCapital, 2);
-            if ($plazo < ($prod['plazo_min_meses'] ?? 1) || $plazo > ($prod['plazo_max_meses'] ?? 999)) $errors['plazo'] = 'Plazo fuera de rango';
+            if ($prod) {
+                if (!is_numeric($monto) || $monto <= 0) $errors['monto'] = 'Monto invalido';
+                elseif ($monto < floatval($prod['monto_min'] ?? 0)) $errors['monto'] = 'Monto minimo: $' . number_format($prod['monto_min'], 2);
+                elseif ($monto > floatval($prod['monto_max'] ?? 0)) $errors['monto'] = 'Monto maximo: $' . number_format($prod['monto_max'], 2);
+                if ($monto > $saldoCapital) $errors['monto'] = 'Saldo insuficiente en capital de inversion. Disponible: $' . number_format($saldoCapital, 2);
+                if ($plazo < ($prod['plazo_min_meses'] ?? 1) || $plazo > ($prod['plazo_max_meses'] ?? 999)) $errors['plazo'] = 'Plazo fuera de rango';
+            }
 
             if (empty($errors)) {
                 $tasa = $prod['tasa_interes_anual'];
@@ -471,18 +526,17 @@ class PortalController extends BaseController {
                 $this->db->beginTransaction();
                 try {
                     $this->db->prepare("INSERT INTO inversiones
-                        (id_inversion, id_socio, id_producto, monto, plazo_meses, tasa_interes, fecha_inicio, fecha_vencimiento, rendimiento_proyectado, destino_final)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+                        (id_inversion, id_socio, id_producto, monto, plazo_meses, tasa_interes, fecha_inicio, fecha_vencimiento, rendimiento_proyectado, destino_final, estado)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendiente')")
                         ->execute([$id, $idSocio, $idProducto, $monto, $plazo, $tasa, $fechaInicio, $fechaVenc->format('Y-m-d'), round($rendimiento, 2), $destino]);
 
-                    $this->db->prepare("UPDATE capital_inversion SET saldo = saldo - ?, fecha_ultimo_movimiento = NOW() WHERE id_socio = ?")->execute([$monto, $idSocio]);
                     $this->historialInsert($idSocio, 'inversion_apertura', $monto, $id);
                     $this->db->commit();
 
                     $st = $this->db->prepare("SELECT CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) AS nombre FROM socios WHERE id_socio = ?");
                     $st->execute([$idSocio]);
                     $nom = $st->fetchColumn();
-                    try { require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php'; NotificacionHelper::crearInversion($idSocio, $nom, $monto, 'creada'); } catch (Exception $e) {}
+                    try { require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php'; NotificacionHelper::crearInversion($idSocio, $nom, $monto, 'solicitada'); } catch (Exception $e) {}
                     try { require_once ROOT_PATH . '/app/helpers/PusherHelper.php'; PusherHelper::actualizarPortal($idSocio); } catch (Exception $e) {}
 
                     $this->redirect('/portal/inversion?ok=1');
@@ -500,6 +554,36 @@ class PortalController extends BaseController {
             'productos' => $productos,
             'errors' => $errors,
             'saldoCapital' => $saldoCapital,
+            'socio' => $socio,
+        ]);
+    }
+
+    public function simularInversion() {
+        $this->requireAuth();
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->json(['error' => 'Método no permitido'], 405);
+        }
+        $this->validateCSRF();
+
+        $monto = str_replace(',', '.', $_POST['monto'] ?? '0');
+        $tasa = str_replace(',', '.', $_POST['tasa'] ?? '0');
+        $plazo = intval($_POST['plazo'] ?? 1);
+
+        if (!is_numeric($monto) || $monto <= 0 || !is_numeric($tasa) || $plazo <= 0) {
+            $this->json(['error' => 'Parámetros inválidos'], 400);
+        }
+
+        $factor = floatval($tasa) / 100 / 12;
+        $rendimiento = floatval($monto) * $factor * $plazo;
+        $total = floatval($monto) + $rendimiento;
+
+        $this->json([
+            'monto' => round(floatval($monto), 2),
+            'tasa' => round(floatval($tasa), 2),
+            'plazo' => $plazo,
+            'rendimiento' => round($rendimiento, 2),
+            'total' => round($total, 2),
+            'tasa_mensual' => round($factor * 100, 4),
         ]);
     }
 
@@ -539,6 +623,11 @@ class PortalController extends BaseController {
         $capital = $this->db->prepare("SELECT * FROM capital_inversion WHERE id_socio = ?");
         $capital->execute([$idSocio]);
         $capitalRow = $capital->fetch();
+        if (!$capitalRow) {
+            $this->db->prepare("INSERT INTO capital_inversion (id_capital_inversion, id_socio) VALUES (?, ?)")
+                ->execute([UUIDGenerator::generar(), $idSocio]);
+            $capitalRow = ['saldo' => 0, 'fecha_ultimo_movimiento' => null];
+        }
 
         $inv = $this->db->prepare("SELECT i.*, p.nombre AS producto FROM inversiones i JOIN productos_financieros p ON i.id_producto = p.id_producto WHERE i.id_socio = ? ORDER BY i.fecha_registro DESC");
         $inv->execute([$idSocio]);

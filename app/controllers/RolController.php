@@ -15,6 +15,8 @@ class RolController extends BaseController {
     public function registrar() {
         $this->requirePermission('param.roles');
         $errors = [];
+        $permisos = $this->db->query("SELECT * FROM permisos ORDER BY modulo, codigo")->fetchAll();
+        $asignados = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->validateCSRF();
@@ -33,9 +35,15 @@ class RolController extends BaseController {
             }
 
             if (empty($errors)) {
-                $stmt = $this->db->prepare("INSERT INTO roles (nombre, descripcion, endosable) VALUES (?, ?, ?)");
-                $stmt->execute([$nombre, $descripcion, $endosable]);
-                $this->redirect('/rol/permisos/' . $this->db->lastInsertId());
+                $this->db->prepare("INSERT INTO roles (nombre, descripcion, endosable) VALUES (?, ?, ?)")->execute([$nombre, $descripcion, $endosable]);
+                $id = $this->db->lastInsertId();
+                $insertStmt = $this->db->prepare("INSERT INTO roles_permisos (id_rol, id_permiso, permitir) VALUES (?, ?, ?)");
+                foreach ($permisos as $p) {
+                    if (isset($_POST['permiso_' . $p['id_permiso']])) {
+                        $insertStmt->execute([$id, $p['id_permiso'], 1]);
+                    }
+                }
+                $this->redirect('/rol/listar');
             }
         }
 
@@ -44,6 +52,8 @@ class RolController extends BaseController {
             'errors' => $errors,
             'data' => $_POST ?? [],
             'editando' => false,
+            'permisos' => $permisos,
+            'asignados' => $asignados,
         ]);
     }
 
@@ -53,6 +63,14 @@ class RolController extends BaseController {
         $stmt->execute([$id]);
         $rol = $stmt->fetch();
         if (!$rol) $this->redirect('/rol/listar');
+
+        $permisos = $this->db->query("SELECT * FROM permisos ORDER BY modulo, codigo")->fetchAll();
+        $stmt = $this->db->prepare("SELECT id_permiso, permitir FROM roles_permisos WHERE id_rol = ?");
+        $stmt->execute([$id]);
+        $asignados = [];
+        while ($row = $stmt->fetch()) {
+            $asignados[$row['id_permiso']] = $row['permitir'];
+        }
 
         $errors = [];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -72,8 +90,14 @@ class RolController extends BaseController {
             }
 
             if (empty($errors)) {
-                $stmt = $this->db->prepare("UPDATE roles SET nombre = ?, descripcion = ?, endosable = ? WHERE id_rol = ?");
-                $stmt->execute([$nombre, $descripcion, $endosable, $id]);
+                $this->db->prepare("UPDATE roles SET nombre = ?, descripcion = ?, endosable = ? WHERE id_rol = ?")->execute([$nombre, $descripcion, $endosable, $id]);
+                $this->db->prepare("DELETE FROM roles_permisos WHERE id_rol = ?")->execute([$id]);
+                $insertStmt = $this->db->prepare("INSERT INTO roles_permisos (id_rol, id_permiso, permitir) VALUES (?, ?, ?)");
+                foreach ($permisos as $p) {
+                    if (isset($_POST['permiso_' . $p['id_permiso']])) {
+                        $insertStmt->execute([$id, $p['id_permiso'], 1]);
+                    }
+                }
                 $this->redirect('/rol/listar');
             }
         }
@@ -83,6 +107,8 @@ class RolController extends BaseController {
             'errors' => $errors,
             'data' => $rol,
             'editando' => true,
+            'permisos' => $permisos,
+            'asignados' => $asignados,
         ]);
     }
 
@@ -104,7 +130,7 @@ class RolController extends BaseController {
         $rol = $stmt->fetch();
         if (!$rol) $this->redirect('/rol/listar');
 
-        $permisos = $this->db->query("SELECT * FROM permisos ORDER BY codigo")->fetchAll();
+        $permisos = $this->db->query("SELECT * FROM permisos ORDER BY modulo, codigo")->fetchAll();
 
         $stmt = $this->db->prepare("SELECT id_permiso, permitir FROM roles_permisos WHERE id_rol = ?");
         $stmt->execute([$id]);

@@ -1,12 +1,18 @@
 <div class="container-fluid">
     <h4>Capital de Inversion</h4>
 
+    <?php
+    $activas = array_filter($inversiones, function($i) { return $i['estado'] === 'activa'; });
+    $totalInvertido = array_sum(array_map(function($i) { return floatval($i['monto']); }, $activas));
+    $disponible = floatval($capital['saldo'] ?? 0);
+    $totalPortfolio = $disponible + $totalInvertido;
+    ?>
     <div class="row g-3 mb-4">
         <div class="col-md-4">
             <div class="card card-dashboard text-center">
                 <div class="card-body py-3">
-                    <h6 class="text-muted">Saldo disponible</h6>
-                    <h3 class="text-success mb-0">$ <?= number_format(floatval($capital['saldo'] ?? 0), 2) ?></h3>
+                    <h6 class="text-muted">Total cartera</h6>
+                    <h3 class="text-primary mb-0">$ <?= number_format($totalPortfolio, 2) ?></h3>
                 </div>
             </div>
         </div>
@@ -14,22 +20,15 @@
             <div class="card card-dashboard text-center">
                 <div class="card-body py-3">
                     <h6 class="text-muted">Inversiones activas</h6>
-                    <h3 class="text-primary mb-0">
-                        <?php
-                        $activas = array_filter($inversiones, function($i) { return $i['estado'] === 'activa'; });
-                        echo count($activas);
-                        ?>
-                    </h3>
+                    <h3 class="text-primary mb-0"><?= count($activas) ?></h3>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card card-dashboard text-center">
                 <div class="card-body py-3">
-                    <h6 class="text-muted">Total invertido</h6>
-                    <h3 class="text-warning mb-0">
-                        $ <?= number_format(array_sum(array_map(function($i) { return floatval($i['monto']); }, $activas)), 2) ?>
-                    </h3>
+                    <h6 class="text-muted">Capital disponible</h6>
+                    <h3 class="text-success mb-0">$ <?= number_format($disponible, 2) ?></h3>
                 </div>
             </div>
         </div>

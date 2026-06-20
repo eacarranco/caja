@@ -1,5 +1,6 @@
 <?php
 require_once 'app/models/Socio.php';
+require_once ROOT_PATH . '/app/helpers/EmailHelper.php';
 
 class SocioController extends BaseController {
 
@@ -84,6 +85,28 @@ class SocioController extends BaseController {
                 $insertData['hash_integridad'] = hash('sha256', json_encode($insertData));
 
                 if ($socioModel->insert($insertData)) {
+                    $tokenRaw = bin2hex(random_bytes(32));
+                    $tokenHash = hash('sha256', $tokenRaw);
+                    $nombresCompletos = strtoupper($data['nombre1']) . ' ' . strtoupper($data['nombre2'] ?? '');
+                    $apellidosCompletos = strtoupper($data['apellido1']) . ' ' . strtoupper($data['apellido2'] ?? '');
+                    $nombreUsuario = strtolower($data['cedula']);
+                    $idUsuario = UUIDGenerator::generate();
+
+                    $stmt = $this->db->prepare("INSERT INTO usuarios (id_usuario, nombres, apellidos, cedula, correo_electronico, telefono, nombre_usuario, contrasena, activo, _2fa_obligatorio, token_activacion, token_activacion_expira) VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE, FALSE, ?, DATE_ADD(NOW(), INTERVAL ? HOUR))");
+                    $stmt->execute([$idUsuario, $nombresCompletos, $apellidosCompletos, strtoupper($data['cedula']), $data['correo_electronico'], $data['celular'], $nombreUsuario, '', $tokenHash, TOKEN_ACTIVACION_EXPIRACION_HORAS]);
+
+                    $stmt = $this->db->prepare("INSERT INTO roles_usuarios (id_usuario, id_rol) VALUES (?, 6)");
+                    $stmt->execute([$idUsuario]);
+
+                    $tokenUrl = BASE_URL . '/portal/activarCuenta?token=' . $tokenRaw;
+
+                    $emailNombres = $data['nombre1'] . ' ' . ($data['nombre2'] ?? '') . ' ' . $data['apellido1'] . ' ' . ($data['apellido2'] ?? '');
+                    try {
+                        $emailEnviado = EmailHelper::enviarBienvenida($data['correo_electronico'], $emailNombres, $tokenUrl);
+                    } catch (Exception $e) {
+                        $emailEnviado = false;
+                    }
+                    $_SESSION['flash_socio'] = 'Socio registrado. Se ha enviado un correo de bienvenida a ' . $data['correo_electronico'] . ' para que active su cuenta.';
                     $this->redirect('/socio/ver/' . $idSocio);
                 } else {
                     $errors['general'] = 'Error al registrar el socio';
@@ -137,9 +160,14 @@ class SocioController extends BaseController {
             }
         }
 
+        $stmt = $this->db->prepare("SELECT id_usuario, correo_electronico, token_activacion, fecha_contrasena, activo FROM usuarios WHERE cedula = ?");
+        $stmt->execute([$socio['cedula']]);
+        $usuario = $stmt->fetch();
+
         $this->render('socio/editar', [
             'titulo' => 'Editar socio',
             'socio' => $socio,
+            'usuario' => $usuario,
             'errors' => $errors,
         ]);
     }
@@ -167,13 +195,67 @@ class SocioController extends BaseController {
             $inversiones = $stmt->fetchAll();
         }
 
+        $stmt = $this->db->prepare("SELECT id_usuario, correo_electronico, token_activacion, fecha_contrasena, activo FROM usuarios WHERE cedula = ?");
+        $stmt->execute([$socio['cedula']]);
+        $usuario = $stmt->fetch();
+
         $this->render('socio/ver', [
             'titulo' => 'Datos del socio',
             'socio' => $socio,
+            'usuario' => $usuario,
             'cuenta' => $cuenta,
             'creditos' => $creditos,
             'inversiones' => $inversiones,
         ]);
+    }
+
+    public function forzarCambioContrasena($id) {
+        $this->requirePermission('socio.editar');
+        $socioModel = new Socio();
+        $socio = $socioModel->getById($id);
+        if (!$socio) $this->json(['error' => 'Socio no encontrado'], 404);
+
+        $stmt = $this->db->prepare("SELECT id_usuario FROM usuarios WHERE cedula = ?");
+        $stmt->execute([$socio['cedula']]);
+        $idUsuario = $stmt->fetchColumn();
+        if (!$idUsuario) $this->json(['error' => 'El socio no tiene usuario asociado'], 400);
+
+        $stmt = $this->db->prepare("UPDATE usuarios SET fecha_contrasena = '2020-01-01' WHERE id_usuario = ?");
+        $stmt->execute([$idUsuario]);
+
+        $this->json(['mensaje' => 'Se ha marcado para cambio de contrasena en el proximo login']);
+    }
+
+    public function restablecerContrasena($id) {
+        $this->requirePermission('socio.editar');
+        $socioModel = new Socio();
+        $socio = $socioModel->getById($id);
+        if (!$socio) $this->json(['error' => 'Socio no encontrado'], 404);
+
+        $stmt = $this->db->prepare("SELECT id_usuario, correo_electronico, nombres, apellidos FROM usuarios WHERE cedula = ?");
+        $stmt->execute([$socio['cedula']]);
+        $usuario = $stmt->fetch();
+        if (!$usuario) $this->json(['error' => 'El socio no tiene usuario asociado'], 400);
+
+        if (empty($usuario['correo_electronico'])) {
+            $this->json(['error' => 'El socio no tiene correo electronico registrado'], 400);
+        }
+
+        $tempPassword = bin2hex(random_bytes(4));
+        $hash = password_hash($tempPassword, PASSWORD_BCRYPT);
+
+        $stmt = $this->db->prepare("UPDATE usuarios SET contrasena = ?, fecha_contrasena = '2020-01-01' WHERE id_usuario = ?");
+        $stmt->execute([$hash, $usuario['id_usuario']]);
+
+        $nombre = $usuario['nombres'] . ' ' . $usuario['apellidos'];
+        $loginUrl = BASE_URL . '/login';
+        $enviado = EmailHelper::enviarContrasenaTemporal($usuario['correo_electronico'], $nombre, $tempPassword, $loginUrl);
+
+        if ($enviado) {
+            $this->json(['mensaje' => 'Contrasena temporal enviada a ' . $usuario['correo_electronico']]);
+        } else {
+            $this->json(['error' => 'Error al enviar el correo. Verifica la configuracion SMTP.'], 500);
+        }
     }
 
     public function cambiarEstado($id) {

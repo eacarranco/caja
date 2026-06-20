@@ -38,7 +38,7 @@
                     <tr>
                         <th>Cédula</th>
                         <th>Socio</th>
-                        <th class="text-end">Aporte obligatorio</th>
+                        <th class="text-end">Ahorro mensual</th>
                         <th class="text-end">Participación</th>
                     </tr>
                 </thead>

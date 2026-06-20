@@ -3,6 +3,9 @@
 
     <div class="card card-dashboard" style="max-width:500px">
         <div class="card-body">
+            <?php if (!empty($forzado)): ?>
+            <div class="alert alert-warning"><i class="bi bi-exclamation-triangle"></i> Tu contraseña ha expirado. Debes cambiarla para continuar.</div>
+            <?php endif; ?>
             <?php if (!empty($errors['exito'])): ?>
             <div class="alert alert-success"><?= $errors['exito'] ?></div>
             <?php endif; ?>

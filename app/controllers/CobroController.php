@@ -9,7 +9,6 @@ class CobroController extends BaseController {
         'aporte_excedente' => 'Aporte excedente',
         'cuota_credito' => 'Cuota de crédito',
         'multa' => 'Multa',
-        'inversion' => 'Inversión',
         'desembolso' => 'Desembolso',
         'interes' => 'Interés',
         'otro' => 'Otro',

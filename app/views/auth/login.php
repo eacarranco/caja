@@ -21,6 +21,9 @@
                     <input type="password" name="password" class="form-control" required autocomplete="current-password">
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+                <div class="text-center mt-3">
+                    <a href="<?= BASE_URL ?>/login/olvide" class="text-decoration-none small">¿Olvidaste tu contraseña?</a>
+                </div>
             </form>
         </div>
     </div>

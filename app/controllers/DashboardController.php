@@ -8,6 +8,7 @@ class DashboardController extends BaseController {
         $sociosActivos = $this->db->query("SELECT COUNT(*) FROM socios WHERE estado = 'activo'")->fetchColumn();
         $sesionAbierta = $this->db->query("SELECT COUNT(*) FROM sesiones_mensuales WHERE estado = 'abierta'")->fetchColumn();
         $creditosPendientes = $this->db->query("SELECT COUNT(*) FROM `creditos` WHERE estado IN ('ingresado','pendiente')")->fetchColumn();
+        $inversionesPendientes = $this->db->query("SELECT COUNT(*) FROM inversiones WHERE estado = 'pendiente'")->fetchColumn();
 
         $capitalCaja = $this->db->query("SELECT COALESCE(saldo_posterior, 0) FROM caja_movimientos ORDER BY fecha_registro DESC LIMIT 1")->fetchColumn() ?: 0;
 
@@ -38,6 +39,7 @@ class DashboardController extends BaseController {
             'sociosActivos' => $sociosActivos,
             'sesionAbierta' => $sesionAbierta,
             'creditosPendientes' => $creditosPendientes,
+            'inversionesPendientes' => $inversionesPendientes,
             'capitalCaja' => $capitalCaja,
             'ultimosCobros' => $ultimosCobros,
             'ultimasSesiones' => $ultimasSesiones,

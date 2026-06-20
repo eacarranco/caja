@@ -8,6 +8,10 @@ class Auth {
 
         if (!$user) return false;
 
+        if ($user['token_activacion'] !== null) {
+            return 'activar';
+        }
+
         if ($user['bloqueado_hasta'] !== null) {
             $bloqueo = strtotime($user['bloqueado_hasta']);
             if (time() < $bloqueo) {
@@ -39,6 +43,14 @@ class Auth {
         $_SESSION['usuario_cedula'] = $user['cedula'];
         $_SESSION['2fa_required'] = $user['_2fa_obligatorio'];
         $_SESSION['2fa_verified'] = false;
+
+        if ($user['fecha_contrasena'] !== null) {
+            $fechaPass = strtotime($user['fecha_contrasena']);
+            $dias = (time() - $fechaPass) / 86400;
+            if ($dias >= PASSWORD_EXPIRATION_DAYS) {
+                $_SESSION['cambio_contrasena_obligatorio'] = true;
+            }
+        }
 
         return true;
     }

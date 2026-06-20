@@ -13,10 +13,82 @@ class InversionController extends BaseController {
                                    JOIN productos_financieros p ON i.id_producto = p.id_producto
                                    ORDER BY i.fecha_registro DESC");
         $inversiones = $stmt->fetchAll();
+
+        $depositos = $this->db->query("SELECT c.*, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS socio
+                                        FROM cobros c
+                                        JOIN socios s ON c.id_socio = s.id_socio
+                                        WHERE c.tipo = 'deposito_capital_inversion'
+                                        ORDER BY c.fecha_registro DESC")->fetchAll();
+
+        $capitales = $this->db->query("SELECT ci.*, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS socio
+                                        FROM capital_inversion ci
+                                        JOIN socios s ON ci.id_socio = s.id_socio
+                                        WHERE ci.saldo > 0
+                                        ORDER BY ci.saldo DESC")->fetchAll();
+
         $this->render('inversiones/listar', [
             'titulo' => 'Inversiones',
             'inversiones' => $inversiones,
+            'depositos' => $depositos,
+            'capitales' => $capitales,
         ]);
+    }
+
+    public function pendientes() {
+        $this->requirePermission('inversion.aprobar');
+        $stmt = $this->db->query("SELECT i.*, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS socio,
+                                   p.nombre AS producto
+                                   FROM inversiones i
+                                   JOIN socios s ON i.id_socio = s.id_socio
+                                   JOIN productos_financieros p ON i.id_producto = p.id_producto
+                                   WHERE i.estado = 'pendiente'
+                                   ORDER BY i.fecha_registro DESC");
+        $pendientes = $stmt->fetchAll();
+        $this->render('inversiones/pendientes', [
+            'titulo' => 'Aprobación de inversiones',
+            'pendientes' => $pendientes,
+        ]);
+    }
+
+    public function aprobar($id) {
+        $this->requirePermission('inversion.aprobar');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') $this->json(['error' => 'Método no permitido'], 405);
+        $this->validateCSRF();
+        $stmt = $this->db->prepare("SELECT i.*, s.cedula FROM inversiones i JOIN socios s ON i.id_socio = s.id_socio WHERE i.id_inversion = ? AND i.estado = 'pendiente'");
+        $stmt->execute([$id]);
+        $inv = $stmt->fetch();
+        if (!$inv) $this->json(['error' => 'Inversión no encontrada o no está pendiente'], 400);
+
+        $this->db->beginTransaction();
+        try {
+            $this->db->prepare("UPDATE inversiones SET estado = 'activa' WHERE id_inversion = ?")->execute([$id]);
+            $this->db->prepare("UPDATE capital_inversion SET saldo = saldo - ?, fecha_ultimo_movimiento = NOW() WHERE id_socio = ?")->execute([$inv['monto'], $inv['id_socio']]);
+            $this->historialInsert($inv['id_socio'], 'inversion_apertura', $inv['monto'], $id);
+            $this->db->commit();
+            try { $st = $this->db->prepare("SELECT CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) AS nombre FROM socios WHERE id_socio = ?"); $st->execute([$inv['id_socio']]); $nom = $st->fetchColumn(); require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php'; NotificacionHelper::crearInversion($inv['id_socio'], $nom, $inv['monto'], 'aprobada'); } catch (Exception $e) {}
+            try { PusherHelper::actualizarPortal($inv['id_socio']); } catch (Exception $e) {}
+            $this->json(['mensaje' => 'Inversión aprobada']);
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            $this->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function rechazar($id) {
+        $this->requirePermission('inversion.aprobar');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') $this->json(['error' => 'Método no permitido'], 405);
+        $this->validateCSRF();
+        $stmt = $this->db->prepare("SELECT i.* FROM inversiones i WHERE i.id_inversion = ? AND i.estado = 'pendiente'");
+        $stmt->execute([$id]);
+        $inv = $stmt->fetch();
+        if (!$inv) $this->json(['error' => 'Inversión no encontrada o no está pendiente'], 400);
+
+        $motivo = trim($_POST['motivo'] ?? 'Sin motivo especificado');
+        $this->db->prepare("UPDATE inversiones SET estado = 'rechazada' WHERE id_inversion = ?")->execute([$id]);
+        $this->historialInsert($inv['id_socio'], 'anulacion', 0, $id);
+        try { $st = $this->db->prepare("SELECT CONCAT_WS(' ', apellido1, apellido2, nombre1, nombre2) AS nombre, correo_electronico FROM socios WHERE id_socio = ?"); $st->execute([$inv['id_socio']]); $soc = $st->fetch(); $nom = $soc['nombre'] ?? 'Socio'; require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php'; NotificacionHelper::crear(['id_socio'=>$inv['id_socio'],'tipo'=>'inversion','titulo'=>'Inversión rechazada','mensaje'=>"Su inversión de \${$inv['monto']} ha sido rechazada. Motivo: $motivo",'enviar_pusher'=>true]); } catch (Exception $e) {}
+        try { PusherHelper::actualizarPortal($inv['id_socio']); } catch (Exception $e) {}
+        $this->json(['mensaje' => 'Inversión rechazada']);
     }
 
     public function apertura() {
