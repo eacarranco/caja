@@ -65,10 +65,10 @@ class SesionController extends BaseController {
                 $this->generarObligaciones($id, $fechaSesion);
 
                 // Notificar a todos los socios y directivos
-                $tituloNotif = "Sesion #{$num} abierta";
+                $tituloNotif = "INVITACION";
                 $fechaFormateada = date('d/m/Y', strtotime($fechaSesion));
                 $horaFormateada = date('H:i', strtotime($fechaSesion));
-                $mensajeNotif = "Se ha abierto la sesion #{$num} para el {$fechaFormateada} a las {$horaFormateada}.";
+                $mensajeNotif = "{$titulo}, a realizarse el {$fechaFormateada} a las {$horaFormateada}.";
 
                 // Socios activos
                 try {
