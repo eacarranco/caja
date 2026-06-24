@@ -28,6 +28,7 @@
                     </td>
                     <td data-label="Estado">
                         <?php if ($m['pagada'] > 0): ?><span class="badge bg-success">Pagada</span>
+                        <?php elseif ($m['estado'] === 'en_impugnacion'): ?><span class="badge bg-warning text-dark">En impugnación</span>
                         <?php elseif ($m['estado'] === 'impugnada'): ?><span class="badge bg-success">Impugnada (sin efecto)</span>
                         <?php elseif ($m['estado'] === 'anulada'): ?><span class="badge bg-dark">Anulada</span>
                         <?php else: ?><span class="badge bg-danger">Pendiente</span><?php endif; ?>
@@ -36,6 +37,8 @@
                         <button class="btn btn-sm btn-outline-info" onclick="verDetalle('<?= addslashes($m['id_multa']) ?>', '<?= addslashes(str_replace('_', ' ', $m['tipo'])) ?>', <?= $m['monto'] ?>, '<?= addslashes($m['fecha_generacion']) ?>', '<?= addslashes($m['justificacion'] ?? '') ?>', '<?= addslashes($m['justificacion_pdf'] ?? '') ?>', '<?= $m['justificacion_aprobada'] ?? '' ?>', <?= $m['pagada'] > 0 ? 'true' : 'false' ?>, '<?= $m['estado'] ?>')" title="Ver detalle"><i class="bi bi-eye"></i></button>
                         <?php if (!$m['justificacion'] && $m['estado'] === 'activa' && !$m['pagada']): ?>
                         <button class="btn btn-sm btn-outline-warning" onclick="mostrarFormImpugnar('<?= $m['id_multa'] ?>')" title="Impugnar"><i class="bi bi-shield-exclamation"></i></button>
+                        <?php elseif ($m['estado'] === 'en_impugnacion'): ?>
+                        <span class="badge bg-warning text-dark">En revisión</span>
                         <?php endif; ?>
                     </td>
                 </tr>
@@ -104,6 +107,7 @@ function verDetalle(id, tipo, monto, fecha, justificacion, justPdf, justAprobada
     var estHtml = '';
     if (pagada) estHtml = '<span class="badge bg-success">Pagada</span>';
     else if (estado === 'impugnada') estHtml = '<span class="badge bg-success">Impugnada (sin efecto)</span>';
+    else if (estado === 'en_impugnacion') estHtml = '<span class="badge bg-warning text-dark">En impugnación</span>';
     else if (estado === 'anulada') estHtml = '<span class="badge bg-dark">Anulada</span>';
     else estHtml = '<span class="badge bg-danger">Pendiente</span>';
     document.getElementById('detEstado').innerHTML = estHtml;

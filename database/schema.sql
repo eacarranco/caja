@@ -274,7 +274,7 @@ CREATE TABLE multas (
     justificacion TEXT COMMENT 'Justificación presentada por el socio',
     justificacion_aprobada BOOLEAN DEFAULT FALSE COMMENT 'Indica si la justificacion fue aprobada',
     justificacion_pdf VARCHAR(255) COMMENT 'Archivo PDF de la justificacion',
-    estado ENUM('activa','impugnada','anulada') DEFAULT 'activa' COMMENT 'Estado de la multa: activa, impugnada (justificacion aceptada) o anulada',
+    estado ENUM('activa','en_impugnacion','impugnada','anulada') DEFAULT 'activa' COMMENT 'Estado de la multa: activa (pendiente), en_impugnacion (socio impugno, pendiente de revision), impugnada (aprobada, sin efecto) o anulada',
     pagada BOOLEAN DEFAULT FALSE COMMENT 'Indica si la multa fue pagada',
     fecha_pago DATETIME COMMENT 'Fecha de pago de la multa',
     id_cobro CHAR(36) COMMENT 'FK al cobro cuando la multa es pagada',

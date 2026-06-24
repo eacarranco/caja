@@ -175,14 +175,14 @@ class MultaController extends BaseController {
             }
 
             if ($archivo) {
-                $this->db->prepare("UPDATE multas SET justificacion = ?, justificacion_pdf = ? WHERE id_multa = ?")
+                $this->db->prepare("UPDATE multas SET estado = 'en_impugnacion', justificacion = ?, justificacion_pdf = ? WHERE id_multa = ?")
                     ->execute([$texto, $archivo, $id]);
             } else {
-                $this->db->prepare("UPDATE multas SET justificacion = ? WHERE id_multa = ?")
+                $this->db->prepare("UPDATE multas SET estado = 'en_impugnacion', justificacion = ? WHERE id_multa = ?")
                     ->execute([$texto, $id]);
             }
 
-            $this->json(['mensaje' => 'Justificación enviada']);
+            $this->json(['mensaje' => 'Justificación enviada para revision']);
         }
     }
 
@@ -195,7 +195,7 @@ class MultaController extends BaseController {
         $stmt->execute([$id]);
         $multa = $stmt->fetch();
         if (!$multa) $this->json(['error' => 'No encontrada'], 404);
-        if ($multa['estado'] !== 'activa') $this->json(['error' => 'La multa ya fue procesada (impugnada o anulada)'], 400);
+        if (!in_array($multa['estado'], ['activa', 'en_impugnacion'])) $this->json(['error' => 'La multa ya fue procesada'], 400);
         if (empty($multa['justificacion'])) $this->json(['error' => 'Esta multa no tiene justificacion pendiente'], 400);
 
         $accion = $_POST['accion'] ?? '';
@@ -228,7 +228,7 @@ class MultaController extends BaseController {
                 $this->json(['error' => $e->getMessage()], 500);
             }
         } else {
-            $this->db->prepare("UPDATE multas SET justificacion_aprobada = 0 WHERE id_multa = ?")
+            $this->db->prepare("UPDATE multas SET estado = 'activa', justificacion_aprobada = 0 WHERE id_multa = ?")
                 ->execute([$id]);
 
             NotificacionHelper::crear([
@@ -274,10 +274,10 @@ class MultaController extends BaseController {
             }
 
             if ($archivo) {
-                $this->db->prepare("UPDATE multas SET justificacion = ?, justificacion_pdf = ? WHERE id_multa = ?")
+                $this->db->prepare("UPDATE multas SET estado = 'en_impugnacion', justificacion = ?, justificacion_pdf = ? WHERE id_multa = ?")
                     ->execute([$texto, $archivo, $id]);
             } else {
-                $this->db->prepare("UPDATE multas SET justificacion = ? WHERE id_multa = ?")
+                $this->db->prepare("UPDATE multas SET estado = 'en_impugnacion', justificacion = ? WHERE id_multa = ?")
                     ->execute([$texto, $id]);
             }
 

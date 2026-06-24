@@ -17,6 +17,7 @@
                         <?php if ($pagada): ?><span class="badge bg-success">Pagada</span>
                         <?php elseif ($multa['estado'] === 'anulada'): ?><span class="badge bg-dark">Anulada por directivo</span>
                         <?php elseif ($multa['estado'] === 'impugnada'): ?><span class="badge bg-success">Impugnada (sin efecto)</span>
+                        <?php elseif ($multa['estado'] === 'en_impugnacion'): ?><span class="badge bg-warning text-dark">En impugnación</span>
                         <?php elseif (!empty($multa['justificacion']) && ($multa['justificacion_aprobada'] === '' || $multa['justificacion_aprobada'] === null)): ?><span class="badge bg-warning text-dark">En revision</span>
                         <?php elseif ($multa['justificacion_aprobada'] === '0'): ?><span class="badge bg-danger">Rechazada</span>
                         <?php else: ?><span class="badge bg-danger">Pendiente</span><?php endif; ?>
