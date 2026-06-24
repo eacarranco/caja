@@ -51,7 +51,9 @@ class SesionController extends BaseController {
                 $num = $stmt->fetchColumn();
 
                 $id = UUIDGenerator::generar();
-                $fechaSesion = $_POST['fecha_sesion'] ?? date('Y-m-d');
+                $fecha = $_POST['fecha_sesion'] ?? date('Y-m-d');
+                $hora = $_POST['hora_sesion'] ?? '19:00';
+                $fechaSesion = $fecha . ' ' . $hora . ':00';
                 $titulo = trim($_POST['titulo'] ?? '');
 
                 $stmt = $this->db->prepare("INSERT INTO sesiones_mensuales (id_sesion, numero_sesion, fecha_sesion, titulo) VALUES (?, ?, ?, ?)");
@@ -60,12 +62,46 @@ class SesionController extends BaseController {
                 // Generar obligaciones para todos los socios activos
                 $this->generarObligaciones($id, $fechaSesion);
 
-                // Notificar a todos los socios via Pusher
+                // Notificar a todos los socios y directivos
                 try {
+                    require_once ROOT_PATH . '/app/helpers/NotificacionHelper.php';
                     require_once ROOT_PATH . '/app/helpers/PusherHelper.php';
-                    $socios = $this->db->query("SELECT id_socio FROM socios WHERE estado = 'activo'")->fetchAll(PDO::FETCH_COLUMN);
-                    foreach ($socios as $sid) {
-                        PusherHelper::actualizarPortal($sid);
+                    require_once ROOT_PATH . '/app/helpers/EmailHelper.php';
+
+                    $tituloNotif = "Sesion #{$num} abierta";
+                    $fechaFormateada = date('d/m/Y', strtotime($fechaSesion));
+                    $horaFormateada = date('H:i', strtotime($fechaSesion));
+                    $mensajeNotif = "Se ha abierto la sesion #{$num} para el {$fechaFormateada} a las {$horaFormateada}.";
+
+                    // Socios activos
+                    $socios = $this->db->query("SELECT s.id_socio, s.correo_electronico, CONCAT_WS(' ', s.apellido1, s.apellido2, s.nombre1, s.nombre2) AS nombre FROM socios WHERE estado = 'activo'")->fetchAll();
+                    foreach ($socios as $soc) {
+                        NotificacionHelper::crear([
+                            'id_socio' => $soc['id_socio'],
+                            'tipo' => 'sesion',
+                            'titulo' => $tituloNotif,
+                            'mensaje' => $mensajeNotif,
+                            'enviar_pusher' => true,
+                        ]);
+                        if ($soc['correo_electronico']) {
+                            try { EmailHelper::enviarNotificacion($soc['correo_electronico'], $soc['nombre'], $tituloNotif, $mensajeNotif); } catch (Exception $e) {}
+                        }
+                        PusherHelper::actualizarPortal($soc['id_socio']);
+                    }
+
+                    // Directivos (usuarios con rol distinto a Socio)
+                    $directivos = $this->db->query("SELECT DISTINCT u.id_usuario, u.correo_electronico, CONCAT_WS(' ', u.nombres, u.apellidos) AS nombre FROM usuarios u JOIN roles_usuarios ru ON u.id_usuario = ru.id_usuario WHERE ru.id_rol != 6")->fetchAll();
+                    foreach ($directivos as $dir) {
+                        NotificacionHelper::crear([
+                            'id_usuario' => $dir['id_usuario'],
+                            'tipo' => 'sesion',
+                            'titulo' => $tituloNotif,
+                            'mensaje' => $mensajeNotif,
+                            'enviar_pusher' => true,
+                        ]);
+                        if ($dir['correo_electronico']) {
+                            try { EmailHelper::enviarNotificacion($dir['correo_electronico'], $dir['nombre'], $tituloNotif, $mensajeNotif); } catch (Exception $e) {}
+                        }
                     }
                 } catch (Exception $e) {}
 
@@ -90,7 +126,9 @@ class SesionController extends BaseController {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->validateCSRF();
-            $fechaSesion = $_POST['fecha_sesion'] ?? '';
+            $fecha = $_POST['fecha_sesion'] ?? '';
+            $hora = $_POST['hora_sesion'] ?? '19:00';
+            $fechaSesion = $fecha . ' ' . $hora . ':00';
             $titulo = trim($_POST['titulo'] ?? '');
 
             if (empty($fechaSesion)) $errors['fecha_sesion'] = 'La fecha es obligatoria';

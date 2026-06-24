@@ -13,10 +13,14 @@
             <form method="POST">
                 <?= CSRFMiddleware::campoHTML() ?>
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label">Fecha de la sesion *</label>
                         <input type="date" name="fecha_sesion" class="form-control" value="<?= date('Y-m-d') ?>" required>
                         <small class="text-muted">Las obligaciones se calculan con corte a esta fecha.</small>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Hora</label>
+                        <input type="time" name="hora_sesion" class="form-control" value="19:00">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Titulo *</label>

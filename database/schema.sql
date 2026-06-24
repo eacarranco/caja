@@ -109,7 +109,7 @@ CREATE TABLE socios (
 CREATE TABLE sesiones_mensuales (
     id_sesion CHAR(36) PRIMARY KEY COMMENT 'Identificador único de la sesión mensual (UUID)',
     numero_sesion INT NOT NULL COMMENT 'Número correlativo de la sesión mensual',
-    fecha DATE NOT NULL COMMENT 'Fecha de la sesión mensual',
+    fecha_sesion DATETIME NOT NULL COMMENT 'Fecha y hora de la sesion mensual',
     titulo VARCHAR(100) COMMENT 'Título o nombre de la sesión',
     estado ENUM('abierta','cerrada') DEFAULT 'abierta' COMMENT 'Estado de la sesión: abierta (en curso) o cerrada (finalizada)',
     fecha_apertura DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de apertura de la sesión',

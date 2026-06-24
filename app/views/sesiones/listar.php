@@ -23,7 +23,7 @@
                     <?php foreach ($sesiones as $s): ?>
                     <tr>
                         <td><?= $s['numero_sesion'] ?></td>
-                        <td><?= $s['fecha_sesion'] ?></td>
+                        <td><?= date('d/m/Y H:i', strtotime($s['fecha_sesion'])) ?></td>
                         <td><?= htmlspecialchars($s['titulo'] ?? 'Sesion #' . $s['numero_sesion']) ?></td>
                         <td>
                             <span class="badge <?= $s['estado'] === 'abierta' ? 'bg-success' : 'bg-secondary' ?>">
