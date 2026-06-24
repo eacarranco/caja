@@ -243,12 +243,14 @@ if ($loggedIn) {
                     <?php endif; ?>
                     <?php if ($uid && (RBAC::tienePermiso($uid, 'credito.aprobar') || RBAC::tienePermiso($uid, 'inversion.aprobar'))): ?>
                     <?php $bandejaSubActive = (strpos($currentUrl, 'credito/bandejaAprobados') === 0 || strpos($currentUrl, 'inversion/pendientes') === 0) ? 'active' : ''; ?>
-                    <li class="sidebar-title">Bandeja aprob.</li>
+                    <li class="sidebar-title">Bandeja aprobación</li>
                     <li class="sidebar-item has-sub <?= $bandejaSubActive ?>">
                         <a href="#" class="sidebar-link">
                             <i class="bi bi-inboxes-fill"></i>
-                            <span>Bandeja aprobación</span>
-                            <span id="bandejaBadgeTotal" class="badge bg-danger rounded-pill ms-auto d-none">0</span>
+                            <span class="d-flex align-items-center gap-2 flex-grow-1">
+                                <span>Bandeja aprob.</span>
+                                <span id="bandejaBadgeTotal" class="badge bg-danger rounded-pill d-none">0</span>
+                            </span>
                         </a>
                         <ul class="submenu <?= $bandejaSubActive ?>">
                             <?php if ($uid && RBAC::tienePermiso($uid, 'credito.aprobar')): ?>
