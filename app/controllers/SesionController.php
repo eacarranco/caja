@@ -75,38 +75,38 @@ class SesionController extends BaseController {
                 $stmt = $this->db->prepare("INSERT INTO sesiones_mensuales (id_sesion, numero_sesion, fecha_sesion, titulo, tipo) VALUES (?, ?, ?, ?, ?)");
                 $stmt->execute([$id, $num, $fechaSesion, $titulo, $tipo]);
 
-                // Enviar Pusher broadcast inmediato (sin esperar)
+                // Preparar datos para notificaciones async
                 $fechaFormateada = date('d/m/Y', strtotime($fechaSesion));
                 $horaFormateada = date('H:i', strtotime($fechaSesion));
-                PusherHelper::enviar('notificacion', [
-                    'titulo' => 'INVITACION',
-                    'mensaje' => "{$titulo} ({$tipo}), a realizarse el {$fechaFormateada} a las {$horaFormateada}.",
-                ]);
-
-                // Notificaciones pesadas (email + BD) se ejecutan en background tras el redirect
                 $dbConn = Database::getInstance()->getConnection();
                 $sociosData = $dbConn->query("SELECT id_socio, correo_electronico FROM socios WHERE estado = 'activo'")->fetchAll(PDO::FETCH_ASSOC);
                 $directivosData = $dbConn->query("SELECT DISTINCT u.id_usuario, u.correo_electronico, CONCAT_WS(' ', u.nombres, u.apellidos) AS nombre FROM usuarios u JOIN roles_usuarios ru ON u.id_usuario = ru.id_usuario WHERE ru.id_rol != 6")->fetchAll(PDO::FETCH_ASSOC);
 
-                register_shutdown_function(function() use ($id, $sociosData, $directivosData, $titulo, $tipo, $fechaFormateada, $horaFormateada) {
+                register_shutdown_function(function() use ($sociosData, $directivosData, $titulo, $tipo, $fechaFormateada, $horaFormateada) {
                     $msg = "{$titulo} ({$tipo}), a realizarse el {$fechaFormateada} a las {$horaFormateada}.";
                     $db = Database::getInstance()->getConnection();
 
+                    // Pusher broadcast
+                    try {
+                        PusherHelper::enviar('notificacion', [
+                            'titulo' => 'INVITACION',
+                            'mensaje' => $msg,
+                        ]);
+                    } catch (Exception $e) { error_log("Pusher broadcast: " . $e->getMessage()); }
+
                     foreach ($sociosData as $soc) {
-                        // Insertar notificación en BD
-                        $nid = UUIDGenerator::generar();
                         try {
+                            $nid = UUIDGenerator::generar();
                             $stmt = $db->prepare("INSERT INTO notificaciones (id_notificacion, id_socio, tipo, titulo, mensaje, enviada_pusher) VALUES (?, ?, 'sesion', ?, ?, 0)");
                             $stmt->execute([$nid, $soc['id_socio'], 'INVITACION', $msg]);
                         } catch (Exception $e) { error_log("Notif socio: " . $e->getMessage()); }
-                        // Email
                         if ($soc['correo_electronico']) {
                             try { EmailHelper::enviarNotificacion($soc['correo_electronico'], 'Socio', 'INVITACION', $msg); } catch (Exception $e) { error_log("Email socio: " . $e->getMessage()); }
                         }
                     }
                     foreach ($directivosData as $dir) {
-                        $nid = UUIDGenerator::generar();
                         try {
+                            $nid = UUIDGenerator::generar();
                             $stmt = $db->prepare("INSERT INTO notificaciones (id_notificacion, id_usuario, tipo, titulo, mensaje, enviada_pusher) VALUES (?, ?, 'sesion', ?, ?, 0)");
                             $stmt->execute([$nid, $dir['id_usuario'], 'INVITACION', $msg]);
                         } catch (Exception $e) { error_log("Notif directivo: " . $e->getMessage()); }
