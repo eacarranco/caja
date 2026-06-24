@@ -439,5 +439,4 @@ if ($loggedIn) {
         });
         </script>
         <?php endif; ?>
-        <?php require_once ROOT_PATH . '/app/views/layouts/modal_notificacion.php'; ?>
     <?php endif; ?>
