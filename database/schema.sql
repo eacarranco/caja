@@ -269,7 +269,7 @@ CREATE TABLE multas (
     id_multa CHAR(36) PRIMARY KEY COMMENT 'Identificador único de la multa (UUID)',
     id_socio CHAR(36) NOT NULL COMMENT 'FK al socio multado',
     id_sesion CHAR(36) NOT NULL COMMENT 'FK a la sesión donde se generó la multa',
-    tipo ENUM('retraso_10min','retraso_30min','inasistencia','mora_crédito','otro') NOT NULL COMMENT 'Tipo de multa',
+    tipo ENUM('retraso_10min','retraso_30min','inasistencia','mora_credito','cuota_impaga','otro') NOT NULL COMMENT 'Tipo de multa',
     monto DECIMAL(10,2) NOT NULL COMMENT 'Monto de la multa en USD',
     justificacion TEXT COMMENT 'Justificación presentada por el socio',
     justificacion_aprobada BOOLEAN DEFAULT FALSE COMMENT 'Indica si la justificacion fue aprobada',
