@@ -182,7 +182,7 @@ class PDFGenerator {
         $h = '<h3>Acta de cierre — Sesión #' . $sesion['numero_sesion'] . '</h3>';
         $h .= '<table>';
         $h .= '<tr><td width="150"><strong>Fecha de cierre:</strong></td><td>' . $sesion['fecha_cierre'] . '</td></tr>';
-        $h .= '<tr><td><strong>Fecha de sesión:</strong></td><td>' . $sesion['fecha'] . '</td></tr>';
+        $h .= '<tr><td><strong>Fecha de sesión:</strong></td><td>' . $sesion['fecha_sesion'] . '</td></tr>';
         $h .= '<tr><td><strong>Título:</strong></td><td>' . htmlspecialchars($sesion['titulo'] ?? 'Sesión #' . $sesion['numero_sesion']) . '</td></tr>';
         $h .= '<tr><td><strong>Total recaudado:</strong></td><td>$ ' . number_format($sesion['total_recaudado'], 2) . '</td></tr>';
         $h .= '<tr><td><strong>Total desembolsado:</strong></td><td>$ ' . number_format($sesion['total_desembolsado'], 2) . '</td></tr>';
