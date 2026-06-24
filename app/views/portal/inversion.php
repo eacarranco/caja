@@ -554,7 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="retiroOverlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:100000;background:rgba(0,0,0,0.5);justify-content:center;align-items:center">
     <div style="background:#fff;border-radius:12px;padding:2rem 1.5rem;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:notifFadeIn 0.2s ease-out">
         <h5 class="mb-3">Retiro anticipado de inversión</h5>
-        <p class="text-muted small mb-3">Según el Reglamento Interno, el socio debe notificar con al menos un (1) mes de anticipación. Se aplicará una penalidad sobre el rendimiento (utilidad) del monto invertido.</p>
+        <p class="text-muted small mb-3" style="text-align:justify">Según el Reglamento Interno, el socio debe notificar con al menos un (1) mes de anticipación. Se aplicará una penalidad sobre el rendimiento (utilidad) del monto invertido.</p>
         <table class="table table-sm table-borderless mb-3">
             <tr><td class="text-muted">Producto:</td><td class="fw-bold" id="retiroProducto"></td></tr>
             <tr><td class="text-muted">Monto invertido:</td><td class="fw-bold" id="retiroMonto"></td></tr>
