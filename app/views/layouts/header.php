@@ -417,16 +417,27 @@ if ($loggedIn) {
         <div class="page-content">
         <?php
         $flashTypes = ['success' => 'success', 'error' => 'danger', 'warning' => 'warning', 'info' => 'info'];
+        $flashJS = [];
         foreach ($flashTypes as $key => $bsClass):
             if (isset($_SESSION[$key]) && !empty($_SESSION[$key])):
-        ?>
-        <div class="alert alert-<?= $bsClass ?> alert-dismissible fade show" role="alert">
-            <?= htmlspecialchars($_SESSION[$key]) ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-        </div>
-        <?php
+                $flashJS[] = [
+                    'tipo' => $key,
+                    'titulo' => ucfirst($key),
+                    'mensaje' => $_SESSION[$key],
+                    'autoClose' => $key !== 'error',
+                ];
                 unset($_SESSION[$key]);
             endif;
         endforeach;
+        if (!empty($flashJS)):
         ?>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            <?php foreach ($flashJS as $f): ?>
+            mostrarNotificacion('<?= $f['tipo'] ?>', '<?= addslashes($f['titulo']) ?>', '<?= addslashes($f['mensaje']) ?>', <?= $f['autoClose'] ? 'true' : 'false' ?>);
+            <?php endforeach; ?>
+        });
+        </script>
+        <?php endif; ?>
+        <?php require_once ROOT_PATH . '/app/views/layouts/modal_notificacion.php'; ?>
     <?php endif; ?>

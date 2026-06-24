@@ -80,7 +80,7 @@
                                     <div class="form-check mt-1">
                                         <input type="checkbox" class="form-check-input notif-check" value="<?= $n['id_notificacion'] ?>" onchange="actualizarBatchActions()">
                                     </div>
-                                    <div>
+                                    <div onclick="verNotificacion('<?= $n['id_notificacion'] ?>', '<?= addslashes($n['titulo']) ?>', '<?= addslashes($n['mensaje']) ?>')" style="cursor:pointer">
                                         <div class="small text-muted"><?= $n['fecha_creacion'] ?></div>
                                         <div><?= htmlspecialchars($n['titulo']) ?></div>
                                         <div class="small text-muted"><?= htmlspecialchars($n['mensaje']) ?></div>
@@ -125,6 +125,17 @@
 </div>
 
 <script>
+function verNotificacion(id, titulo, mensaje) {
+    fetch('<?= BASE_URL ?>/notificacion/leer/' + id, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'csrf_token=<?= CSRFMiddleware::generarToken() ?>'
+    }).then(function(r) { return r.json(); }).catch(function() {});
+    mostrarNotificacion('info', titulo, mensaje, false);
+    var item = event && event.currentTarget ? event.currentTarget.closest('.list-group-item') : null;
+    if (item) item.classList.remove('fw-bold');
+}
+
 function marcarLeida(id) {
     fetch('<?= BASE_URL ?>/notificacion/leer/' + id, {
         method: 'POST',

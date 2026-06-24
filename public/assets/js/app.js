@@ -22,6 +22,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+function mostrarNotificacion(tipo, titulo, mensaje, autoClose) {
+    var modal = document.getElementById('notificacionModal');
+    if (!modal) return;
+    var iconMap = {
+        'success': ['bi-check-circle-fill', 'text-success'],
+        'error':   ['bi-x-circle-fill', 'text-danger'],
+        'warning': ['bi-exclamation-circle-fill', 'text-warning'],
+        'info':    ['bi-info-circle-fill', 'text-primary'],
+    };
+    var cls = iconMap[tipo] || iconMap['info'];
+    var icon = modal.querySelector('#notifModalIcon i');
+    icon.className = 'bi ' + cls[0] + ' ' + cls[1];
+    document.getElementById('notifModalTitle').textContent = titulo;
+    document.getElementById('notifModalMessage').textContent = mensaje;
+    var bsModal = new bootstrap.Modal(modal, { backdrop: 'static', keyboard: false });
+    bsModal.show();
+    if (autoClose !== false) {
+        setTimeout(function() { bsModal.hide(); }, 4000);
+    }
+}
+
 function showToast(message, type) {
     type = type || 'success';
     var container = document.querySelector('.toast-container');
