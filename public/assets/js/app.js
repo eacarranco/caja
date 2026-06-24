@@ -36,12 +36,31 @@ function mostrarNotificacion(tipo, titulo, mensaje, autoClose) {
     icon.className = 'bi ' + cls[0] + ' ' + cls[1];
     document.getElementById('notifModalTitle').textContent = titulo;
     document.getElementById('notifModalMessage').textContent = mensaje;
-    var bsModal = new bootstrap.Modal(modal, { backdrop: 'static', keyboard: false });
-    bsModal.show();
-    if (autoClose !== false) {
-        setTimeout(function() { bsModal.hide(); }, 4000);
+    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        var bsModal = new bootstrap.Modal(modal, { backdrop: 'static', keyboard: false });
+        bsModal.show();
+        if (autoClose !== false) setTimeout(function() { bsModal.hide(); }, 4000);
+    } else {
+        modal.classList.add('show');
+        modal.style.display = 'block';
+        document.body.classList.add('modal-open');
+        var backdrop = document.createElement('div');
+        backdrop.className = 'modal-backdrop fade show';
+        backdrop.id = 'notifModalBackdrop';
+        document.body.appendChild(backdrop);
+        if (autoClose !== false) setTimeout(function() { cerrarModalFallback(); }, 4000);
     }
 }
+function cerrarModalFallback() {
+    var modal = document.getElementById('notificacionModal');
+    if (modal) { modal.classList.remove('show'); modal.style.display = ''; }
+    document.body.classList.remove('modal-open');
+    var backdrop = document.getElementById('notifModalBackdrop');
+    if (backdrop) { backdrop.remove(); }
+}
+document.getElementById('notificacionModal') && document.getElementById('notificacionModal').addEventListener('click', function(e) {
+    if (e.target === this || e.target.getAttribute('data-bs-dismiss') === 'modal') cerrarModalFallback();
+});
 
 function showToast(message, type) {
     type = type || 'success';
