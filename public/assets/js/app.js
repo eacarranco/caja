@@ -23,8 +23,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function mostrarNotificacion(tipo, titulo, mensaje, autoClose) {
-    var modal = document.getElementById('notificacionModal');
-    if (!modal) return;
+    var overlay = document.getElementById('notificacionOverlay');
+    if (!overlay) return;
     var iconMap = {
         'success': ['bi-check-circle-fill', 'text-success'],
         'error':   ['bi-x-circle-fill', 'text-danger'],
@@ -32,35 +32,19 @@ function mostrarNotificacion(tipo, titulo, mensaje, autoClose) {
         'info':    ['bi-info-circle-fill', 'text-primary'],
     };
     var cls = iconMap[tipo] || iconMap['info'];
-    var icon = modal.querySelector('#notifModalIcon i');
+    var icon = overlay.querySelector('#notifModalIcon i');
     icon.className = 'bi ' + cls[0] + ' ' + cls[1];
     document.getElementById('notifModalTitle').textContent = titulo;
     document.getElementById('notifModalMessage').textContent = mensaje;
-    if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-        var bsModal = new bootstrap.Modal(modal, { backdrop: 'static', keyboard: false });
-        bsModal.show();
-        if (autoClose !== false) setTimeout(function() { bsModal.hide(); }, 4000);
-    } else {
-        modal.classList.add('show');
-        modal.style.display = 'block';
-        document.body.classList.add('modal-open');
-        var backdrop = document.createElement('div');
-        backdrop.className = 'modal-backdrop fade show';
-        backdrop.id = 'notifModalBackdrop';
-        document.body.appendChild(backdrop);
-        if (autoClose !== false) setTimeout(function() { cerrarModalFallback(); }, 4000);
+    overlay.classList.add('show');
+    if (autoClose !== false) {
+        setTimeout(cerrarModalNotificacion, 4000);
     }
 }
-function cerrarModalFallback() {
-    var modal = document.getElementById('notificacionModal');
-    if (modal) { modal.classList.remove('show'); modal.style.display = ''; }
-    document.body.classList.remove('modal-open');
-    var backdrop = document.getElementById('notifModalBackdrop');
-    if (backdrop) { backdrop.remove(); }
+function cerrarModalNotificacion() {
+    var overlay = document.getElementById('notificacionOverlay');
+    if (overlay) overlay.classList.remove('show');
 }
-document.getElementById('notificacionModal') && document.getElementById('notificacionModal').addEventListener('click', function(e) {
-    if (e.target === this || e.target.getAttribute('data-bs-dismiss') === 'modal') cerrarModalFallback();
-});
 
 function showToast(message, type) {
     type = type || 'success';
