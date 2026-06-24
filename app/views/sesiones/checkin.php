@@ -39,6 +39,7 @@
                                     <th>Socio</th>
                                     <th>Asistencia</th>
                                     <th class="text-end">Total adeudado</th>
+                                    <th>Detalle</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -76,6 +77,38 @@
                                         <?php if ($totalPagado > 0): ?><br><small class="text-success">Pagado: $<?= number_format($totalPagado, 2) ?></small><?php endif; ?>
                                         <?php else: ?>
                                         <span class="text-muted">$0.00</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td style="min-width:220px">
+                                        <?php if (!empty($pendientes)): ?>
+                                        <div class="small">
+                                            <?php $orden = ['cuota_credito' => 1, 'cuota_mensual' => 2, 'multa' => 3]; ?>
+                                            <?php usort($pendientes, function($a, $b) use ($orden) {
+                                                $oa = $orden[$a['tipo']] ?? 9;
+                                                $ob = $orden[$b['tipo']] ?? 9;
+                                                if ($oa !== $ob) return $oa - $ob;
+                                                return ($a['fecha_registro'] ?? '') <=> ($b['fecha_registro'] ?? '');
+                                            }); ?>
+                                            <?php foreach ($pendientes as $o): ?>
+                                            <div class="d-flex justify-content-between align-items-center border-bottom py-1">
+                                                <span>
+                                                    <?php if ($o['tipo'] === 'cuota_credito'): ?>
+                                                    <span class="badge bg-info me-1">Crédito</span>
+                                                    <?php elseif ($o['tipo'] === 'cuota_mensual'): ?>
+                                                    <span class="badge bg-primary me-1">Cuota</span>
+                                                    <?php elseif ($o['tipo'] === 'multa'): ?>
+                                                    <span class="badge bg-warning text-dark me-1">Multa</span>
+                                                    <?php else: ?>
+                                                    <span class="badge bg-secondary me-1"><?= $o['tipo'] ?></span>
+                                                    <?php endif; ?>
+                                                    <span class="small"><?= htmlspecialchars($o['concepto']) ?></span>
+                                                </span>
+                                                <strong class="text-danger ms-2">$<?= number_format($o['monto'], 2) ?></strong>
+                                            </div>
+                                            <?php endforeach; ?>
+                                        </div>
+                                        <?php else: ?>
+                                        <span class="text-muted small">Sin obligaciones</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
