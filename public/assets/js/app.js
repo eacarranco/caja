@@ -60,10 +60,11 @@ function actualizarBandejaBadge() {
         .then(function(r) { return r.json(); })
         .then(function(d) {
             var total = (d.creditos || 0) + (d.inversiones || 0);
-            ['Total', 'Creditos', 'Inversiones'].forEach(function(t) {
+            var badges = { 'Total': total, 'Creditos': d.creditos || 0, 'Inversiones': d.inversiones || 0 };
+            Object.keys(badges).forEach(function(t) {
                 var el = document.getElementById('bandejaBadge' + t);
                 if (el) {
-                    var count = t === 'Total' ? total : d[t.toLowerCase() + 's'] || 0;
+                    var count = badges[t];
                     if (count > 0) {
                         el.textContent = Math.min(count, 99);
                         el.classList.remove('d-none');

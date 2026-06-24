@@ -248,8 +248,8 @@ if ($loggedIn) {
                         <a href="#" class="sidebar-link">
                             <i class="bi bi-inboxes-fill"></i>
                             <span class="d-flex align-items-center gap-2 flex-grow-1">
-                                <span>Bandeja aprob.</span>
-                                <span id="bandejaBadgeTotal" class="badge bg-danger rounded-pill d-none">0</span>
+                                <span>Pendientes<span id="bandejaBadgeTotal" class="badge bg-danger rounded-pill d-none">0</span></span>
+                                
                             </span>
                         </a>
                         <ul class="submenu <?= $bandejaSubActive ?>">
