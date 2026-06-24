@@ -241,8 +241,8 @@ class InversionController extends BaseController {
             $inv = $stmt->fetch();
             if (!$inv) $this->json(['error' => 'Inversion no encontrada o no activa'], 400);
 
-            $penalidad = $inv['penalidad_retiro_anticipado'] / 100 * $inv['monto'];
-            $devolucion = $inv['monto'] - $penalidad;
+            $penalidad = $inv['penalidad_retiro_anticipado'] / 100 * ($inv['rendimiento_proyectado'] ?? 0);
+            $devolucion = $inv['monto'] + ($inv['rendimiento_proyectado'] ?? 0) - $penalidad;
 
             $this->db->beginTransaction();
             try {

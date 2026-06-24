@@ -578,12 +578,12 @@ function solicitarRetiroAnticipado(id, producto, monto, rendimiento, plazo, dest
     document.getElementById('retiroIdInversion').value = id;
     document.getElementById('retiroProducto').textContent = producto;
     document.getElementById('retiroMonto').textContent = '$' + monto.toFixed(2);
-
-    // Estimar penalidad (se usará la del producto vía backend)
     var penalidadPorc = 0;
-    document.getElementById('retiroRend').textContent = '$' + rendimiento.toFixed(2) + ' (se pierde al retirar anticipadamente)';
-    document.getElementById('retiroPenalidad').textContent = '$' + (monto * penalidadPorc / 100).toFixed(2) + ' (' + penalidadPorc + '%)';
-    document.getElementById('retiroDevolucion').textContent = '$' + (monto - (monto * penalidadPorc / 100)).toFixed(2);
+    document.getElementById('retiroRend').textContent = '$' + rendimiento.toFixed(2);
+    var penalidad = penalidadPorc / 100 * rendimiento;
+    var devolucion = monto + rendimiento - penalidad;
+    document.getElementById('retiroPenalidad').textContent = '$' + penalidad.toFixed(2) + ' (' + penalidadPorc + '%)';
+    document.getElementById('retiroDevolucion').textContent = '$' + devolucion.toFixed(2);
     document.getElementById('retiroOverlay').style.display = 'flex';
 }
 
