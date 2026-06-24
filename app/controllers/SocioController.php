@@ -222,6 +222,29 @@ class SocioController extends BaseController {
             $this->json(['error' => 'Socio no encontrado'], 404);
         }
 
+        $tables = [
+            'creditos' => 'creditos',
+            'inversiones' => 'inversiones',
+            'cobros' => 'cobros',
+            'cuentas_ahorro' => 'cuentas_ahorro',
+            'multas' => 'multas',
+            'asistencias' => 'asistencias',
+            'solicitudes_retiro' => 'solicitudes_retiro',
+        ];
+        foreach ($tables as $label => $table) {
+            $stmt = $this->db->prepare("SELECT COUNT(*) FROM $table WHERE id_socio = ?");
+            $stmt->execute([$id]);
+            if ((int)$stmt->fetchColumn() > 0) {
+                $this->json(['error' => "El socio tiene $label registrados. No se puede eliminar, solo puedes inactivarlo desde la opcion 'Cambiar estado'."], 400);
+            }
+        }
+
+        $stmt = $this->db->prepare("SELECT COUNT(*) FROM garantes WHERE id_socio = ?");
+        $stmt->execute([$id]);
+        if ((int)$stmt->fetchColumn() > 0) {
+            $this->json(['error' => 'El socio es garante de uno o mas creditos. No se puede eliminar, solo inactivarlo.'], 400);
+        }
+
         $this->db->beginTransaction();
         try {
             $stmt = $this->db->prepare("SELECT id_usuario FROM usuarios WHERE cedula = ?");
@@ -234,11 +257,7 @@ class SocioController extends BaseController {
                 $this->db->prepare("DELETE FROM usuarios WHERE id_usuario = ?")->execute([$idUsuario]);
             }
 
-            $this->db->prepare("DELETE FROM cuentas_ahorro WHERE id_socio = ?")->execute([$id]);
             $this->db->prepare("DELETE FROM garantes WHERE id_socio = ? OR id_credito IN (SELECT id_credito FROM creditos WHERE id_socio = ?)")->execute([$id, $id]);
-            $this->db->prepare("DELETE FROM multas WHERE id_socio = ?")->execute([$id]);
-            $this->db->prepare("DELETE FROM asistencias WHERE id_socio = ?")->execute([$id]);
-            $this->db->prepare("DELETE FROM solicitudes_retiro WHERE id_socio = ?")->execute([$id]);
             $this->db->prepare("DELETE FROM archivos WHERE entidad_tipo = 'socio' AND entidad_id = ?")->execute([$id]);
 
             if (!$socioModel->delete($id)) {
@@ -246,7 +265,7 @@ class SocioController extends BaseController {
             }
 
             $this->db->commit();
-            $this->historialInsert('socio.eliminar', "Socio {$socio['cedula']} ({$socio['nombre1']} {$socio['apellido1']}) eliminado permanentemente");
+            $this->historialInsert('socio.eliminar', "Socio {$socio['cedula']} ({$socio['nombre1']} {$socio['apellido1']} {$socio['apellido2']}) eliminado permanentemente");
             $this->json(['mensaje' => 'Socio eliminado permanentemente']);
         } catch (Exception $e) {
             $this->db->rollBack();
