@@ -1,9 +1,4 @@
--- MySQL dump 10.13  Distrib 8.4.3, for Win64 (x86_64)
---
--- Host: 127.0.0.1    Database: caja_ahorro_pujota
--- ------------------------------------------------------
--- Server version	8.4.3
-
+ï»¿
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -14,120 +9,88 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Table structure for table `amortizaciones`
---
-
 DROP TABLE IF EXISTS `amortizaciones`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `amortizaciones` (
-  `id_amortizacion` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador +¦nico de la amortizaci+¦n (UUID)',
-  `id_credito` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al cr+®dito asociado',
-  `numero_cuota` int NOT NULL COMMENT 'N+¦mero de cuota (1, 2, 3...)',
+  `id_amortizacion` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador â”œâ•‘nico de la amortizaciâ”œâ”‚n (UUID)',
+  `id_credito` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al crâ”œÂ®dito asociado',
+  `numero_cuota` int NOT NULL COMMENT 'Nâ”œâ•‘mero de cuota (1, 2, 3...)',
   `fecha_vencimiento` date NOT NULL COMMENT 'Fecha de vencimiento de la cuota',
-  `capital` decimal(12,2) NOT NULL COMMENT 'Porci+¦n de capital de la cuota',
-  `interes` decimal(12,2) NOT NULL COMMENT 'Porci+¦n de inter+®s de la cuota',
-  `total` decimal(12,2) NOT NULL COMMENT 'Total de la cuota (capital + inter+®s)',
-  `saldo_restante` decimal(12,2) NOT NULL COMMENT 'Saldo de capital pendiente despu+®s de esta cuota',
-  `estado` enum('pendiente','pagada','vencida') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'pendiente' COMMENT 'Estado de la cuota',
-  `id_cobro` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK al cobro cuando la cuota es pagada',
+  `capital` decimal(12,2) NOT NULL COMMENT 'Porciâ”œâ”‚n de capital de la cuota',
+  `interes` decimal(12,2) NOT NULL COMMENT 'Porciâ”œâ”‚n de interâ”œÂ®s de la cuota',
+  `total` decimal(12,2) NOT NULL COMMENT 'Total de la cuota (capital + interâ”œÂ®s)',
+  `saldo_restante` decimal(12,2) NOT NULL COMMENT 'Saldo de capital pendiente despuâ”œÂ®s de esta cuota',
+  `estado` enum('pendiente','pagada','vencida') COLLATE utf8mb4_unicode_ci DEFAULT 'pendiente' COMMENT 'Estado de la cuota',
+  `id_cobro` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK al cobro cuando la cuota es pagada',
   PRIMARY KEY (`id_amortizacion`),
-  KEY `idx_amortizaciones_crÔö£-«dito` (`id_credito`),
+  KEY `idx_amortizaciones_crâ”œÂ®dito` (`id_credito`),
   KEY `idx_amortizaciones_estado` (`estado`),
-  KEY `idx_amortizaciones_credito` (`id_credito`),
   CONSTRAINT `amortizaciones_ibfk_1` FOREIGN KEY (`id_credito`) REFERENCES `creditos` (`id_credito`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tabla de amortizaciÔö£Ôöén de crÔö£-«ditos +ö+ç+Â cuotas generadas segÔö£Ôòæn mÔö£-«todo de interÔö£-«s';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tabla de amortizaciâ”œâ”‚n de crâ”œÂ®ditos Ã”Ã‡Ã¶ cuotas generadas segâ”œâ•‘n mâ”œÂ®todo de interâ”œÂ®s';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `amortizaciones`
---
 
 LOCK TABLES `amortizaciones` WRITE;
 /*!40000 ALTER TABLE `amortizaciones` DISABLE KEYS */;
 /*!40000 ALTER TABLE `amortizaciones` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `archivos`
---
-
 DROP TABLE IF EXISTS `archivos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `archivos` (
-  `id_archivo` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador +¦nico del archivo (UUID)',
-  `nombre_original` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre original del archivo subido',
-  `nombre_archivo` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre interno en disco (UUID + extensi+¦n)',
-  `mime_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Tipo MIME del archivo',
-  `tamano` bigint NOT NULL COMMENT 'Tama+¦o en bytes',
-  `extension` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Extensi+¦n del archivo (pdf, jpg, png, etc)',
-  `ruta` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Ruta relativa desde storage/archivos/',
-  `hash_sha256` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'SHA-256 del contenido del archivo',
-  `entidad_tipo` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Nombre de la tabla o m+¦dulo asociado (socio, credito, multa, etc)',
-  `entidad_id` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'UUID del registro asociado en la entidad',
-  `subdirectorio` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'general' COMMENT 'Subdirectorio dentro de storage/archivos/',
-  `id_usuario_subio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Usuario que subi+¦ el archivo',
+  `id_archivo` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador â”œâ•‘nico del archivo (UUID)',
+  `nombre_original` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre original del archivo subido',
+  `nombre_archivo` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre interno en disco (UUID + extensiâ”œâ”‚n)',
+  `mime_type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Tipo MIME del archivo',
+  `tamano` bigint NOT NULL COMMENT 'Tamaâ”œâ–’o en bytes',
+  `extension` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Extensiâ”œâ”‚n del archivo (pdf, jpg, png, etc)',
+  `ruta` varchar(500) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Ruta relativa desde storage/archivos/',
+  `hash_sha256` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'SHA-256 del contenido del archivo',
+  `entidad_tipo` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Nombre de la tabla o mâ”œâ”‚dulo asociado (socio, credito, multa, etc)',
+  `entidad_id` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'UUID del registro asociado en la entidad',
+  `subdirectorio` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT 'general' COMMENT 'Subdirectorio dentro de storage/archivos/',
+  `id_usuario_subio` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Usuario que subiâ”œâ”‚ el archivo',
   `fecha_subida` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de subida del archivo',
   PRIMARY KEY (`id_archivo`),
   KEY `id_usuario_subio` (`id_usuario_subio`),
   KEY `idx_archivos_entidad` (`entidad_tipo`,`entidad_id`),
   KEY `idx_archivos_hash` (`hash_sha256`),
   CONSTRAINT `archivos_ibfk_1` FOREIGN KEY (`id_usuario_subio`) REFERENCES `usuarios` (`id_usuario`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='GestiÔö£Ôöén centralizada de archivos ? metadatos en BD, archivos fuera del public root';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Gestiâ”œâ”‚n centralizada de archivos ? metadatos en BD, archivos fuera del public root';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `archivos`
---
 
 LOCK TABLES `archivos` WRITE;
 /*!40000 ALTER TABLE `archivos` DISABLE KEYS */;
+INSERT INTO `archivos` (`id_archivo`, `nombre_original`, `nombre_archivo`, `mime_type`, `tamano`, `extension`, `ruta`, `hash_sha256`, `entidad_tipo`, `entidad_id`, `subdirectorio`, `id_usuario_subio`, `fecha_subida`) VALUES ('ca62b9e0-de01-42cc-9bb6-0826f49dce00','LogoCorteNacJusticia.jpg','ca62b9e0-de01-42cc-9bb6-0826f49dce00.jpg','image/jpeg',11497,'jpg','imagen/ca62b9e0-de01-42cc-9bb6-0826f49dce00.jpg','f324df2dada0b396fb8cc06c9868076755bb36984618eb1fde1eb207b623da78','imagen','logo_sidebar','imagen','ce86e169-fa0a-468d-bb04-ca7b8c7a5291','2026-06-06 23:34:48'),('d9433f2e-ffa1-48c9-bf86-b338e6796ff2','LogoCorteNacJusticia.jpg','d9433f2e-ffa1-48c9-bf86-b338e6796ff2.jpg','image/jpeg',11497,'jpg','imagen/d9433f2e-ffa1-48c9-bf86-b338e6796ff2.jpg','f324df2dada0b396fb8cc06c9868076755bb36984618eb1fde1eb207b623da78','imagen','logo_sd','imagen','ce86e169-fa0a-468d-bb04-ca7b8c7a5291','2026-06-06 23:36:19');
 /*!40000 ALTER TABLE `archivos` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `asistencias`
---
-
 DROP TABLE IF EXISTS `asistencias`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `asistencias` (
-  `id_asistencia` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador +¦nico del registro de asistencia (UUID)',
-  `id_socio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio que asiste',
-  `id_sesion` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK a la sesi+¦n mensual',
-  `tipo` enum('a_tiempo','retraso_10min','retraso_30min','falta') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Tipo de asistencia registrada',
-  `justificacion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Justificaci+¦n presentada por el socio (opcional)',
-  `justificacion_pdf` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF de la justificaci+¦n',
-  `justificacion_aprobada` tinyint(1) DEFAULT '0' COMMENT 'Indica si la justificaci+¦n fue aprobada',
-  `usuario_registra` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Usuario que registr+¦ la asistencia',
+  `id_asistencia` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador â”œâ•‘nico del registro de asistencia (UUID)',
+  `id_socio` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio que asiste',
+  `id_sesion` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK a la sesiâ”œâ”‚n mensual',
+  `tipo` enum('a_tiempo','retraso_10min','retraso_30min','falta') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Tipo de asistencia registrada',
+  `justificacion` text COLLATE utf8mb4_unicode_ci COMMENT 'Justificaciâ”œâ”‚n presentada por el socio (opcional)',
+  `justificacion_pdf` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF de la justificaciâ”œâ”‚n',
+  `justificacion_aprobada` tinyint(1) DEFAULT '0' COMMENT 'Indica si la justificaciâ”œâ”‚n fue aprobada',
+  `usuario_registra` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Usuario que registrâ”œâ”‚ la asistencia',
   `fecha_registro` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora del registro',
   PRIMARY KEY (`id_asistencia`),
   UNIQUE KEY `id_socio` (`id_socio`,`id_sesion`),
-  KEY `id_sesiÔö£Ôöén` (`id_sesion`),
+  KEY `id_sesiâ”œâ”‚n` (`id_sesion`),
   KEY `usuario_registra` (`usuario_registra`),
   CONSTRAINT `asistencias_ibfk_1` FOREIGN KEY (`id_socio`) REFERENCES `socios` (`id_socio`),
   CONSTRAINT `asistencias_ibfk_2` FOREIGN KEY (`id_sesion`) REFERENCES `sesiones_mensuales` (`id_sesion`),
   CONSTRAINT `asistencias_ibfk_3` FOREIGN KEY (`usuario_registra`) REFERENCES `usuarios` (`id_usuario`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Registro de asistencia a sesiones mensuales con tipo y justificaciÔö£Ôöén';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Registro de asistencia a sesiones mensuales con tipo y justificaciâ”œâ”‚n';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `asistencias`
---
 
 LOCK TABLES `asistencias` WRITE;
 /*!40000 ALTER TABLE `asistencias` DISABLE KEYS */;
 /*!40000 ALTER TABLE `asistencias` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `caja_movimientos`
---
-
 DROP TABLE IF EXISTS `caja_movimientos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -151,227 +114,166 @@ CREATE TABLE `caja_movimientos` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Libro mayor de la Caja - estado de cuenta centralizado';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `caja_movimientos`
---
-
 LOCK TABLES `caja_movimientos` WRITE;
 /*!40000 ALTER TABLE `caja_movimientos` DISABLE KEYS */;
+INSERT INTO `caja_movimientos` (`id_movimiento`, `id_sesion`, `id_socio`, `id_referencia`, `tipo_movimiento`, `concepto`, `categoria`, `monto`, `saldo_anterior`, `saldo_posterior`, `fecha_registro`) VALUES ('ab3c0374-9a6b-475d-a952-330b5d8ae838',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','2fdd0b75-0f3f-4507-8eab-b5cd4ce96cac','ingreso','Deposito capital inversion - CARRANCO  GAVINO ','deposito_capital_inversion',1000.00,3000.00,4000.00,'2026-06-20 17:07:50'),('fc525fc0-988c-4ae4-a04d-1333c743f9a1',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','91323767-bc89-4070-ac7a-8bb40ee43e48','ingreso','Deposito capital inversion - CARRANCO  GAVINO ','deposito_capital_inversion',3000.00,0.00,3000.00,'2026-06-20 17:07:27');
 /*!40000 ALTER TABLE `caja_movimientos` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `cantones`
---
-
 DROP TABLE IF EXISTS `cantones`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cantones` (
-  `id_canton` int NOT NULL AUTO_INCREMENT COMMENT 'Identificador num+®rico del cant+¦n',
+  `id_canton` int NOT NULL AUTO_INCREMENT COMMENT 'Identificador numâ”œÂ®rico del cantâ”œâ”‚n',
   `id_provincia` int NOT NULL COMMENT 'FK a la provincia',
-  `nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre del cant+¦n',
+  `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre del cantâ”œâ”‚n',
   PRIMARY KEY (`id_canton`),
   KEY `id_provincia` (`id_provincia`),
   CONSTRAINT `cantones_ibfk_1` FOREIGN KEY (`id_provincia`) REFERENCES `provincias` (`id_provincia`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='CatÔö£+¡logo de cantones por provincia';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Catâ”œÃ­logo de cantones por provincia';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `cantones`
---
 
 LOCK TABLES `cantones` WRITE;
 /*!40000 ALTER TABLE `cantones` DISABLE KEYS */;
-INSERT INTO `cantones` VALUES (1,1,'Pedro Moncayo');
+INSERT INTO `cantones` (`id_canton`, `id_provincia`, `nombre`) VALUES (1,1,'Pedro Moncayo');
 /*!40000 ALTER TABLE `cantones` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `capital_inversion`
---
-
 DROP TABLE IF EXISTS `capital_inversion`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `capital_inversion` (
-  `id_capital_inversion` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador unico del registro de capital de inversion (UUID)',
-  `id_socio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio',
+  `id_capital_inversion` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador unico del registro de capital de inversion (UUID)',
+  `id_socio` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio',
   `saldo` decimal(12,2) DEFAULT '0.00' COMMENT 'Saldo disponible para invertir',
   `fecha_ultimo_movimiento` datetime DEFAULT NULL COMMENT 'Fecha del ultimo movimiento',
   PRIMARY KEY (`id_capital_inversion`),
   UNIQUE KEY `id_socio` (`id_socio`),
   CONSTRAINT `capital_inversion_ibfk_1` FOREIGN KEY (`id_socio`) REFERENCES `socios` (`id_socio`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Capital de inversion del socio ÔÇö independiente de la cuenta de ahorro';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Capital de inversion del socio - independiente de la cuenta de ahorro';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `capital_inversion`
---
 
 LOCK TABLES `capital_inversion` WRITE;
 /*!40000 ALTER TABLE `capital_inversion` DISABLE KEYS */;
+INSERT INTO `capital_inversion` (`id_capital_inversion`, `id_socio`, `saldo`, `fecha_ultimo_movimiento`) VALUES ('cec40bff-9ce5-4c0b-ae6b-68f6128d5aae','6819f961-b144-4c96-bbbd-8a0c0055cce1',0.00,'2026-06-20 17:11:24');
 /*!40000 ALTER TABLE `capital_inversion` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `catastro_entidades_publicas`
---
-
 DROP TABLE IF EXISTS `catastro_entidades_publicas`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `catastro_entidades_publicas` (
-  `id_entidad` int NOT NULL AUTO_INCREMENT COMMENT 'Identificador num+®rico de la entidad',
-  `ruc` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'RUC de la entidad p+¦blica',
-  `razon_social` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Raz+¦n social de la entidad',
+  `id_entidad` int NOT NULL AUTO_INCREMENT COMMENT 'Identificador numâ”œÂ®rico de la entidad',
+  `ruc` varchar(13) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'RUC de la entidad pâ”œâ•‘blica',
+  `razon_social` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Razâ”œâ”‚n social de la entidad',
   PRIMARY KEY (`id_entidad`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Catastro de entidades pÔö£Ôòæblicas para registro de socios';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Catastro de entidades pâ”œâ•‘blicas para registro de socios';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `catastro_entidades_publicas`
---
 
 LOCK TABLES `catastro_entidades_publicas` WRITE;
 /*!40000 ALTER TABLE `catastro_entidades_publicas` DISABLE KEYS */;
 /*!40000 ALTER TABLE `catastro_entidades_publicas` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `cobros`
---
-
 DROP TABLE IF EXISTS `cobros`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cobros` (
-  `id_cobro` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador +¦nico del cobro (UUID)',
-  `id_socio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio que realiza el pago',
-  `id_sesion` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK a la sesi+¦n mensual donde se registra el cobro',
-  `tipo` enum('aporte_obligatorio','aporte_excedente','cuota_credito','multa','inversion','interes','desembolso','otro') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `id_referencia` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'ID de referencia seg+¦n el tipo (id_amortizaci+¦n, id_multa, etc.)',
+  `id_cobro` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador â”œâ•‘nico del cobro (UUID)',
+  `id_socio` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio que realiza el pago',
+  `id_sesion` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK a la sesiâ”œâ”‚n mensual donde se registra el cobro',
+  `tipo` enum('aporte_obligatorio','aporte_excedente','cuota_credito','multa','inversion','interes','desembolso','otro','deposito_capital_inversion','retiro_inversion') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id_referencia` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'ID de referencia segâ”œâ•‘n el tipo (id_amortizaciâ”œâ”‚n, id_multa, etc.)',
   `monto` decimal(12,2) NOT NULL COMMENT 'Monto cobrado',
-  `medio_pago` enum('efectivo','transferencia','compensacion','digital') COLLATE utf8mb4_unicode_ci DEFAULT 'efectivo',
-  `comprobante_pdf` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF del comprobante de pago',
-  `hash_integridad` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'SHA-256 de integridad del registro',
-  `usuario_registra` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Usuario que registr+¦ el cobro',
+  `medio_pago` enum('efectivo','transferencia','compensacion','digital') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `comprobante_pdf` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF del comprobante de pago',
+  `hash_integridad` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'SHA-256 de integridad del registro',
+  `usuario_registra` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Usuario que registrâ”œâ”‚ el cobro',
   `anulado` tinyint(1) DEFAULT '0' COMMENT 'Indica si el cobro fue anulado',
-  `motivo_anulacion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Motivo de la anulaci+¦n',
-  `fecha_anulacion` datetime DEFAULT NULL COMMENT 'Fecha de anulaci+¦n',
-  `usuario_anula` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Usuario que anul+¦ el cobro',
+  `motivo_anulacion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Motivo de la anulaciâ”œâ”‚n',
+  `fecha_anulacion` datetime DEFAULT NULL COMMENT 'Fecha de anulaciâ”œâ”‚n',
+  `usuario_anula` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Usuario que anulâ”œâ”‚ el cobro',
   `fecha_registro` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de registro del cobro',
   PRIMARY KEY (`id_cobro`),
   KEY `usuario_registra` (`usuario_registra`),
   KEY `idx_cobros_socio` (`id_socio`),
   KEY `idx_cobros_tipo` (`tipo`),
-  KEY `idx_cobros_sesiÔö£Ôöén` (`id_sesion`),
+  KEY `idx_cobros_sesiâ”œâ”‚n` (`id_sesion`),
   KEY `idx_cobros_fecha` (`fecha_registro`),
-  KEY `idx_cobros_sesion` (`id_sesion`),
   CONSTRAINT `cobros_ibfk_1` FOREIGN KEY (`id_socio`) REFERENCES `socios` (`id_socio`),
   CONSTRAINT `cobros_ibfk_2` FOREIGN KEY (`id_sesion`) REFERENCES `sesiones_mensuales` (`id_sesion`),
   CONSTRAINT `cobros_ibfk_3` FOREIGN KEY (`usuario_registra`) REFERENCES `usuarios` (`id_usuario`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Registro de cobros +ö+ç+Â transacciones financieras diarias';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Registro de cobros Ã”Ã‡Ã¶ transacciones financieras diarias';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `cobros`
---
 
 LOCK TABLES `cobros` WRITE;
 /*!40000 ALTER TABLE `cobros` DISABLE KEYS */;
+INSERT INTO `cobros` (`id_cobro`, `id_socio`, `id_sesion`, `tipo`, `id_referencia`, `monto`, `medio_pago`, `comprobante_pdf`, `hash_integridad`, `usuario_registra`, `anulado`, `motivo_anulacion`, `fecha_anulacion`, `usuario_anula`, `fecha_registro`) VALUES ('2fdd0b75-0f3f-4507-8eab-b5cd4ce96cac','6819f961-b144-4c96-bbbd-8a0c0055cce1',NULL,'deposito_capital_inversion',NULL,1000.00,'efectivo',NULL,'3667804fcb1987de08e53848da4fd8a3823dc286413922676aba000d80ae8f7f','ce86e169-fa0a-468d-bb04-ca7b8c7a5291',0,NULL,NULL,NULL,'2026-06-20 17:07:49'),('91323767-bc89-4070-ac7a-8bb40ee43e48','6819f961-b144-4c96-bbbd-8a0c0055cce1',NULL,'deposito_capital_inversion',NULL,3000.00,'efectivo',NULL,'62fa38b43ef7afbc10fa9619ffc1a3f552f6c79e970dbee90e4b0c14eff0922e','ce86e169-fa0a-468d-bb04-ca7b8c7a5291',0,NULL,NULL,NULL,'2026-06-20 17:07:26');
 /*!40000 ALTER TABLE `cobros` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `creditos`
---
-
 DROP TABLE IF EXISTS `creditos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `creditos` (
-  `id_credito` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador +¦nico del cr+®dito (UUID)',
-  `id_socio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio solicitante',
-  `id_producto` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al producto financiero asociado',
-  `id_sesion_aprobacion` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK a la sesi+¦n donde se aprob+¦ el cr+®dito',
+  `id_credito` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador â”œâ•‘nico del crâ”œÂ®dito (UUID)',
+  `id_socio` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio solicitante',
+  `id_producto` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al producto financiero asociado',
+  `id_sesion_aprobacion` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK a la sesiâ”œâ”‚n donde se aprobâ”œâ”‚ el crâ”œÂ®dito',
   `monto_solicitado` decimal(12,2) NOT NULL COMMENT 'Monto solicitado por el socio',
   `monto_aprobado` decimal(12,2) DEFAULT NULL COMMENT 'Monto aprobado por la Asamblea',
-  `plazo_meses` int NOT NULL COMMENT 'Plazo del cr+®dito en meses',
-  `tasa_interes` decimal(5,2) NOT NULL COMMENT 'Tasa de inter+®s anual aplicada',
-  `metodo_interes` enum('simple','frances','aleman') COLLATE utf8mb4_unicode_ci DEFAULT 'simple',
-  `destino` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Destino o prop+¦sito del cr+®dito',
-  `estado` enum('ingresado','pendiente','aprobado','legalizado','desembolsado','rechazado','cancelado') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ingresado' COMMENT 'Estado actual de la solicitud de credito',
-  `acta_aprobacion_pdf` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF del acta de aprobaci+¦n',
-  `fecha_solicitud` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de solicitud del cr+®dito',
-  `fecha_aprobacion` datetime DEFAULT NULL COMMENT 'Fecha de aprobaci+¦n',
-  `fecha_desembolso` datetime DEFAULT NULL COMMENT 'Fecha de desembolso del cr+®dito',
-  `usuario_aprueba` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Usuario que aprob+¦ el cr+®dito',
-  `justificacion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Justificacion de rechazo o puesta en espera',
+  `plazo_meses` int NOT NULL COMMENT 'Plazo del crâ”œÂ®dito en meses',
+  `tasa_interes` decimal(5,2) NOT NULL COMMENT 'Tasa de interâ”œÂ®s anual aplicada',
+  `metodo_interes` enum('simple','frances','aleman') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Metodo de interes aplicado a este credito',
+  `destino` text COLLATE utf8mb4_unicode_ci COMMENT 'Destino o propâ”œâ”‚sito del crâ”œÂ®dito',
+  `estado` enum('ingresado','pendiente','aprobado','legalizado','desembolsado','rechazado','cancelado') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'ingresado' COMMENT 'Estado actual de la solicitud de credito',
+  `acta_aprobacion_pdf` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF del acta de aprobaciâ”œâ”‚n',
+  `fecha_solicitud` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de solicitud del crâ”œÂ®dito',
+  `fecha_aprobacion` datetime DEFAULT NULL COMMENT 'Fecha de aprobaciâ”œâ”‚n',
+  `fecha_desembolso` datetime DEFAULT NULL COMMENT 'Fecha de desembolso del crâ”œÂ®dito',
+  `usuario_aprueba` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Usuario que aprobâ”œâ”‚ el crâ”œÂ®dito',
+  `justificacion` text COLLATE utf8mb4_unicode_ci COMMENT 'Justificacion de rechazo o puesta en espera',
   PRIMARY KEY (`id_credito`),
   KEY `id_producto` (`id_producto`),
-  KEY `id_sesiÔö£Ôöén_aprobaciÔö£Ôöén` (`id_sesion_aprobacion`),
+  KEY `id_sesiâ”œâ”‚n_aprobaciâ”œâ”‚n` (`id_sesion_aprobacion`),
   KEY `usuario_aprueba` (`usuario_aprueba`),
-  KEY `idx_crÔö£-«ditos_estado` (`estado`),
-  KEY `idx_crÔö£-«ditos_socio` (`id_socio`),
+  KEY `idx_crâ”œÂ®ditos_estado` (`estado`),
+  KEY `idx_crâ”œÂ®ditos_socio` (`id_socio`),
   CONSTRAINT `creditos_ibfk_1` FOREIGN KEY (`id_socio`) REFERENCES `socios` (`id_socio`),
   CONSTRAINT `creditos_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos_financieros` (`id_producto`),
   CONSTRAINT `creditos_ibfk_3` FOREIGN KEY (`id_sesion_aprobacion`) REFERENCES `sesiones_mensuales` (`id_sesion`),
   CONSTRAINT `creditos_ibfk_4` FOREIGN KEY (`usuario_aprueba`) REFERENCES `usuarios` (`id_usuario`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Solicitudes y desembolsos de crÔö£-«ditos de los socios';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Solicitudes y desembolsos de crâ”œÂ®ditos de los socios';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `creditos`
---
 
 LOCK TABLES `creditos` WRITE;
 /*!40000 ALTER TABLE `creditos` DISABLE KEYS */;
 /*!40000 ALTER TABLE `creditos` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `cuentas_ahorro`
---
-
 DROP TABLE IF EXISTS `cuentas_ahorro`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cuentas_ahorro` (
-  `id_cuenta_ahorro` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador +¦nico de la cuenta de ahorro (UUID)',
-  `id_socio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio propietario de la cuenta',
+  `id_cuenta_ahorro` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador â”œâ•‘nico de la cuenta de ahorro (UUID)',
+  `id_socio` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio propietario de la cuenta',
   `saldo_obligatorio` decimal(12,2) DEFAULT '0.00' COMMENT 'Saldo del aporte obligatorio (USD 10/mes)',
   `saldo_excedente` decimal(12,2) DEFAULT '0.00' COMMENT 'Saldo de aportes voluntarios/excedentes',
-  `saldo_disponible` decimal(12,2) DEFAULT '0.00' COMMENT 'Saldo total disponible para retiro seg+¦n reglas',
-  `fecha_ultimo_movimiento` datetime DEFAULT NULL COMMENT 'Fecha del +¦ltimo movimiento registrado',
+  `saldo_disponible` decimal(12,2) DEFAULT '0.00' COMMENT 'Saldo total disponible para retiro segâ”œâ•‘n reglas',
+  `fecha_ultimo_movimiento` datetime DEFAULT NULL COMMENT 'Fecha del â”œâ•‘ltimo movimiento registrado',
   PRIMARY KEY (`id_cuenta_ahorro`),
   UNIQUE KEY `id_socio` (`id_socio`),
   CONSTRAINT `cuentas_ahorro_ibfk_1` FOREIGN KEY (`id_socio`) REFERENCES `socios` (`id_socio`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Cuentas de ahorro de los socios +ö+ç+Â capital separado de inversiones';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Cuentas de ahorro de los socios Ã”Ã‡Ã¶ capital separado de inversiones';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `cuentas_ahorro`
---
 
 LOCK TABLES `cuentas_ahorro` WRITE;
 /*!40000 ALTER TABLE `cuentas_ahorro` DISABLE KEYS */;
-INSERT INTO `cuentas_ahorro` VALUES ('35091853-e6e7-4dcd-a292-5c97229a972a','32d4ffda-eec7-4299-885f-f320557da01e',0.00,0.00,0.00,NULL),('72f76cda-20e3-460a-8533-fab738f82b92','c19ef60e-9f5b-4750-a6d2-afd8f8e9ea9a',0.00,0.00,0.00,'2026-06-11 16:00:35'),('7638e37c-72e9-48ba-bfba-0f885133e41a','caaf8155-4c10-4e84-aa7b-ba4183906421',0.00,0.00,0.00,NULL),('95dba24c-5c65-4262-8053-e783ea1c0621','5afb15ad-ced5-431b-9fc2-970cf4919433',0.00,0.00,0.00,NULL),('a09b3d26-dff6-4218-8a1a-f9edc4f10cc7','00e16557-e3cf-4738-8516-7f3fb6ddb96d',0.00,0.00,0.00,NULL),('a8ecf0a7-776c-42dc-b573-1e4433d16989','c26b7a29-755b-4665-8912-397c05d48a27',0.00,0.00,0.00,NULL),('ab9d9a6b-f5dd-4850-95fc-c98de0635c18','9e52d148-927b-4784-b290-b8d9f9b1c35f',0.00,0.00,0.00,NULL),('c3df6ac3-fc84-4376-8228-1aaabb9beea0','392cced6-d52b-464b-9829-51aa9ce12468',0.00,0.00,0.00,'2026-06-11 17:05:38');
+INSERT INTO `cuentas_ahorro` (`id_cuenta_ahorro`, `id_socio`, `saldo_obligatorio`, `saldo_excedente`, `saldo_disponible`, `fecha_ultimo_movimiento`) VALUES ('12b5bc97-6a61-4efa-b89e-f2ecb11272a6','f8a8c62b-ae51-45d5-96d4-70a4719c0e9d',0.00,0.00,0.00,NULL),('d3496eee-37e8-46b2-8bbf-c4180a07f54d','6819f961-b144-4c96-bbbd-8a0c0055cce1',0.00,0.00,0.00,NULL);
 /*!40000 ALTER TABLE `cuentas_ahorro` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `garantes`
---
-
 DROP TABLE IF EXISTS `garantes`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `garantes` (
-  `id_garante` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'UUID del garante',
-  `id_credito` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al cr+®dito',
-  `id_socio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio garante',
-  `tipo_garante` enum('fiador_solidario','prendario','hipotecario') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'fiador_solidario' COMMENT 'Tipo de garant+¡a',
+  `id_garante` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'UUID del garante',
+  `id_credito` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al crâ”œÂ®dito',
+  `id_socio` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio garante',
+  `tipo_garante` enum('fiador_solidario','prendario','hipotecario') COLLATE utf8mb4_unicode_ci DEFAULT 'fiador_solidario' COMMENT 'Tipo de garantâ”œÂ¡a',
   `monto_garantizado` decimal(12,2) NOT NULL DEFAULT '0.00' COMMENT 'Monto garantizado',
   `fecha_registro` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de registro',
   PRIMARY KEY (`id_garante`),
@@ -379,41 +281,32 @@ CREATE TABLE `garantes` (
   KEY `garantes_ibfk_1` (`id_credito`),
   CONSTRAINT `garantes_ibfk_1` FOREIGN KEY (`id_credito`) REFERENCES `creditos` (`id_credito`),
   CONSTRAINT `garantes_ibfk_2` FOREIGN KEY (`id_socio`) REFERENCES `socios` (`id_socio`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Garantes de crÔö£-«ditos';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Garantes de crâ”œÂ®ditos';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `garantes`
---
 
 LOCK TABLES `garantes` WRITE;
 /*!40000 ALTER TABLE `garantes` DISABLE KEYS */;
 /*!40000 ALTER TABLE `garantes` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `historial_operaciones`
---
-
 DROP TABLE IF EXISTS `historial_operaciones`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `historial_operaciones` (
-  `id_operacion` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador +¦nico de la operaci+¦n (UUID)',
-  `id_socio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio asociado a la operaci+¦n',
-  `tipo_operacion` enum('aporte_obligatorio','aporte_excedente','retiro_ahorro','desembolso_credito','pago_cuota','pago_multa','inversion_apertura','inversion_retiro','interes_ganado','interes_pagado','cierre_sesion','anulacion','anulacion_inversion','desembolso_capital','deposito_capital_inversion') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `monto` decimal(12,2) NOT NULL COMMENT 'Monto de la operaci+¦n',
-  `saldo_anterior` decimal(12,2) DEFAULT NULL COMMENT 'Saldo anterior a la operaci+¦n',
-  `saldo_posterior` decimal(12,2) DEFAULT NULL COMMENT 'Saldo posterior a la operaci+¦n',
-  `id_referencia` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'ID de referencia a la entidad origen',
-  `id_sesion` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK a la sesi+¦n mensual',
-  `id_usuario_registra` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Usuario que registr+¦ la operaci+¦n',
-  `comprobante_pdf` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF del comprobante',
-  `hash_integridad` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'SHA-256 de integridad del registro (inmodificable)',
-  `ip_registro` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Direcci+¦n IP desde donde se registr+¦ la operaci+¦n',
+  `id_operacion` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador â”œâ•‘nico de la operaciâ”œâ”‚n (UUID)',
+  `id_socio` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio asociado a la operaciâ”œâ”‚n',
+  `tipo_operacion` enum('aporte_obligatorio','aporte_excedente','retiro_ahorro','desembolso_credito','pago_cuota','pago_multa','inversion_apertura','inversion_retiro','interes_ganado','interes_pagado','cierre_sesion','anulacion','deposito_capital_inversion') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `monto` decimal(12,2) NOT NULL COMMENT 'Monto de la operaciâ”œâ”‚n',
+  `saldo_anterior` decimal(12,2) DEFAULT NULL COMMENT 'Saldo anterior a la operaciâ”œâ”‚n',
+  `saldo_posterior` decimal(12,2) DEFAULT NULL COMMENT 'Saldo posterior a la operaciâ”œâ”‚n',
+  `id_referencia` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'ID de referencia a la entidad origen',
+  `id_sesion` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK a la sesiâ”œâ”‚n mensual',
+  `id_usuario_registra` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Usuario que registrâ”œâ”‚ la operaciâ”œâ”‚n',
+  `comprobante_pdf` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF del comprobante',
+  `hash_integridad` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'SHA-256 de integridad del registro (inmodificable)',
+  `ip_registro` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Direcciâ”œâ”‚n IP desde donde se registrâ”œâ”‚ la operaciâ”œâ”‚n',
   `fecha_registro` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora del registro',
   PRIMARY KEY (`id_operacion`),
-  KEY `id_sesiÔö£Ôöén` (`id_sesion`),
+  KEY `id_sesiâ”œâ”‚n` (`id_sesion`),
   KEY `id_usuario_registra` (`id_usuario_registra`),
   KEY `idx_historial_socio` (`id_socio`),
   KEY `idx_historial_tipo` (`tipo_operacion`),
@@ -421,137 +314,108 @@ CREATE TABLE `historial_operaciones` (
   CONSTRAINT `historial_operaciones_ibfk_1` FOREIGN KEY (`id_socio`) REFERENCES `socios` (`id_socio`),
   CONSTRAINT `historial_operaciones_ibfk_2` FOREIGN KEY (`id_sesion`) REFERENCES `sesiones_mensuales` (`id_sesion`),
   CONSTRAINT `historial_operaciones_ibfk_3` FOREIGN KEY (`id_usuario_registra`) REFERENCES `usuarios` (`id_usuario`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Historial inmodificable de operaciones financieras +ö+ç+Â solo inserciÔö£Ôöén, sin DELETE/UPDATE';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Historial inmodificable de operaciones financieras Ã”Ã‡Ã¶ solo inserciâ”œâ”‚n, sin DELETE/UPDATE';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `historial_operaciones`
---
 
 LOCK TABLES `historial_operaciones` WRITE;
 /*!40000 ALTER TABLE `historial_operaciones` DISABLE KEYS */;
+INSERT INTO `historial_operaciones` (`id_operacion`, `id_socio`, `tipo_operacion`, `monto`, `saldo_anterior`, `saldo_posterior`, `id_referencia`, `id_sesion`, `id_usuario_registra`, `comprobante_pdf`, `hash_integridad`, `ip_registro`, `fecha_registro`) VALUES ('0fa83646-5e09-4494-81bb-a42eead0a559','6819f961-b144-4c96-bbbd-8a0c0055cce1','inversion_apertura',4000.00,NULL,NULL,'20acb1db-b23c-4c61-9487-31ae7e390a14',NULL,'ce86e169-fa0a-468d-bb04-ca7b8c7a5291',NULL,NULL,'::1','2026-06-20 17:11:24'),('27ea1f9d-412b-4b16-a1ec-35715d77efd1','6819f961-b144-4c96-bbbd-8a0c0055cce1','deposito_capital_inversion',3000.00,NULL,NULL,'91323767-bc89-4070-ac7a-8bb40ee43e48',NULL,'ce86e169-fa0a-468d-bb04-ca7b8c7a5291',NULL,NULL,'::1','2026-06-20 17:07:26'),('e2a276d8-4347-4126-b28b-c8b6e9296ecd','6819f961-b144-4c96-bbbd-8a0c0055cce1','deposito_capital_inversion',1000.00,NULL,NULL,'2fdd0b75-0f3f-4507-8eab-b5cd4ce96cac',NULL,'ce86e169-fa0a-468d-bb04-ca7b8c7a5291',NULL,NULL,'::1','2026-06-20 17:07:49');
 /*!40000 ALTER TABLE `historial_operaciones` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `inversiones`
---
-
 DROP TABLE IF EXISTS `inversiones`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `inversiones` (
-  `id_inversion` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador +¦nico de la inversi+¦n (UUID)',
-  `id_socio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio inversionista',
-  `id_producto` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al producto de inversi+¦n',
+  `id_inversion` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador â”œâ•‘nico de la inversiâ”œâ”‚n (UUID)',
+  `id_socio` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio inversionista',
+  `id_producto` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al producto de inversiâ”œâ”‚n',
   `monto` decimal(12,2) NOT NULL COMMENT 'Monto invertido',
-  `plazo_meses` int NOT NULL COMMENT 'Plazo de la inversi+¦n en meses',
-  `tasa_interes` decimal(5,2) NOT NULL COMMENT 'Tasa de inter+®s anual aplicada',
-  `fecha_inicio` date NOT NULL COMMENT 'Fecha de inicio de la inversi+¦n',
+  `plazo_meses` int NOT NULL COMMENT 'Plazo de la inversiâ”œâ”‚n en meses',
+  `tasa_interes` decimal(5,2) NOT NULL COMMENT 'Tasa de interâ”œÂ®s anual aplicada',
+  `fecha_inicio` date NOT NULL COMMENT 'Fecha de inicio de la inversiâ”œâ”‚n',
   `fecha_vencimiento` date NOT NULL COMMENT 'Fecha de vencimiento',
   `rendimiento_proyectado` decimal(12,2) DEFAULT NULL COMMENT 'Rendimiento proyectado al vencimiento',
-  `estado` enum('activa','vencida','retiro_anticipado','cancelada') COLLATE utf8mb4_unicode_ci DEFAULT 'activa',
-  `notificado_devolucion` tinyint(1) DEFAULT '0' COMMENT 'Indica si se notific+¦ la pr+¦xima devoluci+¦n',
-  `destino_final` enum('capital_inversion','efectivo','transferencia') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'capital_inversion' COMMENT 'Destino al vencimiento: reinversion, efectivo o transferencia',
-  `contrato_pdf` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF del contrato de inversi+¦n',
-  `fecha_registro` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de registro de la inversi+¦n',
+  `destino_final` enum('capital_inversion','efectivo','transferencia') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'capital_inversion',
+  `estado` enum('pendiente','activa','vencida','retiro_anticipado','cancelada','rechazada') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pendiente',
+  `notificado_devolucion` tinyint(1) DEFAULT '0' COMMENT 'Indica si se notificâ”œâ”‚ la prâ”œâ”‚xima devoluciâ”œâ”‚n',
+  `contrato_pdf` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF del contrato de inversiâ”œâ”‚n',
+  `fecha_registro` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de registro de la inversiâ”œâ”‚n',
   PRIMARY KEY (`id_inversion`),
   KEY `id_producto` (`id_producto`),
   KEY `idx_inversiones_estado` (`estado`),
   KEY `idx_inversiones_socio` (`id_socio`),
   CONSTRAINT `inversiones_ibfk_1` FOREIGN KEY (`id_socio`) REFERENCES `socios` (`id_socio`),
   CONSTRAINT `inversiones_ibfk_2` FOREIGN KEY (`id_producto`) REFERENCES `productos_financieros` (`id_producto`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Inversiones a plazo fijo de los socios +ö+ç+Â capital separado de cuenta de ahorro';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Inversiones a plazo fijo de los socios Ã”Ã‡Ã¶ capital separado de cuenta de ahorro';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `inversiones`
---
 
 LOCK TABLES `inversiones` WRITE;
 /*!40000 ALTER TABLE `inversiones` DISABLE KEYS */;
+INSERT INTO `inversiones` (`id_inversion`, `id_socio`, `id_producto`, `monto`, `plazo_meses`, `tasa_interes`, `fecha_inicio`, `fecha_vencimiento`, `rendimiento_proyectado`, `destino_final`, `estado`, `notificado_devolucion`, `contrato_pdf`, `fecha_registro`) VALUES ('20acb1db-b23c-4c61-9487-31ae7e390a14','6819f961-b144-4c96-bbbd-8a0c0055cce1','2e4c5dbd-afa8-424e-9367-6687ad3c4490',4000.00,3,6.00,'2026-06-20','2026-09-20',60.00,'efectivo','activa',0,NULL,'2026-06-20 17:10:27');
 /*!40000 ALTER TABLE `inversiones` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `multas`
---
-
 DROP TABLE IF EXISTS `multas`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `multas` (
-  `id_multa` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador +¦nico de la multa (UUID)',
-  `id_socio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio multado',
-  `id_sesion` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK a la sesi+¦n donde se gener+¦ la multa',
-  `tipo` enum('retraso_10min','retraso_30min','inasistencia','mora_credito','cuota_impaga','otro') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'otro',
+  `id_multa` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador â”œâ•‘nico de la multa (UUID)',
+  `id_socio` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio multado',
+  `id_sesion` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK a la sesiâ”œâ”‚n donde se generâ”œâ”‚ la multa',
+  `tipo` enum('retraso_10min','retraso_30min','inasistencia','mora_credito','otro') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `monto` decimal(10,2) NOT NULL COMMENT 'Monto de la multa en USD',
-  `estado` enum('activa','anulada','impugnada') COLLATE utf8mb4_unicode_ci DEFAULT 'activa' COMMENT 'Estado de la multa',
-  `justificacion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Justificaci+¦n presentada por el socio',
-  `justificacion_aprobada` tinyint(1) DEFAULT '0' COMMENT 'Indica si la justificaci+¦n fue aprobada',
-  `justificacion_pdf` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF de la justificaci+¦n',
-  `fecha_generacion` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de generaci+¦n de la multa',
+  `justificacion` text COLLATE utf8mb4_unicode_ci COMMENT 'Justificaciâ”œâ”‚n presentada por el socio',
+  `justificacion_aprobada` tinyint(1) DEFAULT '0' COMMENT 'Indica si la justificaciâ”œâ”‚n fue aprobada',
+  `justificacion_pdf` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF de la justificaciâ”œâ”‚n',
+  `pagada` tinyint(1) DEFAULT '0' COMMENT 'Indica si la multa fue pagada',
+  `estado` enum('activa','impugnada','anulada') COLLATE utf8mb4_unicode_ci DEFAULT 'activa' COMMENT 'Estado de la multa',
+  `fecha_pago` datetime DEFAULT NULL COMMENT 'Fecha de pago de la multa',
+  `id_cobro` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK al cobro cuando la multa es pagada',
+  `fecha_generacion` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de generaciâ”œâ”‚n de la multa',
   PRIMARY KEY (`id_multa`),
-  UNIQUE KEY `uk_socio_sesion_tipo` (`id_socio`,`id_sesion`,`tipo`),
-  KEY `id_sesiÔö£Ôöén` (`id_sesion`),
+  KEY `id_sesiâ”œâ”‚n` (`id_sesion`),
+  KEY `id_cobro` (`id_cobro`),
   KEY `idx_multas_socio` (`id_socio`),
+  KEY `idx_multas_pagada` (`pagada`),
   CONSTRAINT `multas_ibfk_1` FOREIGN KEY (`id_socio`) REFERENCES `socios` (`id_socio`),
-  CONSTRAINT `multas_ibfk_2` FOREIGN KEY (`id_sesion`) REFERENCES `sesiones_mensuales` (`id_sesion`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Multas generadas por inasistencia, retraso o mora +ö+ç+Â base legal Art.11 Estatuto';
+  CONSTRAINT `multas_ibfk_2` FOREIGN KEY (`id_sesion`) REFERENCES `sesiones_mensuales` (`id_sesion`),
+  CONSTRAINT `multas_ibfk_3` FOREIGN KEY (`id_cobro`) REFERENCES `cobros` (`id_cobro`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Multas generadas por inasistencia, retraso o mora Ã”Ã‡Ã¶ base legal Art.11 Estatuto';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `multas`
---
 
 LOCK TABLES `multas` WRITE;
 /*!40000 ALTER TABLE `multas` DISABLE KEYS */;
 /*!40000 ALTER TABLE `multas` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `notificaciones`
---
-
 DROP TABLE IF EXISTS `notificaciones`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `notificaciones` (
-  `id_notificacion` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador +¦nico de la notificaci+¦n (UUID)',
-  `id_usuario` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK al usuario destinatario (si es administrativo)',
-  `id_socio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK al socio destinatario (si es socio)',
-  `tipo` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Tipo de notificaci+¦n (ej: cobro, cr+®dito, multa)',
-  `titulo` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'T+¡tulo de la notificaci+¦n',
-  `mensaje` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Cuerpo del mensaje',
-  `leida` tinyint(1) DEFAULT '0' COMMENT 'Indica si el destinatario ley+¦ la notificaci+¦n',
-  `enviada_pusher` tinyint(1) DEFAULT '0' COMMENT 'Indica si ya se envi+¦ por Pusher',
-  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creaci+¦n de la notificaci+¦n',
-  `fecha_lectura` datetime DEFAULT NULL COMMENT 'Fecha en que se ley+¦ la notificaci+¦n',
-  `buzon` enum('entrada','archivadas','papelera') COLLATE utf8mb4_unicode_ci DEFAULT 'entrada' COMMENT 'Buzon: entrada, archivadas, papelera',
-  `fecha_eliminacion` datetime DEFAULT NULL COMMENT 'Fecha en que se movio a papelera',
+  `id_notificacion` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador â”œâ•‘nico de la notificaciâ”œâ”‚n (UUID)',
+  `id_usuario` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK al usuario destinatario (si es administrativo)',
+  `id_socio` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'FK al socio destinatario (si es socio)',
+  `tipo` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Tipo de notificaciâ”œâ”‚n (ej: cobro, crâ”œÂ®dito, multa)',
+  `titulo` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Tâ”œÂ¡tulo de la notificaciâ”œâ”‚n',
+  `mensaje` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Cuerpo del mensaje',
+  `leida` tinyint(1) DEFAULT '0' COMMENT 'Indica si el destinatario leyâ”œâ”‚ la notificaciâ”œâ”‚n',
+  `buzon` enum('entrada','archivadas','papelera') COLLATE utf8mb4_unicode_ci DEFAULT 'entrada' COMMENT 'Buzon donde se encuentra la notificacion',
+  `enviada_pusher` tinyint(1) DEFAULT '0' COMMENT 'Indica si ya se enviâ”œâ”‚ por Pusher',
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creaciâ”œâ”‚n de la notificaciâ”œâ”‚n',
+  `fecha_lectura` datetime DEFAULT NULL COMMENT 'Fecha en que se leyâ”œâ”‚ la notificaciâ”œâ”‚n',
+  `fecha_eliminacion` datetime DEFAULT NULL COMMENT 'Fecha de eliminacion (movida a papelera)',
   PRIMARY KEY (`id_notificacion`),
   KEY `idx_notificaciones_usuario` (`id_usuario`),
   KEY `idx_notificaciones_socio` (`id_socio`),
-  KEY `idx_notificaciones_leÔö£-ída` (`leida`),
-  KEY `idx_buzon` (`buzon`),
+  KEY `idx_notificaciones_leâ”œÂ¡da` (`leida`),
   CONSTRAINT `notificaciones_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`),
   CONSTRAINT `notificaciones_ibfk_2` FOREIGN KEY (`id_socio`) REFERENCES `socios` (`id_socio`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='BuzÔö£Ôöén de notificaciones persistido en BD + envÔö£-ío en tiempo real por Pusher';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Buzâ”œâ”‚n de notificaciones persistido en BD + envâ”œÂ¡o en tiempo real por Pusher';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `notificaciones`
---
 
 LOCK TABLES `notificaciones` WRITE;
 /*!40000 ALTER TABLE `notificaciones` DISABLE KEYS */;
+INSERT INTO `notificaciones` (`id_notificacion`, `id_usuario`, `id_socio`, `tipo`, `titulo`, `mensaje`, `leida`, `buzon`, `enviada_pusher`, `fecha_creacion`, `fecha_lectura`, `fecha_eliminacion`) VALUES ('31395426-4618-4300-ad72-da0344945cb0',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','inversion','Inversion aprobada','Inversion de $4000.00 para CARRANCO  GAVINO  ha sido aprobada',1,'entrada',1,'2026-06-20 17:11:24','2026-06-23 22:47:18',NULL),('44507da8-67c1-4c0c-9f55-a90c5126214d',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','inversion','Deposito a capital de inversion','Deposito de $3000 a capital de inversion de CARRANCO  GAVINO ',1,'entrada',1,'2026-06-20 17:07:26','2026-06-20 17:09:45',NULL),('aca01248-40df-4ad0-b037-2615f5a58eb4',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','inversion','Inversion solicitada','Inversion de $4000 para CARRANCO  GAVINO  ha sido solicitada',1,'entrada',1,'2026-06-20 17:10:27','2026-06-20 17:10:36',NULL),('b539a6d6-56ce-48f9-bcf0-5aa41da88f6a',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','inversion','Deposito a capital de inversion','Deposito de $1000 a capital de inversion de CARRANCO  GAVINO ',1,'entrada',1,'2026-06-20 17:07:49','2026-06-20 17:09:45',NULL);
 /*!40000 ALTER TABLE `notificaciones` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `obligaciones_sesion`
---
-
 DROP TABLE IF EXISTS `obligaciones_sesion`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -572,410 +436,347 @@ CREATE TABLE `obligaciones_sesion` (
   KEY `id_socio` (`id_socio`),
   CONSTRAINT `obligaciones_sesion_ibfk_1` FOREIGN KEY (`id_sesion`) REFERENCES `sesiones_mensuales` (`id_sesion`),
   CONSTRAINT `obligaciones_sesion_ibfk_2` FOREIGN KEY (`id_socio`) REFERENCES `socios` (`id_socio`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Obligaciones de pago generadas al abrir una sesion ÔÇö calculadas segun fecha de reunion';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Obligaciones de pago generadas al abrir una sesion - calculadas segun fecha de reunion';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `obligaciones_sesion`
---
 
 LOCK TABLES `obligaciones_sesion` WRITE;
 /*!40000 ALTER TABLE `obligaciones_sesion` DISABLE KEYS */;
 /*!40000 ALTER TABLE `obligaciones_sesion` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `parametros`
---
-
 DROP TABLE IF EXISTS `parametros`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `parametros` (
-  `id_parametro` int NOT NULL AUTO_INCREMENT COMMENT 'Identificador num+®rico del par+ímetro',
-  `codigo` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'C+¦digo +¦nico del par+ímetro (ej: tasa_inter+®s_cr+®dito)',
-  `nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre descriptivo del par+ímetro',
-  `valor` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Valor del par+ímetro',
-  `tipo` enum('texto','numero','decimal','booleano','color') COLLATE utf8mb4_unicode_ci DEFAULT 'texto',
-  `modulo` enum('general','financiero','seguridad','imagen') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'general' COMMENT 'M+¦dulo al que pertenece el par+ímetro',
-  `editable` tinyint(1) DEFAULT '1' COMMENT 'Indica si el par+ímetro puede ser editado desde el panel',
+  `id_parametro` int NOT NULL AUTO_INCREMENT COMMENT 'Identificador numâ”œÂ®rico del parâ”œÃ­metro',
+  `codigo` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Câ”œâ”‚digo â”œâ•‘nico del parâ”œÃ­metro (ej: tasa_interâ”œÂ®s_crâ”œÂ®dito)',
+  `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre descriptivo del parâ”œÃ­metro',
+  `valor` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Valor del parâ”œÃ­metro',
+  `tipo` enum('texto','numero','decimal','booleano','color') COLLATE utf8mb4_unicode_ci DEFAULT 'texto' COMMENT 'Tipo de dato del valor',
+  `modulo` enum('general','financiero','seguridad','imagen') COLLATE utf8mb4_unicode_ci DEFAULT 'general' COMMENT 'Mâ”œâ”‚dulo al que pertenece el parâ”œÃ­metro',
+  `editable` tinyint(1) DEFAULT '1' COMMENT 'Indica si el parâ”œÃ­metro puede ser editado desde el panel',
   PRIMARY KEY (`id_parametro`),
-  UNIQUE KEY `cÔö£Ôöédigo` (`codigo`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='ParÔö£+¡metros configurables del sistema';
+  UNIQUE KEY `câ”œâ”‚digo` (`codigo`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Parâ”œÃ­metros configurables del sistema';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `parametros`
---
 
 LOCK TABLES `parametros` WRITE;
 /*!40000 ALTER TABLE `parametros` DISABLE KEYS */;
-INSERT INTO `parametros` VALUES (1,'tasa_interes_credito','Tasa de inter+®s para cr+®ditos','6.00','decimal','financiero',1),(2,'m+®todo_inter+®s_default','M+®todo de inter+®s por defecto','simple','texto','financiero',1),(3,'tasa_inter+®s_ahorro','Tasa de inter+®s sobre ahorros','0.00','decimal','financiero',1),(4,'tasa_interes_inversion','Tasa de inter+®s para inversiones','6.00','decimal','financiero',1),(5,'aporte_obligatorio_mensual','Aporte obligatorio mensual','10.00','decimal','financiero',1),(6,'cuota_ingreso','Cuota +¦nica de ingreso','20.00','decimal','financiero',1),(7,'multa_retraso_10min','Multa retraso 10-30 minutos','1.00','decimal','financiero',1),(8,'multa_retraso_30min','Multa retraso >=30 minutos','5.00','decimal','financiero',1),(9,'multa_inasistencia','Multa por inasistencia','5.00','decimal','financiero',1),(10,'multa_mora_credito','Multa por mora de cr+®dito','5.00','decimal','financiero',1),(11,'limite_credito_emergente','L+¡mite cr+®dito emergente','300.00','decimal','financiero',1),(12,'plazo_minimo_inversion','Plazo m+¡nimo inversi+¦n (meses)','6','numero','financiero',1),(13,'intentos_max_login','Intentos m+íximo de login','3','numero','seguridad',1),(14,'bloqueo_minutos','Minutos de bloqueo','15','numero','seguridad',1),(15,'session_timeout_minutos','Timeout de sesi+¦n (minutos)','30','numero','seguridad',1),(16,'pin_2fa_digitos','D+¡gitos del PIN 2FA','6','numero','seguridad',1),(17,'pin_2fa_expiracion_min','Expiraci+¦n PIN 2FA (minutos)','5','numero','seguridad',1),(18,'max_reenvio_pin_hora','M+íximo reenv+¡os PIN por hora','3','numero','seguridad',1),(19,'logo_sidebar','Logo del sidebar','ca62b9e0-de01-42cc-9bb6-0826f49dce00','texto','imagen',1),(20,'logo_sd','Logo sin fondo','d9433f2e-ffa1-48c9-bf86-b338e6796ff2','texto','imagen',1),(21,'retencion_papelera_dias','Retencion papelera (dias)','30','numero','seguridad',1),(22,'multa_cuota_impaga','Multa por cuota mensual impaga','2.00','decimal','financiero',1),(23,'abrev_caja','Abreviatura Caja','P&S','texto','imagen',1);
+INSERT INTO `parametros` (`id_parametro`, `codigo`, `nombre`, `valor`, `tipo`, `modulo`, `editable`) VALUES (1,'tasa_interâ”œÂ®s_crâ”œÂ®dito','Tasa de interâ”œÂ®s para crâ”œÂ®ditos','6.00','decimal','financiero',1),(2,'mâ”œÂ®todo_interâ”œÂ®s_default','Mâ”œÂ®todo de interâ”œÂ®s por defecto','simple','texto','financiero',1),(3,'tasa_interâ”œÂ®s_ahorro','Tasa de interâ”œÂ®s sobre ahorros','0.00','decimal','financiero',1),(4,'tasa_interâ”œÂ®s_inversiâ”œâ”‚n','Tasa de interâ”œÂ®s para inversiones','6.00','decimal','financiero',1),(5,'aporte_obligatorio_mensual','Aporte obligatorio mensual','10.00','decimal','financiero',1),(6,'cuota_ingreso','Cuota â”œâ•‘nica de ingreso','20.00','decimal','financiero',1),(7,'multa_retraso_10min','Multa retraso 10-30 minutos','1.00','decimal','financiero',1),(8,'multa_retraso_30min','Multa retraso >=30 minutos','5.00','decimal','financiero',1),(9,'multa_inasistencia','Multa por inasistencia','5.00','decimal','financiero',1),(10,'multa_mora_crâ”œÂ®dito','Multa por mora de crâ”œÂ®dito','5.00','decimal','financiero',1),(11,'lâ”œÂ¡mite_crâ”œÂ®dito_emergente','Lâ”œÂ¡mite crâ”œÂ®dito emergente','300.00','decimal','financiero',1),(12,'plazo_mâ”œÂ¡nimo_inversiâ”œâ”‚n','Plazo mâ”œÂ¡nimo inversiâ”œâ”‚n (meses)','6','numero','financiero',1),(13,'intentos_mâ”œÃ­x_login','Intentos mâ”œÃ­ximo de login','3','numero','seguridad',1),(14,'bloqueo_minutos','Minutos de bloqueo','15','numero','seguridad',1),(15,'session_timeout_minutos','Timeout de sesiâ”œâ”‚n (minutos)','30','numero','seguridad',1),(16,'pin_2fa_dâ”œÂ¡gitos','Dâ”œÂ¡gitos del PIN 2FA','6','numero','seguridad',1),(17,'pin_2fa_expiracion_min','Expiraciâ”œâ”‚n PIN 2FA (minutos)','5','numero','seguridad',1),(18,'mâ”œÃ­x_reenvâ”œÂ¡o_pin_hora','Mâ”œÃ­ximo reenvâ”œÂ¡os PIN por hora','3','numero','seguridad',1),(19,'logo_sidebar','Logo del sidebar','ca62b9e0-de01-42cc-9bb6-0826f49dce00','texto','imagen',1),(20,'logo_sd','Logo sin fondo','d9433f2e-ffa1-48c9-bf86-b338e6796ff2','texto','imagen',1);
 /*!40000 ALTER TABLE `parametros` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `permisos`
---
-
 DROP TABLE IF EXISTS `permisos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `permisos` (
-  `id_permiso` int NOT NULL AUTO_INCREMENT COMMENT 'Identificador num+®rico del permiso',
-  `codigo` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'C+¦digo +¦nico del permiso (ej: socio.registrar)',
-  `nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre descriptivo del permiso',
-  `descripcion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Descripci+¦n detallada del alcance del permiso',
+  `id_permiso` int NOT NULL AUTO_INCREMENT COMMENT 'Identificador numâ”œÂ®rico del permiso',
+  `codigo` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Câ”œâ”‚digo â”œâ•‘nico del permiso (ej: socio.registrar)',
+  `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre descriptivo del permiso',
+  `descripcion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Descripciâ”œâ”‚n detallada del alcance del permiso',
+  `modulo` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT 'Modulo/categoria para agrupar permisos',
   PRIMARY KEY (`id_permiso`),
-  UNIQUE KEY `cÔö£Ôöédigo` (`codigo`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='CatÔö£+¡logo de permisos disponibles en el sistema';
+  UNIQUE KEY `câ”œâ”‚digo` (`codigo`)
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Catâ”œÃ­logo de permisos disponibles en el sistema';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `permisos`
---
 
 LOCK TABLES `permisos` WRITE;
 /*!40000 ALTER TABLE `permisos` DISABLE KEYS */;
-INSERT INTO `permisos` VALUES (1,'auth.login','Ingresar al sistema','Permite iniciar sesi+¦n en el sistema'),(2,'auth.ver_2fa','Acceder con 2FA','Permite acceder con autenticaci+¦n de dos factores'),(3,'socio.registrar','Registrar nuevo socio','Permite registrar un nuevo socio en el sistema'),(4,'socio.editar','Editar datos de socio','Permite modificar los datos de un socio existente'),(5,'socio.cambiar_estado','Cambiar estado del socio','Permite cambiar el estado de un socio en su ciclo de vida'),(6,'socio.consultar','Consultar lista de socios','Permite consultar el listado de socios registrados'),(7,'socio.ver_financiero','Ver datos financieros del socio','Permite visualizar la informaci+¦n financiera del socio'),(8,'param.usuarios','Gestionar usuarios del sistema','CRUD completo de usuarios del sistema'),(9,'param.roles','Gestionar roles y permisos','Crear, editar y eliminar roles con permisos personalizados'),(10,'param.imagen','Configurar imagen corporativa','Gestionar logo, colores, membrete y raz+¦n social'),(11,'param.catalogos','Editar cat+ílogos','Gestionar provincias, cantones y entidades p+¦blicas'),(12,'param.financiero','Configurar par+ímetros financieros','Configurar tasas, montos, plazos y m+®todos de inter+®s'),(13,'producto.crear','Crear productos financieros','Crear nuevos productos de cr+®dito e inversi+¦n'),(14,'producto.editar','Editar productos','Modificar productos financieros existentes'),(15,'producto.activar','Activar/desactivar productos','Activar o desactivar productos financieros'),(16,'cobro.aporte','Registrar cobro de aporte','Registrar cobro de aporte obligatorio y voluntario'),(17,'cobro.cuota_credito','Registrar cobro de cuota de cr+®dito','Registrar cobro de cuotas de cr+®dito'),(18,'cobro.multa','Registrar cobro de multa','Registrar cobro de multas generadas'),(19,'cobro.inversion','Registrar inversi+¦n voluntaria','Registrar apertura de inversi+¦n a plazo fijo'),(20,'cobro.desembolso','Realizar desembolso de cr+®dito','Ejecutar el desembolso de un cr+®dito aprobado'),(21,'cobro.anular','Anular cobro registrado','Anular un cobro previamente registrado'),(22,'cobro.cierre_sesion','Ejecutar cierre de sesi+¦n mensual','Cerrar la sesi+¦n mensual con generaci+¦n de acta'),(23,'calculo.intereses','Ejecutar c+ílculo de intereses','Calcular intereses de cr+®ditos, ahorros e inversiones'),(24,'calculo.excedentes','Calcular distribuci+¦n de excedentes','Calcular la distribuci+¦n de excedentes entre los socios'),(25,'calculo.aprobar_excedentes','Aprobar distribuci+¦n de excedentes','Aprobar la distribuci+¦n de excedentes calculada'),(26,'reporte.socios','Generar reportes de socios','Generar reportes del m+¦dulo de socios'),(27,'reporte.financiero','Generar reportes financieros','Generar reportes del m+¦dulo financiero'),(28,'reporte.cobros','Generar reportes de cobros','Generar reportes del m+¦dulo de cobros'),(29,'credito.aprobar','Aprobar/rechazar creditos','Permite aprobar o rechazar solicitudes de credito en la bandeja de aprobacion'),(30,'multa.impugnar','Impugnar multas','Permite autorizar la impugnacion de multas presentadas por los socios'),(31,'multa.autorizar_impugnacion','Autorizar impugnacion','Permite autorizar o rechazar impugnaciones de multas presentadas por los socios');
+INSERT INTO `permisos` (`id_permiso`, `codigo`, `nombre`, `descripcion`, `modulo`) VALUES (1,'auth.login','Ingresar al sistema','Permite iniciar sesiâ”œâ”‚n en el sistema','Autenticacion'),(2,'auth.ver_2fa','Acceder con 2FA','Permite acceder con autenticaciâ”œâ”‚n de dos factores','Autenticacion'),(3,'socio.registrar','Registrar nuevo socio','Permite registrar un nuevo socio en el sistema','Socios'),(4,'socio.editar','Editar datos de socio','Permite modificar los datos de un socio existente','Socios'),(5,'socio.cambiar_estado','Cambiar estado del socio','Permite cambiar el estado de un socio en su ciclo de vida','Socios'),(6,'socio.consultar','Consultar lista de socios','Permite consultar el listado de socios registrados','Socios'),(7,'socio.ver_financiero','Ver datos financieros del socio','Permite visualizar la informaciâ”œâ”‚n financiera del socio','Socios'),(8,'param.usuarios','Gestionar usuarios del sistema','CRUD completo de usuarios del sistema','Parametros del Sistema'),(9,'param.roles','Gestionar roles y permisos','Crear, editar y eliminar roles con permisos personalizados','Parametros del Sistema'),(10,'param.imagen','Configurar imagen corporativa','Gestionar logo, colores, membrete y razâ”œâ”‚n social','Parametros del Sistema'),(11,'param.catalogos','Editar catâ”œÃ­logos','Gestionar provincias, cantones y entidades pâ”œâ•‘blicas','Parametros del Sistema'),(12,'param.financiero','Configurar parâ”œÃ­metros financieros','Configurar tasas, montos, plazos y mâ”œÂ®todos de interâ”œÂ®s','Parametros del Sistema'),(13,'producto.crear','Crear productos financieros','Crear nuevos productos de crâ”œÂ®dito e inversiâ”œâ”‚n','Productos Financieros'),(14,'producto.editar','Editar productos','Modificar productos financieros existentes','Productos Financieros'),(15,'producto.activar','Activar/desactivar productos','Activar o desactivar productos financieros','Productos Financieros'),(16,'cobro.aporte','Registrar cobro de aporte','Registrar cobro de aporte obligatorio y voluntario','Cobros'),(17,'cobro.cuota_credito','Registrar cobro de cuota de crâ”œÂ®dito','Registrar cobro de cuotas de crâ”œÂ®dito','Cobros'),(18,'cobro.multa','Registrar cobro de multa','Registrar cobro de multas generadas','Cobros'),(19,'cobro.inversion','Registrar inversiâ”œâ”‚n voluntaria','Registrar apertura de inversiâ”œâ”‚n a plazo fijo','Cobros'),(20,'cobro.desembolso','Realizar desembolso de crâ”œÂ®dito','Ejecutar el desembolso de un crâ”œÂ®dito aprobado','Cobros'),(21,'cobro.anular','Anular cobro registrado','Anular un cobro previamente registrado','Cobros'),(22,'cobro.cierre_sesion','Ejecutar cierre de sesiâ”œâ”‚n mensual','Cerrar la sesiâ”œâ”‚n mensual con generaciâ”œâ”‚n de acta','Cobros'),(23,'calculo.intereses','Ejecutar câ”œÃ­lculo de intereses','Calcular intereses de crâ”œÂ®ditos, ahorros e inversiones','Calculos Financieros'),(24,'calculo.excedentes','Calcular distribuciâ”œâ”‚n de excedentes','Calcular la distribuciâ”œâ”‚n de excedentes entre los socios','Calculos Financieros'),(25,'calculo.aprobar_excedentes','Aprobar distribuciâ”œâ”‚n de excedentes','Aprobar la distribuciâ”œâ”‚n de excedentes calculada','Calculos Financieros'),(26,'reporte.socios','Generar reportes de socios','Generar reportes del mâ”œâ”‚dulo de socios','Reportes'),(27,'reporte.financiero','Generar reportes financieros','Generar reportes del mâ”œâ”‚dulo financiero','Reportes'),(28,'reporte.cobros','Generar reportes de cobros','Generar reportes del mâ”œâ”‚dulo de cobros','Reportes'),(29,'credito.aprobar','Aprobar/rechazar creditos','Permite aprobar o rechazar solicitudes de credito en la bandeja de aprobacion','Creditos'),(30,'notificacion.configurar','Configurar reglas de notificacion','Gestionar las reglas de notificacion del sistema (canal y destinatarios)','Notificaciones'),(32,'multa.impugnar','Impugnar multas','Permite autorizar la impugnacion de multas presentadas por los socios','Multas'),(33,'multa.autorizar_impugnacion','Autorizar impugnacion','Permite autorizar o rechazar impugnaciones de multas presentadas por los socios','Multas'),(34,'inversion.aprobar','Aprobar/rechazar inversiones','Permite aprobar o rechazar solicitudes de inversion en la bandeja de aprobacion','Inversiones');
 /*!40000 ALTER TABLE `permisos` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `productos_financieros`
---
-
 DROP TABLE IF EXISTS `productos_financieros`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `productos_financieros` (
-  `id_producto` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador +¦nico del producto financiero (UUID)',
-  `nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre del producto (ej: Cr+®dito Ordinario, Inversi+¦n 6 Meses)',
-  `tipo` enum('credito','inversion') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `tasa_interes_anual` decimal(5,2) NOT NULL DEFAULT '6.00' COMMENT 'Tasa de inter+®s anual en porcentaje',
-  `metodo_interes` enum('simple','frances','aleman') COLLATE utf8mb4_unicode_ci DEFAULT 'simple',
-  `plazo_min_meses` int NOT NULL COMMENT 'Plazo m+¡nimo en meses',
-  `plazo_max_meses` int NOT NULL COMMENT 'Plazo m+íximo en meses',
-  `dias_gracia` int DEFAULT '0' COMMENT 'Dias de gracia para primera cuota despues de aprobacion',
-  `monto_min` decimal(10,2) NOT NULL COMMENT 'Monto m+¡nimo del producto',
-  `monto_max` decimal(10,2) NOT NULL COMMENT 'Monto m+íximo del producto',
+  `id_producto` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador â”œâ•‘nico del producto financiero (UUID)',
+  `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre del producto (ej: Crâ”œÂ®dito Ordinario, Inversiâ”œâ”‚n 6 Meses)',
+  `tipo` enum('credito','inversion') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tasa_interes_anual` decimal(5,2) NOT NULL DEFAULT '6.00' COMMENT 'Tasa de interâ”œÂ®s anual en porcentaje',
+  `metodo_interes` enum('simple','frances','aleman') COLLATE utf8mb4_unicode_ci DEFAULT 'simple' COMMENT 'Metodo de calculo de intereses',
+  `plazo_min_meses` int NOT NULL COMMENT 'Plazo mâ”œÂ¡nimo en meses',
+  `plazo_max_meses` int NOT NULL COMMENT 'Plazo mâ”œÃ­ximo en meses',
+  `monto_min` decimal(10,2) NOT NULL COMMENT 'Monto mâ”œÂ¡nimo del producto',
+  `monto_max` decimal(10,2) NOT NULL COMMENT 'Monto mâ”œÃ­ximo del producto',
   `requiere_garante` tinyint(1) DEFAULT '0' COMMENT 'Indica si el producto requiere garante',
   `penalidad_retiro_anticipado` decimal(5,2) DEFAULT '0.00' COMMENT 'Penalidad por retiro anticipado (%)',
-  `activo` tinyint(1) DEFAULT '1' COMMENT 'Indica si el producto est+í activo para nuevas solicitudes',
-  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creaci+¦n del producto',
-  `condiciones_html` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Condiciones generales del credito en HTML (WYSIWYG)',
+  `activo` tinyint(1) DEFAULT '1' COMMENT 'Indica si el producto estâ”œÃ­ activo para nuevas solicitudes',
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creaciâ”œâ”‚n del producto',
+  `condiciones_html` text COLLATE utf8mb4_unicode_ci COMMENT 'Condiciones generales del credito en HTML (WYSIWYG)',
   `min_permanencia_meses` int DEFAULT '0' COMMENT 'Minimo de permanencia como socio activo (meses)',
   `min_ahorro` decimal(10,2) DEFAULT '0.00' COMMENT 'Minimo de ahorro acumulado requerido',
-  `min_ahorro_unidad` enum('dolares','porcentaje') COLLATE utf8mb4_unicode_ci DEFAULT 'dolares' COMMENT 'Unidad del ahorro minimo: dolares fijo o porcentaje del credito',
   `es_emergente` tinyint(1) DEFAULT '0' COMMENT 'Si es credito emergente (no requiere sesion de aprobacion)',
   `monto_max_emergente` decimal(10,2) DEFAULT '0.00' COMMENT 'Monto maximo para credito emergente',
-  `min_destino_caracteres` int DEFAULT '0' COMMENT 'Minimo de caracteres para el campo destino del credito',
-  `min_permanencia_valor` int DEFAULT '0' COMMENT 'Valor de permanencia minima',
-  `min_permanencia_unidad` enum('dias','meses','anios') COLLATE utf8mb4_unicode_ci DEFAULT 'meses' COMMENT 'Unidad de permanencia minima',
   `requiere_documento_firmado` tinyint(1) DEFAULT '1' COMMENT 'Si requiere documento firmado escaneado antes del desembolso',
+  `dias_gracia` int DEFAULT '0' COMMENT 'Dias de gracia antes de primera cuota',
+  `min_ahorro_unidad` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT 'dolares' COMMENT 'Unidad del monto minimo de ahorro: dolares o porcentaje',
+  `min_destino_caracteres` int DEFAULT '0' COMMENT 'Minimo de caracteres para destino del credito',
+  `min_permanencia_valor` int DEFAULT '0' COMMENT 'Valor minimo de permanencia',
+  `min_permanencia_unidad` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT 'meses' COMMENT 'Unidad de permanencia: dias, meses, anios',
   PRIMARY KEY (`id_producto`),
   KEY `idx_productos_tipo` (`tipo`),
   KEY `idx_productos_activo` (`activo`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='CatÔö£+¡logo de productos financieros parametrizables por el Analista Financiero';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Catâ”œÃ­logo de productos financieros parametrizables por el Analista Financiero';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `productos_financieros`
---
 
 LOCK TABLES `productos_financieros` WRITE;
 /*!40000 ALTER TABLE `productos_financieros` DISABLE KEYS */;
-INSERT INTO `productos_financieros` VALUES ('95f3f25d-542c-455c-a160-c65b99b9e778','Cr+®dito Ordinario','credito',6.00,'simple',1,12,30,50.00,1000.00,0,0.00,1,'2026-06-09 16:32:07','<p><b>Condiciones de Cr+®dito</b></p><p><b>Denominaci+¦n:</b> Cr+®dito Ordinario</p><p>Estas son las condiciones del producto de cr+®dito.</p><p>De aceptar estas condiciones.</p><p>Atentamente,</p><p>La Administraci+¦n.</p>',0,50.00,'porcentaje',0,0.00,15,6,'meses',1),('b53305e5-5102-49c0-9176-d164d3e98c58','Inversi+¦n 3 meses','inversion',6.00,'simple',3,3,0,50.00,5000.00,0,5.00,1,'2026-06-06 14:16:51','<p><br></p>',0,0.00,'dolares',0,0.00,0,0,'meses',1);
+INSERT INTO `productos_financieros` (`id_producto`, `nombre`, `tipo`, `tasa_interes_anual`, `metodo_interes`, `plazo_min_meses`, `plazo_max_meses`, `monto_min`, `monto_max`, `requiere_garante`, `penalidad_retiro_anticipado`, `activo`, `fecha_creacion`, `condiciones_html`, `min_permanencia_meses`, `min_ahorro`, `es_emergente`, `monto_max_emergente`, `requiere_documento_firmado`, `dias_gracia`, `min_ahorro_unidad`, `min_destino_caracteres`, `min_permanencia_valor`, `min_permanencia_unidad`) VALUES ('2e4c5dbd-afa8-424e-9367-6687ad3c4490','Inversiâ”œâ”‚n ordinaria','inversion',6.00,'simple',3,12,500.00,10000.00,0,5.00,1,'2026-06-20 15:42:04','<p>Condiciones de Inversiâ”œâ”‚n</p><p>Estas son condiciones de inversiâ”œâ”‚n.</p><p>-Saludos</p>',0,0.00,0,0.00,1,0,'dolares',0,0,'meses'),('c3dd23b3-5eff-45f3-97c6-8343c340bfcc','Crâ”œÂ®dito Ordinario','credito',6.00,'simple',3,12,100.00,1000.00,0,0.00,1,'2026-06-07 18:03:07','<p>Condiciones del crâ”œÂ®dito</p><p>Estas son las condiciones que debe aceptar el socio para acceder al crâ”œÂ®dito.</p><p>-La Directiva</p>',0,20.00,0,0.00,0,0,'dolares',10,0,'meses');
 /*!40000 ALTER TABLE `productos_financieros` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `provincias`
---
-
 DROP TABLE IF EXISTS `provincias`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `provincias` (
-  `id_provincia` int NOT NULL AUTO_INCREMENT COMMENT 'Identificador num+®rico de la provincia',
-  `nombre` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre de la provincia',
+  `id_provincia` int NOT NULL AUTO_INCREMENT COMMENT 'Identificador numâ”œÂ®rico de la provincia',
+  `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre de la provincia',
   PRIMARY KEY (`id_provincia`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='CatÔö£+¡logo de provincias del Ecuador';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Catâ”œÃ­logo de provincias del Ecuador';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `provincias`
---
 
 LOCK TABLES `provincias` WRITE;
 /*!40000 ALTER TABLE `provincias` DISABLE KEYS */;
-INSERT INTO `provincias` VALUES (1,'Pichincha'),(2,'Imbabura');
+INSERT INTO `provincias` (`id_provincia`, `nombre`) VALUES (1,'Pichincha');
 /*!40000 ALTER TABLE `provincias` ENABLE KEYS */;
 UNLOCK TABLES;
+DROP TABLE IF EXISTS `reglas_notificacion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `reglas_notificacion` (
+  `id_regla` int NOT NULL AUTO_INCREMENT,
+  `codigo` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nombre` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipo_evento` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `titulo_evento` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `canal` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'push',
+  `para_todos` tinyint(1) DEFAULT '0',
+  `activo` tinyint(1) DEFAULT '1',
+  PRIMARY KEY (`id_regla`),
+  UNIQUE KEY `codigo` (`codigo`),
+  KEY `idx_reglas_evento` (`tipo_evento`,`activo`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `roles`
---
+LOCK TABLES `reglas_notificacion` WRITE;
+/*!40000 ALTER TABLE `reglas_notificacion` DISABLE KEYS */;
+INSERT INTO `reglas_notificacion` (`id_regla`, `codigo`, `nombre`, `tipo_evento`, `titulo_evento`, `canal`, `para_todos`, `activo`) VALUES (1,'solicitud_credito','Solicitud de credito','credito','Nueva solicitud de credito','push',0,1),(2,'credito_aprobado','Credito aprobado','credito','Credito aprobado','push',0,1),(3,'credito_rechazado','Credito rechazado','credito','Credito rechazado','push',0,1),(4,'credito_desembolsado','Credito desembolsado','credito','Credito desembolsado','push',0,1),(5,'credito_mora','Credito en mora','credito',NULL,'ambos',1,1),(6,'solicitud_retiro','Solicitud de retiro','cobro','Solicitud de retiro','push',0,1),(7,'sesion_cerrada','Sesion cerrada','sesion','Sesion cerrada','ambos',1,1);
+/*!40000 ALTER TABLE `reglas_notificacion` ENABLE KEYS */;
+UNLOCK TABLES;
+DROP TABLE IF EXISTS `reglas_notificacion_destinatarios`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `reglas_notificacion_destinatarios` (
+  `id_regla` int NOT NULL,
+  `id_rol` int NOT NULL,
+  PRIMARY KEY (`id_regla`,`id_rol`),
+  KEY `id_rol` (`id_rol`),
+  CONSTRAINT `reglas_notificacion_destinatarios_ibfk_1` FOREIGN KEY (`id_regla`) REFERENCES `reglas_notificacion` (`id_regla`) ON DELETE CASCADE,
+  CONSTRAINT `reglas_notificacion_destinatarios_ibfk_2` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+LOCK TABLES `reglas_notificacion_destinatarios` WRITE;
+/*!40000 ALTER TABLE `reglas_notificacion_destinatarios` DISABLE KEYS */;
+INSERT INTO `reglas_notificacion_destinatarios` (`id_regla`, `id_rol`) VALUES (1,2),(6,2),(2,4),(6,4);
+/*!40000 ALTER TABLE `reglas_notificacion_destinatarios` ENABLE KEYS */;
+UNLOCK TABLES;
 DROP TABLE IF EXISTS `roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `roles` (
-  `id_rol` int NOT NULL AUTO_INCREMENT COMMENT 'Identificador num+®rico del rol',
-  `nombre` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre personalizable del rol (ej: Presidente, Tesorero)',
-  `descripcion` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Descripci+¦n de las funciones del rol',
+  `id_rol` int NOT NULL AUTO_INCREMENT COMMENT 'Identificador numâ”œÂ®rico del rol',
+  `nombre` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre personalizable del rol (ej: Presidente, Tesorero)',
+  `descripcion` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Descripciâ”œâ”‚n de las funciones del rol',
   `endosable` tinyint(1) DEFAULT '0' COMMENT 'Si es TRUE, este rol puede acumular permisos de otros roles',
   PRIMARY KEY (`id_rol`),
   UNIQUE KEY `nombre` (`nombre`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Roles del sistema +ö+ç+Â 100% personalizables desde el panel de administraciÔö£Ôöén';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Roles del sistema Ã”Ã‡Ã¶ 100% personalizables desde el panel de administraciâ”œâ”‚n';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `roles`
---
 
 LOCK TABLES `roles` WRITE;
 /*!40000 ALTER TABLE `roles` DISABLE KEYS */;
-INSERT INTO `roles` VALUES (1,'Administrador T+®cnico','Gobierna usuarios, roles, permisos e imagen corporativa. Sin acceso financiero',0),(2,'Presidente','Representante legal, convocatorias, supervisi+¦n, firma de certificados',0),(3,'Analista Financiero','Configura productos financieros, par+ímetros, c+ílculos y distribuci+¦n de excedentes',1),(4,'Tesorero','Ejecuci+¦n financiera diaria: cobros, desembolsos, cierre de sesi+¦n',0),(5,'Asistente de Tesorer+¡a','Apoyo en cobros de aportes, cuotas y multas',0),(6,'Socio','Acceso al portal personal: consultas, solicitudes, comprobantes',0),(7,'Secretario/a','Gesti+¦n documental, registro de socios, certificados, actas y convocatorias',0);
+INSERT INTO `roles` (`id_rol`, `nombre`, `descripcion`, `endosable`) VALUES (1,'Administrador Tâ”œÂ®cnico','Gobierna usuarios, roles, permisos e imagen corporativa. Sin acceso financiero',0),(2,'Presidente','Representante legal, convocatorias, supervisiâ”œâ”‚n, firma de certificados',0),(3,'Analista Financiero','Configura productos financieros, parâ”œÃ­metros, câ”œÃ­lculos y distribuciâ”œâ”‚n de excedentes',1),(4,'Tesorero','Ejecuciâ”œâ”‚n financiera diaria: cobros, desembolsos, cierre de sesiâ”œâ”‚n',0),(5,'Asistente de Tesorerâ”œÂ¡a','Apoyo en cobros de aportes, cuotas y multas',0),(6,'Socio','Acceso al portal personal: consultas, solicitudes, comprobantes',0),(7,'Secretario/a','Gestiâ”œâ”‚n documental, registro de socios, certificados, actas y convocatorias',0);
 /*!40000 ALTER TABLE `roles` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `roles_permisos`
---
-
 DROP TABLE IF EXISTS `roles_permisos`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `roles_permisos` (
   `id_rol` int NOT NULL COMMENT 'FK al ID del rol',
   `id_permiso` int NOT NULL COMMENT 'FK al ID del permiso',
-  `permitir` tinyint(1) DEFAULT '1' COMMENT 'TRUE = concedido, FALSE = denegado expl+¡citamente',
+  `permitir` tinyint(1) DEFAULT '1' COMMENT 'TRUE = concedido, FALSE = denegado explâ”œÂ¡citamente',
   PRIMARY KEY (`id_rol`,`id_permiso`),
   KEY `id_permiso` (`id_permiso`),
   CONSTRAINT `roles_permisos_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`) ON DELETE CASCADE,
   CONSTRAINT `roles_permisos_ibfk_2` FOREIGN KEY (`id_permiso`) REFERENCES `permisos` (`id_permiso`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Matriz de permisos asignados a cada rol (gestiÔö£Ôöén por checkboxes)';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Matriz de permisos asignados a cada rol (gestiâ”œâ”‚n por checkboxes)';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `roles_permisos`
---
 
 LOCK TABLES `roles_permisos` WRITE;
 /*!40000 ALTER TABLE `roles_permisos` DISABLE KEYS */;
-INSERT INTO `roles_permisos` VALUES (1,1,1),(1,2,1),(1,6,1),(1,7,1),(1,8,1),(1,9,1),(1,10,1),(1,11,1),(1,26,1),(2,1,1),(2,2,1),(2,3,1),(2,4,1),(2,5,1),(2,6,1),(2,7,1),(2,21,1),(2,22,1),(2,25,1),(2,26,1),(2,27,1),(2,28,1),(2,29,1),(3,1,1),(3,2,1),(3,4,1),(3,6,1),(3,7,1),(3,12,1),(3,13,1),(3,14,1),(3,15,1),(3,21,1),(3,22,1),(3,23,1),(3,24,1),(3,26,1),(3,27,1),(3,28,1),(4,1,1),(4,2,1),(4,3,1),(4,4,1),(4,6,1),(4,7,1),(4,16,1),(4,17,1),(4,18,1),(4,19,1),(4,20,1),(4,21,1),(4,22,1),(4,26,1),(4,27,1),(4,28,1),(4,29,1),(4,30,1),(5,1,1),(5,6,1),(5,7,1),(5,16,1),(5,17,1),(5,18,1),(5,19,1),(5,26,1),(5,28,1),(6,1,1),(7,1,1),(7,2,1),(7,3,1),(7,4,1),(7,5,1),(7,6,1),(7,7,1),(7,16,1),(7,26,1),(7,30,1),(7,31,1);
+INSERT INTO `roles_permisos` (`id_rol`, `id_permiso`, `permitir`) VALUES (1,1,1),(1,2,1),(1,3,1),(1,4,1),(1,6,1),(1,8,1),(1,9,1),(1,10,1),(1,11,1),(1,30,1),(2,1,1),(2,2,1),(2,3,1),(2,4,1),(2,5,1),(2,6,1),(2,7,1),(2,21,1),(2,22,1),(2,25,1),(2,26,1),(2,27,1),(2,28,1),(2,29,1),(2,30,1),(3,1,1),(3,2,1),(3,4,1),(3,6,1),(3,7,1),(3,12,1),(3,13,1),(3,14,1),(3,15,1),(3,21,1),(3,22,1),(3,23,1),(3,24,1),(3,26,1),(3,27,1),(3,28,1),(3,30,1),(4,1,1),(4,2,1),(4,3,1),(4,4,1),(4,6,1),(4,7,1),(4,16,1),(4,17,1),(4,18,1),(4,19,1),(4,20,1),(4,21,1),(4,22,1),(4,26,1),(4,27,1),(4,28,1),(4,29,1),(4,34,1),(5,1,1),(5,6,1),(5,7,1),(5,16,1),(5,17,1),(5,18,1),(5,19,1),(5,26,1),(5,28,1),(6,1,1),(7,1,1),(7,2,1),(7,3,1),(7,4,1),(7,5,1),(7,6,1),(7,7,1),(7,16,1),(7,21,1),(7,26,1),(7,30,1);
 /*!40000 ALTER TABLE `roles_permisos` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `roles_usuarios`
---
-
 DROP TABLE IF EXISTS `roles_usuarios`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `roles_usuarios` (
-  `id_usuario` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al UUID del usuario',
+  `id_usuario` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al UUID del usuario',
   `id_rol` int NOT NULL COMMENT 'FK al ID del rol',
   PRIMARY KEY (`id_usuario`,`id_rol`),
   KEY `id_rol` (`id_rol`),
   CONSTRAINT `roles_usuarios_ibfk_1` FOREIGN KEY (`id_usuario`) REFERENCES `usuarios` (`id_usuario`) ON DELETE CASCADE,
   CONSTRAINT `roles_usuarios_ibfk_2` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='AsignaciÔö£Ôöén de roles a usuarios (relaciÔö£Ôöén muchos-a-muchos)';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Asignaciâ”œâ”‚n de roles a usuarios (relaciâ”œâ”‚n muchos-a-muchos)';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `roles_usuarios`
---
 
 LOCK TABLES `roles_usuarios` WRITE;
 /*!40000 ALTER TABLE `roles_usuarios` DISABLE KEYS */;
-INSERT INTO `roles_usuarios` VALUES ('ce86e169-fa0a-468d-bb04-ca7b8c7a5291',1),('516363c5-c79a-4491-83b4-b8303ce1f286',2),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291',2),('516363c5-c79a-4491-83b4-b8303ce1f286',3),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291',3),('516363c5-c79a-4491-83b4-b8303ce1f286',4),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291',4),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291',5),('1673019a-c66d-4bb8-9158-1729fa6b064a',6),('516363c5-c79a-4491-83b4-b8303ce1f286',7),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291',7);
+INSERT INTO `roles_usuarios` (`id_usuario`, `id_rol`) VALUES ('ce86e169-fa0a-468d-bb04-ca7b8c7a5291',1),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291',2),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291',3),('516363c5-c79a-4491-83b4-b8303ce1f286',4),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291',4),('516363c5-c79a-4491-83b4-b8303ce1f286',5),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291',5),('1673019a-c66d-4bb8-9158-1729fa6b064a',6),('6600ae1d-e99d-4986-b337-0741de09df84',6),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291',7);
 /*!40000 ALTER TABLE `roles_usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `sesiones_mensuales`
---
-
 DROP TABLE IF EXISTS `sesiones_mensuales`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `sesiones_mensuales` (
-  `id_sesion` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador +¦nico de la sesi+¦n mensual (UUID)',
-  `numero_sesion` int NOT NULL COMMENT 'N+¦mero correlativo de la sesi+¦n mensual',
-  `fecha_sesion` date DEFAULT NULL COMMENT 'Fecha programada de la reunion (corte para calculo de obligaciones)',
-  `titulo` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'T+¡tulo o nombre de la sesi+¦n',
-  `estado` enum('abierta','cerrada') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'abierta' COMMENT 'Estado de la sesi+¦n: abierta (en curso) o cerrada (finalizada)',
-  `fecha_apertura` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de apertura de la sesi+¦n',
-  `fecha_cierre` datetime DEFAULT NULL COMMENT 'Fecha y hora de cierre de la sesi+¦n',
-  `usuario_cierre` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Usuario que ejecut+¦ el cierre de sesi+¦n',
-  `acta_cierre_pdf` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF del acta de cierre',
-  `total_recaudado` decimal(12,2) DEFAULT '0.00' COMMENT 'Total recaudado en la sesi+¦n',
-  `total_desembolsado` decimal(12,2) DEFAULT '0.00' COMMENT 'Total desembolsado en la sesi+¦n',
+  `id_sesion` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador â”œâ•‘nico de la sesiâ”œâ”‚n mensual (UUID)',
+  `numero_sesion` int NOT NULL COMMENT 'Nâ”œâ•‘mero correlativo de la sesiâ”œâ”‚n mensual',
+  `fecha_sesion` date NOT NULL COMMENT 'Fecha de la sesion',
+  `titulo` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Tâ”œÂ¡tulo o nombre de la sesiâ”œâ”‚n',
+  `estado` enum('abierta','cerrada') COLLATE utf8mb4_unicode_ci DEFAULT 'abierta' COMMENT 'Estado de la sesiâ”œâ”‚n: abierta (en curso) o cerrada (finalizada)',
+  `fecha_apertura` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha y hora de apertura de la sesiâ”œâ”‚n',
+  `fecha_cierre` datetime DEFAULT NULL COMMENT 'Fecha y hora de cierre de la sesiâ”œâ”‚n',
+  `usuario_cierre` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Usuario que ejecutâ”œâ”‚ el cierre de sesiâ”œâ”‚n',
+  `acta_cierre_pdf` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF del acta de cierre',
+  `total_recaudado` decimal(12,2) DEFAULT '0.00' COMMENT 'Total recaudado en la sesiâ”œâ”‚n',
+  `total_desembolsado` decimal(12,2) DEFAULT '0.00' COMMENT 'Total desembolsado en la sesiâ”œâ”‚n',
   `saldo_caja` decimal(12,2) DEFAULT '0.00' COMMENT 'Saldo final de caja (recaudado - desembolsado)',
   PRIMARY KEY (`id_sesion`),
   KEY `usuario_cierre` (`usuario_cierre`),
   CONSTRAINT `sesiones_mensuales_ibfk_1` FOREIGN KEY (`usuario_cierre`) REFERENCES `usuarios` (`id_usuario`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Sesiones mensuales de cobro y check-in +ö+ç+Â nÔö£Ôòæcleo operativo del sistema';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Sesiones mensuales de cobro y check-in Ã”Ã‡Ã¶ nâ”œâ•‘cleo operativo del sistema';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `sesiones_mensuales`
---
 
 LOCK TABLES `sesiones_mensuales` WRITE;
 /*!40000 ALTER TABLE `sesiones_mensuales` DISABLE KEYS */;
 /*!40000 ALTER TABLE `sesiones_mensuales` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `socios`
---
-
 DROP TABLE IF EXISTS `socios`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `socios` (
-  `id_socio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador +¦nico del socio (UUID)',
-  `cedula` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'C+®dula de identidad ecuatoriana (10 d+¡gitos, d+¡gito verificador)',
-  `apellido1` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Primer apellido (may+¦sculas)',
-  `apellido2` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Segundo apellido (may+¦sculas)',
-  `nombre1` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Primer nombre (may+¦sculas)',
-  `nombre2` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Segundo nombre (may+¦sculas)',
+  `id_socio` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador â”œâ•‘nico del socio (UUID)',
+  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Câ”œÂ®dula de identidad ecuatoriana (10 dâ”œÂ¡gitos, dâ”œÂ¡gito verificador)',
+  `apellido1` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Primer apellido (mayâ”œâ•‘sculas)',
+  `apellido2` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Segundo apellido (mayâ”œâ•‘sculas)',
+  `nombre1` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Primer nombre (mayâ”œâ•‘sculas)',
+  `nombre2` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Segundo nombre (mayâ”œâ•‘sculas)',
   `fecha_nacimiento` date NOT NULL COMMENT 'Fecha de nacimiento',
-  `genero` enum('masculino','femenino') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'G+®nero del socio',
-  `estado_civil` enum('soltero','casado','divorciado','viudo','union_libre') COLLATE utf8mb4_unicode_ci DEFAULT 'soltero',
-  `direccion` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Direcci+¦n de residencia',
-  `telefono` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'N+¦mero de tel+®fono fijo',
-  `celular` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'N+¦mero de celular',
-  `correo_electronico` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Correo electr+¦nico (validado con PIN 6 d+¡gitos)',
-  `profesion` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Profesi+¦n u ocupaci+¦n',
-  `foto_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'URL de la fotograf+¡a del socio',
-  `documento_identidad_anverso` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF/JPG del anverso de la c+®dula',
-  `documento_identidad_reverso` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF/JPG del reverso de la c+®dula',
-  `estado` enum('pendiente','pre_activo','activo','suspendido','retiro_voluntario','excluido','fallecido') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'pendiente' COMMENT 'Estado actual del socio en el ciclo de vida',
+  `genero` enum('masculino','femenino') COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Gâ”œÂ®nero del socio',
+  `estado_civil` enum('soltero','casado','divorciado','viudo','union_libre') COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `direccion` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Direcciâ”œâ”‚n de residencia',
+  `telefono` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Nâ”œâ•‘mero de telâ”œÂ®fono fijo',
+  `celular` varchar(15) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nâ”œâ•‘mero de celular',
+  `correo_electronico` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Correo electrâ”œâ”‚nico (validado con PIN 6 dâ”œÂ¡gitos)',
+  `profesion` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Profesiâ”œâ”‚n u ocupaciâ”œâ”‚n',
+  `foto_url` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'URL de la fotografâ”œÂ¡a del socio',
+  `documento_identidad_anverso` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF/JPG del anverso de la câ”œÂ®dula',
+  `documento_identidad_reverso` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF/JPG del reverso de la câ”œÂ®dula',
+  `estado` enum('pendiente','pre_activo','activo','suspendido','retiro_voluntario','excluido','fallecido') COLLATE utf8mb4_unicode_ci DEFAULT 'pendiente' COMMENT 'Estado actual del socio en el ciclo de vida',
   `fecha_ingreso` date NOT NULL COMMENT 'Fecha de solicitud de ingreso',
-  `fecha_aprobacion` date DEFAULT NULL COMMENT 'Fecha de aprobaci+¦n por la Asamblea',
-  `numero_acta_aprobacion` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'N+¦mero de acta de la Asamblea que aprob+¦ el ingreso',
-  `acta_aprobacion_pdf` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF del acta de aprobaci+¦n',
-  `observaciones` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Observaciones generales del socio',
+  `fecha_aprobacion` date DEFAULT NULL COMMENT 'Fecha de aprobaciâ”œâ”‚n por la Asamblea',
+  `numero_acta_aprobacion` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Nâ”œâ•‘mero de acta de la Asamblea que aprobâ”œâ”‚ el ingreso',
+  `acta_aprobacion_pdf` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Archivo PDF del acta de aprobaciâ”œâ”‚n',
+  `observaciones` text COLLATE utf8mb4_unicode_ci COMMENT 'Observaciones generales del socio',
   `fecha_retiro` date DEFAULT NULL COMMENT 'Fecha de retiro voluntario',
-  `motivo_retiro` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Motivo del retiro voluntario',
-  `fecha_exclusion` date DEFAULT NULL COMMENT 'Fecha de exclusi+¦n (Art.14 Estatuto)',
-  `motivo_exclusion` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Motivo de la exclusi+¦n',
+  `motivo_retiro` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Motivo del retiro voluntario',
+  `fecha_exclusion` date DEFAULT NULL COMMENT 'Fecha de exclusiâ”œâ”‚n (Art.14 Estatuto)',
+  `motivo_exclusion` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Motivo de la exclusiâ”œâ”‚n',
   `menor_edad` tinyint(1) DEFAULT '0' COMMENT 'Indica si el socio es menor de edad',
-  `representante_nombres` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Nombres del representante legal (menores de edad)',
-  `representante_cedula` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'C+®dula del representante legal',
-  `representante_telefono` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Tel+®fono del representante legal',
-  `representante_correo` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Correo del representante legal',
-  `representante_documento_pdf` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Documento legal del representante (PDF)',
-  `hash_integridad` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'SHA-256 de integridad del registro',
-  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creaci+¦n del registro',
+  `representante_nombres` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Nombres del representante legal (menores de edad)',
+  `representante_cedula` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Câ”œÂ®dula del representante legal',
+  `representante_telefono` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Telâ”œÂ®fono del representante legal',
+  `representante_correo` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Correo del representante legal',
+  `representante_documento_pdf` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Documento legal del representante (PDF)',
+  `hash_integridad` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'SHA-256 de integridad del registro',
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creaciâ”œâ”‚n del registro',
   PRIMARY KEY (`id_socio`),
-  UNIQUE KEY `cÔö£-«dula` (`cedula`),
-  UNIQUE KEY `correo_electrÔö£Ôöénico` (`correo_electronico`),
-  KEY `idx_socios_cÔö£-«dula` (`cedula`),
+  UNIQUE KEY `câ”œÂ®dula` (`cedula`),
+  UNIQUE KEY `correo_electrâ”œâ”‚nico` (`correo_electronico`),
+  KEY `idx_socios_câ”œÂ®dula` (`cedula`),
   KEY `idx_socios_correo` (`correo_electronico`),
   KEY `idx_socios_estado` (`estado`),
   KEY `idx_socios_apellidos` (`apellido1`,`apellido2`),
   KEY `idx_socios_nombres` (`nombre1`,`nombre2`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Registro de socios de la Caja de Ahorro con datos personales, estado y representaciÔö£Ôöén';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Registro de socios de la Caja de Ahorro con datos personales, estado y representaciâ”œâ”‚n';
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `socios`
---
 
 LOCK TABLES `socios` WRITE;
 /*!40000 ALTER TABLE `socios` DISABLE KEYS */;
-INSERT INTO `socios` VALUES ('00e16557-e3cf-4738-8516-7f3fb6ddb96d','1755566677','SANCHEZ','TORRES','PEDRO','ANDR+ëS','1992-11-30','masculino','soltero','Av. Central 789','023456789','0987654321','pedro.sanchez@email.com','Profesor',NULL,NULL,NULL,'activo','2026-06-06',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,'2026-06-06 14:16:51'),('32d4ffda-eec7-4299-885f-f320557da01e','1766677788','VARGAS','CRUZ','CARLOS','MANUEL','1975-07-18','masculino','casado','Av. Sur 654','025678901','0965432109','carlos.vargas@email.com','Abogado',NULL,NULL,NULL,'activo','2026-06-06',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,'2026-06-06 14:16:51'),('392cced6-d52b-464b-9829-51aa9ce12468','1002003000','CARRANCO','GONZALEZ','GAVINO','ALEXANDER','1983-01-19','masculino',NULL,'IBARRA','062640879','0996755645','gcarranco@hotmail.com','Msc.','foto_392cced6.jpg',NULL,NULL,'activo','2026-06-06','2026-06-06','1','acta_aprobacion_392cced6.pdf',NULL,NULL,NULL,NULL,NULL,0,'','','','',NULL,'6639e5094ac2466f6884b5fbf6ee971948e87e1ab42b4d85aea60fe4abb0689b','2026-06-06 20:39:04'),('5afb15ad-ced5-431b-9fc2-970cf4919433','1712345678','MART+ìNEZ','G+ôMEZ','JUAN','CARLOS','1990-05-15','masculino','soltero','Av. Principal 123','022345678','0991234567','juan.martinez@email.com','Ingeniero',NULL,NULL,NULL,'activo','2026-06-06',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,'2026-06-06 14:16:51'),('9e52d148-927b-4784-b290-b8d9f9b1c35f','1787654321','L+ôPEZ','RAMOS','MAR+ìA','ELENA','1985-08-22','femenino','casado','Calle Secundaria 456','022987654','0999876543','maria.lopez@email.com','Licenciada',NULL,NULL,NULL,'activo','2026-06-06',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,'2026-06-06 14:16:51'),('c19ef60e-9f5b-4750-a6d2-afd8f8e9ea9a','1766611122','CORDERO','QUIMI','LUIS','FELIPE','1982-09-05','masculino','casado','Av. Occidental 147','027890123','0943210987','luis.cordero@email.com','Contador',NULL,NULL,NULL,'activo','2026-06-06',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,'8652dfff92bd9c2f868aeeaa6df9b318609755b2d466e92e9e7a97bb71cb323e','2026-06-06 14:16:51'),('c26b7a29-755b-4665-8912-397c05d48a27','1711199900','ZAMBRANO','ROSALES','M+ôNICA','LISBETH','1995-01-25','femenino','union_libre','Calle Oriente 987','026789012','0954321098','monica.zambrano@email.com','Arquitecto',NULL,NULL,NULL,'activo','2026-06-06',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,'2026-06-06 14:16:51'),('caaf8155-4c10-4e84-aa7b-ba4183906421','1722233344','RAM+ìREZ','V+ëLEZ','ANA','LUC+ìA','1988-03-10','femenino','divorciado','Calle Norte 321','024567890','0976543210','ana.ramirez@email.com','M+®dico',NULL,NULL,NULL,'activo','2026-06-06',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,'2026-06-06 14:16:51');
+INSERT INTO `socios` (`id_socio`, `cedula`, `apellido1`, `apellido2`, `nombre1`, `nombre2`, `fecha_nacimiento`, `genero`, `estado_civil`, `direccion`, `telefono`, `celular`, `correo_electronico`, `profesion`, `foto_url`, `documento_identidad_anverso`, `documento_identidad_reverso`, `estado`, `fecha_ingreso`, `fecha_aprobacion`, `numero_acta_aprobacion`, `acta_aprobacion_pdf`, `observaciones`, `fecha_retiro`, `motivo_retiro`, `fecha_exclusion`, `motivo_exclusion`, `menor_edad`, `representante_nombres`, `representante_cedula`, `representante_telefono`, `representante_correo`, `representante_documento_pdf`, `hash_integridad`, `fecha_creacion`) VALUES ('6819f961-b144-4c96-bbbd-8a0c0055cce1','1002003000','CARRANCO','','GAVINO','','1983-01-19','masculino',NULL,'IBARRA','','0996755645','gavinocg@gmail.com','Msc.',NULL,NULL,NULL,'activo','2026-06-20','2026-06-20','','acta_aprobacion_6819f961.pdf',NULL,NULL,NULL,NULL,NULL,0,'','','','',NULL,'9f871cca110d70999d0aa86909774f8de9a668f1bb14703960475425e90f3acd','2026-06-20 14:20:38'),('f8a8c62b-ae51-45d5-96d4-70a4719c0e9d','1003003000','CARRANCO','GONZALEZ','GAVINO','ALEXANDER','1990-01-01','masculino',NULL,'Ibarra','','0996755645','socio_prueba@caja.test','Ing.',NULL,NULL,NULL,'activo','2026-06-07',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,'3d0b875694143194ffdb04217f7444d5aa50ad07de56858b9299298ab9cda2ba','2026-06-07 18:03:07');
 /*!40000 ALTER TABLE `socios` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `solicitudes_retiro`
---
-
 DROP TABLE IF EXISTS `solicitudes_retiro`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `solicitudes_retiro` (
-  `id_solicitud` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'UUID de la solicitud',
-  `id_socio` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio solicitante',
+  `id_solicitud` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'UUID de la solicitud',
+  `id_socio` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'FK al socio solicitante',
   `monto` decimal(12,2) NOT NULL COMMENT 'Monto solicitado',
-  `motivo` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci COMMENT 'Motivo del retiro',
-  `estado` enum('pendiente','aprobado','rechazado') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'pendiente' COMMENT 'Estado de la solicitud',
+  `motivo` text COLLATE utf8mb4_unicode_ci COMMENT 'Motivo del retiro',
+  `estado` enum('pendiente','aprobado','rechazado') COLLATE utf8mb4_unicode_ci DEFAULT 'pendiente' COMMENT 'Estado de la solicitud',
   `fecha_solicitud` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de solicitud',
-  `fecha_respuesta` datetime DEFAULT NULL COMMENT 'Fecha de aprobaci+¦n/rechazo',
-  `usuario_respuesta` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Usuario que aprob+¦/rechaz+¦',
-  `id_cobro` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Cobro generado al aprobar',
+  `fecha_respuesta` datetime DEFAULT NULL COMMENT 'Fecha de aprobaciâ”œâ”‚n/rechazo',
+  `usuario_respuesta` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Usuario que aprobâ”œâ”‚/rechazâ”œâ”‚',
+  `id_cobro` char(36) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Cobro generado al aprobar',
   PRIMARY KEY (`id_solicitud`),
   KEY `id_socio` (`id_socio`),
   CONSTRAINT `solicitudes_retiro_ibfk_1` FOREIGN KEY (`id_socio`) REFERENCES `socios` (`id_socio`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Solicitudes de retiro de ahorro';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `solicitudes_retiro`
---
-
 LOCK TABLES `solicitudes_retiro` WRITE;
 /*!40000 ALTER TABLE `solicitudes_retiro` DISABLE KEYS */;
 /*!40000 ALTER TABLE `solicitudes_retiro` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Table structure for table `usuarios`
---
-
 DROP TABLE IF EXISTS `usuarios`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `usuarios` (
-  `id_usuario` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador +¦nico del usuario (UUID)',
-  `nombres` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombres del usuario',
-  `apellidos` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Apellidos del usuario',
-  `cedula` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'C+®dula de identidad ecuatoriana',
-  `correo_electronico` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Correo electr+¦nico del usuario',
-  `telefono` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'N+¦mero de tel+®fono',
-  `nombre_usuario` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre de usuario para inicio de sesi+¦n',
-  `contrasena` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Hash bcrypt de la contrase+¦a',
-  `activo` tinyint(1) DEFAULT '1' COMMENT 'Indica si el usuario est+í activo en el sistema',
+  `id_usuario` char(36) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Identificador â”œâ•‘nico del usuario (UUID)',
+  `nombres` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombres del usuario',
+  `apellidos` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Apellidos del usuario',
+  `cedula` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Câ”œÂ®dula de identidad ecuatoriana',
+  `correo_electronico` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Correo electrâ”œâ”‚nico del usuario',
+  `telefono` varchar(15) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Nâ”œâ•‘mero de telâ”œÂ®fono',
+  `nombre_usuario` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Nombre de usuario para inicio de sesiâ”œâ”‚n',
+  `contrasena` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Hash bcrypt de la contraseâ”œâ–’a',
+  `activo` tinyint(1) DEFAULT '1' COMMENT 'Indica si el usuario estâ”œÃ­ activo en el sistema',
   `_2fa_obligatorio` tinyint(1) DEFAULT '0' COMMENT 'Indica si el 2FA es obligatorio para este usuario',
-  `_2fa_activo` tinyint(1) DEFAULT '0' COMMENT 'Indica si el 2FA est+í actualmente activo',
-  `bloqueado_hasta` datetime DEFAULT NULL COMMENT 'Fecha/hasta cu+índo est+í bloqueado (3 intentos fallidos)',
-  `intentos_fallidos` int DEFAULT '0' COMMENT 'Contador de intentos fallidos de inicio de sesi+¦n',
-  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creaci+¦n del registro',
-  `fecha_ultimo_acceso` datetime DEFAULT NULL COMMENT 'Fecha y hora del +¦ltimo inicio de sesi+¦n exitoso',
+  `_2fa_activo` tinyint(1) DEFAULT '0' COMMENT 'Indica si el 2FA estâ”œÃ­ actualmente activo',
+  `bloqueado_hasta` datetime DEFAULT NULL COMMENT 'Fecha/hasta cuâ”œÃ­ndo estâ”œÃ­ bloqueado (3 intentos fallidos)',
+  `intentos_fallidos` int DEFAULT '0' COMMENT 'Contador de intentos fallidos de inicio de sesiâ”œâ”‚n',
+  `fecha_creacion` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creaciâ”œâ”‚n del registro',
+  `fecha_ultimo_acceso` datetime DEFAULT NULL COMMENT 'Fecha y hora del â”œâ•‘ltimo inicio de sesiâ”œâ”‚n exitoso',
+  `token_activacion` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'SHA-256 del token de activacion de cuenta',
+  `token_activacion_expira` datetime DEFAULT NULL COMMENT 'Expiracion del token de activacion',
+  `fecha_contrasena` datetime DEFAULT NULL COMMENT 'Fecha del ultimo cambio de contrasena',
+  `reset_token_hash` varchar(64) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'SHA-256 del token de restablecimiento de contrasena',
+  `reset_token_expira` datetime DEFAULT NULL COMMENT 'Expiracion del token de restablecimiento',
+  `reset_token_usos` int DEFAULT '0' COMMENT 'Contador de usos del token de restablecimiento',
   PRIMARY KEY (`id_usuario`),
-  UNIQUE KEY `cÔö£-«dula` (`cedula`),
-  UNIQUE KEY `correo_electrÔö£Ôöénico` (`correo_electronico`),
+  UNIQUE KEY `câ”œÂ®dula` (`cedula`),
+  UNIQUE KEY `correo_electrâ”œâ”‚nico` (`correo_electronico`),
   UNIQUE KEY `nombre_usuario` (`nombre_usuario`),
-  KEY `idx_usuarios_cÔö£-«dula` (`cedula`),
+  KEY `idx_usuarios_câ”œÂ®dula` (`cedula`),
   KEY `idx_usuarios_correo` (`correo_electronico`),
   KEY `idx_usuarios_activo` (`activo`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Usuarios del sistema con credenciales de acceso y control 2FA';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `usuarios`
---
-
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES ('1673019a-c66d-4bb8-9158-1729fa6b064a','Gavino','Carranco','1002003000','gavinocg@gmail.com','0996755645','gcarranco','$2y$12$QkuzAcoAFQ7C9f5GMMeGS.1smyFeCvsvJeESlsmkB00oBEfzlLYjO',1,0,0,NULL,0,'2026-06-06 16:38:03','2026-06-12 08:32:54'),('516363c5-c79a-4491-83b4-b8303ce1f286','Directivo','Total','1003560438','gcarranco@hotmail.com','','tesorero','$2y$12$/gRI9LwajMIzc8e/NYxO6.hCsUvfbH3c.yxuEKpkpRT7AXoL2ojxe',1,0,0,NULL,0,'2026-06-06 18:23:36','2026-06-12 11:47:05'),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291','Admin','Sistema','1002606083','admin@caja.test','0999999999','admin','$2y$12$IP4hst3.3yCimzqw/bO8JOYscRjkeQADlesFcttSetTnxNCRY.N8G',1,0,0,NULL,0,'2026-06-06 14:16:51','2026-06-12 11:46:39');
+INSERT INTO `usuarios` (`id_usuario`, `nombres`, `apellidos`, `cedula`, `correo_electronico`, `telefono`, `nombre_usuario`, `contrasena`, `activo`, `_2fa_obligatorio`, `_2fa_activo`, `bloqueado_hasta`, `intentos_fallidos`, `fecha_creacion`, `fecha_ultimo_acceso`, `token_activacion`, `token_activacion_expira`, `fecha_contrasena`, `reset_token_hash`, `reset_token_expira`, `reset_token_usos`) VALUES ('1673019a-c66d-4bb8-9158-1729fa6b064a','Gavino','Carranco','1002003000','gavinocg@gmail.com','0996755645','gcarranco','$2y$12$he9h3v/EHzKV/O.6c4kt4uYsYGPt2aHoHjAOzhoqzrMKhUNfdz2KG',1,0,0,NULL,0,'2026-06-06 16:38:03','2026-06-23 23:48:33',NULL,NULL,'2026-06-06 16:38:03',NULL,NULL,0),('516363c5-c79a-4491-83b4-b8303ce1f286','Tesorero','Caja','1003560438','gcarranco@hotmail.com','','tesorero','$2y$12$/gRI9LwajMIzc8e/NYxO6.hCsUvfbH3c.yxuEKpkpRT7AXoL2ojxe',1,0,0,NULL,0,'2026-06-06 18:23:36','2026-06-23 23:22:42',NULL,NULL,'2026-06-06 18:23:36',NULL,NULL,0),('6600ae1d-e99d-4986-b337-0741de09df84','CARLOS MANUEL','VARGAS CRUZ','1766677788','carlos.vargas@email.com','','1766677788','$2y$12$wx0/HsCyDTfUlKWE8twT/uRPv2o/MEOWXbadf9piFa6So5g39Trie',1,0,0,NULL,0,'2026-06-06 19:35:51','2026-06-06 19:44:55',NULL,NULL,'2026-06-06 19:35:51',NULL,NULL,0),('ce86e169-fa0a-468d-bb04-ca7b8c7a5291','Admin','Sistema','1002606083','admin@caja.test','0999999999','admin','$2y$12$he9h3v/EHzKV/O.6c4kt4uYsYGPt2aHoHjAOzhoqzrMKhUNfdz2KG',1,0,0,NULL,0,'2026-06-06 14:16:51','2026-06-24 00:04:42',NULL,NULL,'2026-06-20 14:39:19','$2y$12$Zv9DvqMKa/BSRVhgfSWxROh9zu75TawpzezMGBqt6EVYICZ3.aAvS','2026-06-24 00:03:57',0);
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Dumping events for database 'caja_ahorro_pujota'
---
-
---
--- Dumping routines for database 'caja_ahorro_pujota'
---
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -986,4 +787,3 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-12 12:04:07
