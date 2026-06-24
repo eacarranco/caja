@@ -169,7 +169,7 @@ class SesionController extends BaseController {
                 ]);
 
             // 2. Cuotas de credito pendientes (primera cuota impaga de cada credito)
-            $cuotas = $this->db->prepare("SELECT a.id_amortizacion, a.numero_cuota, a.total, a.fecha_vencimiento, cr.id_credito, p.nombre AS producto
+            $cuotas = $this->db->prepare("SELECT a.id_amortizacion, a.numero_cuota, a.total, a.fecha_vencimiento, cr.id_credito, cr.monto_aprobado, p.nombre AS producto
                                            FROM amortizaciones a
                                            JOIN creditos cr ON a.id_credito = cr.id_credito
                                            JOIN productos_financieros p ON cr.id_producto = p.id_producto
@@ -184,7 +184,7 @@ class SesionController extends BaseController {
             foreach ($cuotas as $c) {
                 $insertOblig->execute([
                     UUIDGenerator::generar(), $idSesion, $idSocio, 'cuota_credito',
-                    "Cuota #{$c['numero_cuota']} - {$c['producto']} (vence " . date('d/m/Y', strtotime($c['fecha_vencimiento'])) . ")",
+                    "Cuota #{$c['numero_cuota']} - {$c['producto']} Nro. " . substr($c['id_credito'], 0, 8),
                     $c['total'], $c['id_amortizacion']
                 ]);
             }
