@@ -185,11 +185,15 @@ function abrirModalCobro(idSocio, nombre) {
             document.getElementById('cobroTotal').style.display = 'block';
             document.getElementById('btnCobrar').style.display = 'inline-block';
             obligs.forEach(function(o, idx) {
+                var badgeHtml = '';
+                if (o.tipo === 'cuota_credito') badgeHtml = '<span class="badge bg-info me-1">Crédito</span>';
+                else if (o.tipo === 'cuota_mensual') badgeHtml = '<span class="badge bg-primary me-1">Cuota</span>';
+                else if (o.tipo === 'multa') badgeHtml = '<span class="badge bg-warning text-dark me-1">Multa</span>';
                 var div = document.createElement('div');
                 div.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
-                div.innerHTML = '<div class="form-check">' +
+                div.innerHTML = '<div class="form-check d-flex align-items-center gap-2">' +
                     '<input type="checkbox" class="form-check-input oblig-check" name="obligaciones[]" value="' + o.id_obligacion + '" id="chk_' + idx + '" onchange="actualizarTotalCobro()">' +
-                    '<label class="form-check-label" for="chk_' + idx + '">' + o.concepto + '</label>' +
+                    '<label class="form-check-label d-flex align-items-center gap-2 flex-wrap" for="chk_' + idx + '">' + badgeHtml + '<span>' + o.concepto + '</span></label>' +
                     '</div>' +
                     '<strong>$' + parseFloat(o.monto).toFixed(2) + '</strong>';
                 lista.appendChild(div);
