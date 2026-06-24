@@ -62,6 +62,9 @@
                                 <?php if (RBAC::tienePermiso($_SESSION['usuario_id'], 'socio.editar')): ?>
                                 <a href="<?= BASE_URL ?>/socio/editar/<?= $s['id_socio'] ?>" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
                                 <?php endif; ?>
+                                <?php if (RBAC::tienePermiso($_SESSION['usuario_id'], 'socio.eliminar')): ?>
+                                <a href="#" onclick="eliminarSocio('<?= $s['id_socio'] ?>', '<?= htmlspecialchars($s['nombre1'] . ' ' . $s['apellido1'], ENT_QUOTES) ?>')" class="btn btn-sm btn-outline-danger" title="Eliminar"><i class="bi bi-trash"></i></a>
+                                <?php endif; ?>
                             </td>
                         </tr>
                         <?php endforeach; ?>
@@ -84,3 +87,20 @@
     </nav>
     <?php endif; ?>
 </div>
+
+<script>
+function eliminarSocio(id, nombre) {
+    if (!confirm('¿Eliminar el socio "' + nombre + '" permanentemente? Esta accion eliminara su usuario, cuenta de ahorro y todos sus registros asociados. No se puede deshacer.')) return;
+    fetch('<?= BASE_URL ?>/socio/eliminar/' + id, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'csrf_token=<?= urlencode($_SESSION['csrf_token'] ?? '') ?>'
+    })
+    .then(r => r.json())
+    .then(d => {
+        if (d.error) { alert('Error: ' + d.error); }
+        else { location.reload(); }
+    })
+    .catch(e => alert('Error de red'));
+}
+</script>

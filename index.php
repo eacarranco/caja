@@ -66,6 +66,7 @@ $routeMap = [
     'socio/subirDocumento' => ['controller' => 'SocioController', 'method' => 'subirDocumento'],
     'socio/forzarCambioContrasena' => ['controller' => 'SocioController', 'method' => 'forzarCambioContrasena'],
     'socio/restablecerContrasena' => ['controller' => 'SocioController', 'method' => 'restablecerContrasena'],
+    'socio/eliminar' => ['controller' => 'SocioController', 'method' => 'eliminar'],
     'parametro' => ['controller' => 'ParametroController', 'method' => 'listar'],
     'usuario' => ['controller' => 'UsuarioController', 'method' => 'listar'],
     'rol' => ['controller' => 'RolController', 'method' => 'listar'],

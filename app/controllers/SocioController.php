@@ -209,6 +209,51 @@ class SocioController extends BaseController {
         ]);
     }
 
+    public function eliminar($id) {
+        $this->requirePermission('socio.eliminar');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->json(['error' => 'Metodo no permitido'], 405);
+        }
+        $this->validateCSRF();
+
+        $socioModel = new Socio();
+        $socio = $socioModel->getById($id);
+        if (!$socio) {
+            $this->json(['error' => 'Socio no encontrado'], 404);
+        }
+
+        $this->db->beginTransaction();
+        try {
+            $stmt = $this->db->prepare("SELECT id_usuario FROM usuarios WHERE cedula = ?");
+            $stmt->execute([$socio['cedula']]);
+            $idUsuario = $stmt->fetchColumn();
+
+            if ($idUsuario) {
+                $this->db->prepare("DELETE FROM roles_usuarios WHERE id_usuario = ?")->execute([$idUsuario]);
+                $this->db->prepare("DELETE FROM notificaciones WHERE id_usuario = ?")->execute([$idUsuario]);
+                $this->db->prepare("DELETE FROM usuarios WHERE id_usuario = ?")->execute([$idUsuario]);
+            }
+
+            $this->db->prepare("DELETE FROM cuentas_ahorro WHERE id_socio = ?")->execute([$id]);
+            $this->db->prepare("DELETE FROM garantes WHERE id_socio_garante = ? OR id_socio_garantizado = ?")->execute([$id, $id]);
+            $this->db->prepare("DELETE FROM multas WHERE id_socio = ?")->execute([$id]);
+            $this->db->prepare("DELETE FROM asistencias WHERE id_socio = ?")->execute([$id]);
+            $this->db->prepare("DELETE FROM solicitudes_retiro WHERE id_socio = ?")->execute([$id]);
+            $this->db->prepare("DELETE FROM archivos WHERE id_socio = ?")->execute([$id]);
+
+            if (!$socioModel->delete($id)) {
+                throw new Exception('Error al eliminar el socio');
+            }
+
+            $this->db->commit();
+            $this->historialInsert('socio.eliminar', "Socio {$socio['cedula']} ({$socio['nombre1']} {$socio['apellido1']}) eliminado permanentemente");
+            $this->json(['mensaje' => 'Socio eliminado permanentemente']);
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            $this->json(['error' => 'Error al eliminar: ' . $e->getMessage()], 500);
+        }
+    }
+
     public function forzarCambioContrasena($id) {
         $this->requirePermission('socio.editar');
         $socioModel = new Socio();

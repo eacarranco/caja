@@ -42,11 +42,12 @@ INSERT INTO permisos (codigo, nombre, descripcion, modulo) VALUES
 ('multa.impugnar', 'Impugnar multas', 'Permite autorizar la impugnacion de multas presentadas por los socios', 'Multas'),
 ('multa.autorizar_impugnacion', 'Autorizar impugnacion', 'Permite autorizar o rechazar impugnaciones de multas presentadas por los socios', 'Multas'),
 ('notificacion.configurar', 'Configurar reglas de notificacion', 'Permite configurar las reglas de envio de notificaciones', 'Notificaciones'),
-('inversion.aprobar', 'Aprobar/rechazar inversiones', 'Permite aprobar o rechazar solicitudes de inversion en la bandeja de aprobacion', 'Inversiones');
+('inversion.aprobar', 'Aprobar/rechazar inversiones', 'Permite aprobar o rechazar solicitudes de inversion en la bandeja de aprobacion', 'Inversiones'),
+('socio.eliminar', 'Eliminar socio', 'Permite eliminar un socio del sistema de forma permanente', 'Socios');
 
 
 INSERT INTO roles_permisos (id_rol, id_permiso, permitir) VALUES
-(1, 1, TRUE), (1, 2, TRUE), (1, 6, TRUE), (1, 7, TRUE), (1, 8, TRUE), (1, 9, TRUE), (1, 10, TRUE), (1, 11, TRUE), (1, 26, TRUE),
+(1, 1, TRUE), (1, 2, TRUE), (1, 6, TRUE), (1, 7, TRUE), (1, 8, TRUE), (1, 9, TRUE), (1, 10, TRUE), (1, 11, TRUE), (1, 26, TRUE), (1, 34, TRUE),
 (2, 1, TRUE), (2, 2, TRUE), (2, 3, TRUE), (2, 4, TRUE), (2, 5, TRUE), (2, 6, TRUE), (2, 7, TRUE), (2, 21, TRUE), (2, 22, TRUE), (2, 25, TRUE), (2, 26, TRUE), (2, 27, TRUE), (2, 28, TRUE),
 (3, 1, TRUE), (3, 2, TRUE), (3, 4, TRUE), (3, 6, TRUE), (3, 7, TRUE), (3, 12, TRUE), (3, 13, TRUE), (3, 14, TRUE), (3, 15, TRUE), (3, 21, TRUE), (3, 22, TRUE), (3, 23, TRUE), (3, 24, TRUE), (3, 26, TRUE), (3, 27, TRUE), (3, 28, TRUE),
 (4, 1, TRUE), (4, 2, TRUE), (4, 3, TRUE), (4, 4, TRUE), (4, 6, TRUE), (4, 7, TRUE), (4, 16, TRUE), (4, 17, TRUE), (4, 18, TRUE), (4, 19, TRUE), (4, 20, TRUE), (4, 21, TRUE), (4, 22, TRUE), (4, 26, TRUE), (4, 27, TRUE), (4, 28, TRUE),
