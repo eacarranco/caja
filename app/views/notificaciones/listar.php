@@ -130,7 +130,7 @@ function verNotificacion(id, titulo, mensaje) {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: 'csrf_token=<?= CSRFMiddleware::generarToken() ?>'
-    }).then(function(r) { return r.json(); }).catch(function() {});
+    }).then(function(r) { return r.json(); }).then(function() { actualizarNotifBadge(); }).catch(function() {});
     mostrarNotificacion('info', titulo, mensaje, false);
     var item = event && event.currentTarget ? event.currentTarget.closest('.list-group-item') : null;
     if (item) item.classList.remove('fw-bold');
