@@ -3,7 +3,7 @@ USE caja_ahorro_pujota;
 INSERT INTO roles (nombre, descripcion, endosable) VALUES
 ('Administrador Técnico', 'Gobierna usuarios, roles, permisos e imagen corporativa. Sin acceso financiero', FALSE),
 ('Presidente', 'Representante legal, convocatorias, supervisión, firma de certificados', FALSE),
-('Analista Financiero', 'Configura productos financieros, parametros, cálculos y distribución de excedentes', TRUE),
+('Analista Financiero', 'Configura productos financieros, parametros, calculos y distribucion de excedentes', FALSE),
 ('Tesorero', 'Ejecución financiera diaria: cobros, desembolsos, cierre de sesión', FALSE),
 ('Asistente de Tesorería', 'Apoyo en cobros de aportes, cuotas y multas', FALSE),
 ('Socio', 'Acceso al portal personal: consultas, solicitudes, comprobantes', FALSE),
