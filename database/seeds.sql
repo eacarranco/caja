@@ -51,7 +51,7 @@ INSERT INTO roles_permisos (id_rol, id_permiso, permitir) VALUES
 (2, 1, TRUE), (2, 2, TRUE), (2, 3, TRUE), (2, 4, TRUE), (2, 5, TRUE), (2, 6, TRUE), (2, 7, TRUE), (2, 21, TRUE), (2, 22, TRUE), (2, 25, TRUE), (2, 26, TRUE), (2, 27, TRUE), (2, 28, TRUE),
 (3, 1, TRUE), (3, 2, TRUE), (3, 4, TRUE), (3, 6, TRUE), (3, 7, TRUE), (3, 12, TRUE), (3, 13, TRUE), (3, 14, TRUE), (3, 15, TRUE), (3, 21, TRUE), (3, 22, TRUE), (3, 23, TRUE), (3, 24, TRUE), (3, 26, TRUE), (3, 27, TRUE), (3, 28, TRUE),
 (4, 1, TRUE), (4, 2, TRUE), (4, 3, TRUE), (4, 4, TRUE), (4, 6, TRUE), (4, 7, TRUE), (4, 16, TRUE), (4, 17, TRUE), (4, 18, TRUE), (4, 19, TRUE), (4, 20, TRUE), (4, 21, TRUE), (4, 22, TRUE), (4, 26, TRUE), (4, 27, TRUE), (4, 28, TRUE),
-(5, 1, TRUE), (5, 6, TRUE), (5, 7, TRUE), (5, 16, TRUE), (5, 17, TRUE), (5, 18, TRUE), (5, 19, TRUE), (5, 26, TRUE), (5, 28, TRUE),
+(5, 1, TRUE), (5, 16, TRUE), (5, 17, TRUE), (5, 18, TRUE), (5, 19, TRUE), (5, 26, TRUE), (5, 28, TRUE),
 (6, 1, TRUE);
 
 -- credito.aprobar asignado a Presidente (2) y Tesorero (4). Analista Financiero (3) hereda por endosable
