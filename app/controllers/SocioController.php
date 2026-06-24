@@ -235,7 +235,7 @@ class SocioController extends BaseController {
             }
 
             $this->db->prepare("DELETE FROM cuentas_ahorro WHERE id_socio = ?")->execute([$id]);
-            $this->db->prepare("DELETE FROM garantes WHERE id_socio_garante = ? OR id_socio_garantizado = ?")->execute([$id, $id]);
+            $this->db->prepare("DELETE FROM garantes WHERE id_socio = ? OR id_credito IN (SELECT id_credito FROM creditos WHERE id_socio = ?)")->execute([$id, $id]);
             $this->db->prepare("DELETE FROM multas WHERE id_socio = ?")->execute([$id]);
             $this->db->prepare("DELETE FROM asistencias WHERE id_socio = ?")->execute([$id]);
             $this->db->prepare("DELETE FROM solicitudes_retiro WHERE id_socio = ?")->execute([$id]);
