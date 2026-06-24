@@ -352,7 +352,7 @@
                             </td>
                             <td>
                                 <?php if ($i['estado'] === 'activa'): ?>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="solicitarRetiroAnticipado(<?= json_encode($i['id_inversion']) ?>, <?= json_encode($i['producto']) ?>, <?= (float)($i['monto']) ?>, <?= (float)($i['rendimiento_proyectado'] ?? 0) ?>, <?= (int)($i['plazo_meses']) ?>, <?= json_encode($i['destino_final'] ?? 'capital_inversion') ?>, <?= json_encode($i['fecha_inicio'] ?? date('Y-m-d')) ?>, <?= (float)($i['penalidad'] ?? 0) ?>)" title="Solicitar retiro anticipado"><i class="bi bi-box-arrow-left"></i></button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="solicitarRetiroAnticipado(<?= htmlspecialchars(json_encode($i['id_inversion']), ENT_COMPAT, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($i['producto']), ENT_COMPAT, 'UTF-8') ?>, <?= (float)($i['monto']) ?>, <?= (float)($i['rendimiento_proyectado'] ?? 0) ?>, <?= (int)($i['plazo_meses']) ?>, <?= htmlspecialchars(json_encode($i['destino_final'] ?? 'capital_inversion'), ENT_COMPAT, 'UTF-8') ?>, <?= htmlspecialchars(json_encode($i['fecha_inicio'] ?? date('Y-m-d')), ENT_COMPAT, 'UTF-8') ?>, <?= (float)($i['penalidad'] ?? 0) ?>)" title="Solicitar retiro anticipado"><i class="bi bi-box-arrow-left"></i></button>
                                 <?php endif; ?>
                             </td>
                         </tr>
