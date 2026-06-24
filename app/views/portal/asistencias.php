@@ -21,7 +21,7 @@
                     <?php endif; ?>
                 </td>
                 <td>
-                    <?php if ($a['tipo'] !== 'a_tiempo' && empty($a['justificacion'])): ?>
+                    <?php if ($a['tipo'] !== 'a_tiempo' && empty($a['justificacion']) && !$a['justificacion_aprobada']): ?>
                     <button class="btn btn-sm btn-outline-warning" onclick="justificar('<?= $a['id_asistencia'] ?>')"><i class="bi bi-pencil-square"></i> Justificar</button>
                     <?php endif; ?>
                 </td>

@@ -29,7 +29,7 @@
                     </td>
                     <td data-label="Estado"><?= $m['pagada'] ? '<span class="badge bg-success">Pagada</span>' : '<span class="badge bg-danger">Pendiente</span>' ?></td>
                     <td data-label="Acción">
-                        <?php if (!$m['justificacion']): ?>
+                        <?php if (!$m['justificacion'] && $m['estado'] === 'activa'): ?>
                         <button class="btn btn-sm btn-outline-warning" onclick="mostrarFormJustificacion('<?= $m['id_multa'] ?>')"><i class="bi bi-pencil"></i></button>
                         <?php endif; ?>
                     </td>
