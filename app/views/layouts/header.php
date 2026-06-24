@@ -243,7 +243,7 @@ if ($loggedIn) {
                     <?php endif; ?>
                     <?php if ($uid && (RBAC::tienePermiso($uid, 'credito.aprobar') || RBAC::tienePermiso($uid, 'inversion.aprobar'))): ?>
                     <?php $bandejaSubActive = (strpos($currentUrl, 'credito/bandejaAprobados') === 0 || strpos($currentUrl, 'inversion/pendientes') === 0) ? 'active' : ''; ?>
-                    <li class="sidebar-title">B. Aprobaciones</li>
+                    <li class="sidebar-title">Bandeja aprobación</li>
                     <li class="sidebar-item has-sub <?= $bandejaSubActive ?>">
                         <a href="#" class="sidebar-link">
                             <i class="bi bi-inboxes-fill"></i>
