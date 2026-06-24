@@ -127,6 +127,29 @@ class SesionController extends BaseController {
                     $concepto, $aporteMensual, null
                 ]);
 
+            // 1b. Cuotas mensuales no pagadas de sesiones anteriores
+            $cuotasPend = $this->db->prepare("SELECT o.id_obligacion, o.monto, ses.numero_sesion, ses.fecha_sesion
+                                               FROM obligaciones_sesion o
+                                               JOIN sesiones_mensuales ses ON o.id_sesion = ses.id_sesion
+                                               WHERE o.id_socio = ? AND o.tipo = 'cuota_mensual' AND o.pagada = FALSE
+                                               AND o.id_sesion != ?
+                                               AND o.id_obligacion NOT IN (
+                                                   SELECT o2.id_referencia FROM obligaciones_sesion o2
+                                                   WHERE o2.tipo = 'cuota_mensual' AND o2.pagada = TRUE
+                                                   AND o2.id_referencia IS NOT NULL
+                                               )");
+            $cuotasPend->execute([$idSocio, $idSesion]);
+            foreach ($cuotasPend as $cp) {
+                $this->db->prepare("DELETE FROM obligaciones_sesion
+                    WHERE id_referencia = ? AND tipo = 'cuota_mensual' AND pagada = FALSE
+                    AND id_sesion = ?")->execute([$cp['id_obligacion'], $idSesion]);
+                $concepto = "Cuota mensual pendiente - Sesion #{$cp['numero_sesion']} del " . date('d/m/Y', strtotime($cp['fecha_sesion']));
+                $insertOblig->execute([
+                    UUIDGenerator::generar(), $idSesion, $idSocio, 'cuota_mensual',
+                    $concepto, $cp['monto'], $cp['id_obligacion']
+                ]);
+            }
+
             // 2. Cuotas de credito vencidas (fecha_vencimiento <= fechaCorte)
             $cuotas = $this->db->prepare("SELECT a.id_amortizacion, a.numero_cuota, a.total, cr.id_credito, p.nombre AS producto
                                            FROM amortizaciones a

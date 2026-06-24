@@ -46,6 +46,7 @@ CREATE TABLE `amortizaciones` (
 
 LOCK TABLES `amortizaciones` WRITE;
 /*!40000 ALTER TABLE `amortizaciones` DISABLE KEYS */;
+INSERT INTO `amortizaciones` VALUES ('17235e17-18d3-440a-a4e4-ee97118d7dc6','3e412f72-c592-431c-a037-7ef660758a06',2,'2026-08-01',90.00,0.90,90.90,0.00,'pendiente',NULL),('7559412c-d400-4cc4-b71e-ee08187d1e7f','3e412f72-c592-431c-a037-7ef660758a06',1,'2026-07-01',90.00,0.90,90.90,90.00,'pagada','ec31343a-3ce3-4bc7-9ff2-720bacb4dd5d');
 /*!40000 ALTER TABLE `amortizaciones` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -120,7 +121,7 @@ CREATE TABLE `asistencias` (
 
 LOCK TABLES `asistencias` WRITE;
 /*!40000 ALTER TABLE `asistencias` DISABLE KEYS */;
-INSERT INTO `asistencias` VALUES ('2c1eabd3-a00b-41a1-9b54-ef12cec14464','6819f961-b144-4c96-bbbd-8a0c0055cce1','5f848c37-dd70-4298-a76c-572257ca3493','retraso_30min',NULL,NULL,0,'516363c5-c79a-4491-83b4-b8303ce1f286','2026-06-24 09:23:50');
+INSERT INTO `asistencias` VALUES ('2c1eabd3-a00b-41a1-9b54-ef12cec14464','6819f961-b144-4c96-bbbd-8a0c0055cce1','5f848c37-dd70-4298-a76c-572257ca3493','a_tiempo',NULL,NULL,0,'516363c5-c79a-4491-83b4-b8303ce1f286','2026-06-24 09:23:50'),('2fedd3ef-76ec-4e3d-b9c1-b9b98c74fee1','6819f961-b144-4c96-bbbd-8a0c0055cce1','1c5451f8-1b26-47fa-bae1-ed4bb2ddfc66','a_tiempo',NULL,NULL,0,'516363c5-c79a-4491-83b4-b8303ce1f286','2026-06-24 10:02:49');
 /*!40000 ALTER TABLE `asistencias` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -157,7 +158,7 @@ CREATE TABLE `caja_movimientos` (
 
 LOCK TABLES `caja_movimientos` WRITE;
 /*!40000 ALTER TABLE `caja_movimientos` DISABLE KEYS */;
-INSERT INTO `caja_movimientos` VALUES ('0454d189-7798-4822-ad7f-97a06e19dd3b','5f848c37-dd70-4298-a76c-572257ca3493','6819f961-b144-4c96-bbbd-8a0c0055cce1','826b7031-d0c0-4a72-a6d9-2190184064a6','ingreso','Cuota mensual - 1002003000 - Sesion #1','aporte_obligatorio',10.00,0.00,10.00,'2026-06-24 09:24:08'),('9965168c-9bfb-4f9a-bfc9-710857da20d6','5f848c37-dd70-4298-a76c-572257ca3493','6819f961-b144-4c96-bbbd-8a0c0055cce1','f26589dd-54fe-4244-93ee-b623810f84b1','ingreso','Multa por Retraso 30min - Sesion #1 del 28/06/2026 - pagada en Sesion #1','multa',5.00,10.00,15.00,'2026-06-24 09:24:42');
+INSERT INTO `caja_movimientos` VALUES ('0454d189-7798-4822-ad7f-97a06e19dd3b','5f848c37-dd70-4298-a76c-572257ca3493','6819f961-b144-4c96-bbbd-8a0c0055cce1','826b7031-d0c0-4a72-a6d9-2190184064a6','ingreso','Cuota mensual - 1002003000 - Sesion #1','aporte_obligatorio',10.00,0.00,10.00,'2026-06-24 09:24:08'),('1bb03ccc-b442-435a-a120-3ed949fb6070','1c5451f8-1b26-47fa-bae1-ed4bb2ddfc66','6819f961-b144-4c96-bbbd-8a0c0055cce1','ec31343a-3ce3-4bc7-9ff2-720bacb4dd5d','ingreso','Cuota de credito - 1002003000 - Sesion #2','cuota_credito',90.90,80.00,170.90,'2026-06-24 10:02:55'),('4e5c643f-e8f5-4574-a361-3150f7cb7863','5f848c37-dd70-4298-a76c-572257ca3493','6819f961-b144-4c96-bbbd-8a0c0055cce1','c84860da-c27a-4ce3-a756-b652b949271f','ingreso','Multa por Retraso 30min - Sesion #1 del 28/06/2026 - pagada en Sesion #1','multa',5.00,65.00,70.00,'2026-06-24 10:01:09'),('53513f2d-7141-48e9-9e10-c12c64bba9d7','5f848c37-dd70-4298-a76c-572257ca3493','6819f961-b144-4c96-bbbd-8a0c0055cce1','801daa50-adf2-4658-9369-2a70b0cd6c78','ingreso','Aporte excedente - PUJOTA  ELVIA  - Sesion #5f848c37-dd70-4298-a76c-572257ca3493','aporte_excedente',50.00,15.00,65.00,'2026-06-24 09:31:31'),('9965168c-9bfb-4f9a-bfc9-710857da20d6','5f848c37-dd70-4298-a76c-572257ca3493','6819f961-b144-4c96-bbbd-8a0c0055cce1','f26589dd-54fe-4244-93ee-b623810f84b1','ingreso','Multa por Retraso 30min - Sesion #1 del 28/06/2026 - pagada en Sesion #1','multa',5.00,10.00,15.00,'2026-06-24 09:24:42'),('9f537efb-f99c-4a36-b944-7bd59b8d43c6','1c5451f8-1b26-47fa-bae1-ed4bb2ddfc66','6819f961-b144-4c96-bbbd-8a0c0055cce1','1289a623-bf71-4ee8-9d4a-40e66f98bef5','ingreso','Cuota mensual - 1002003000 - Sesion #2','aporte_obligatorio',10.00,70.00,80.00,'2026-06-24 10:02:54');
 /*!40000 ALTER TABLE `caja_movimientos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -281,7 +282,7 @@ CREATE TABLE `cobros` (
 
 LOCK TABLES `cobros` WRITE;
 /*!40000 ALTER TABLE `cobros` DISABLE KEYS */;
-INSERT INTO `cobros` VALUES ('826b7031-d0c0-4a72-a6d9-2190184064a6','6819f961-b144-4c96-bbbd-8a0c0055cce1','5f848c37-dd70-4298-a76c-572257ca3493','aporte_obligatorio',NULL,10.00,'efectivo',NULL,'3925fc53ed6f4034ca43f7ac184448511a4363a80942bb22a415989e19fdb2a9','516363c5-c79a-4491-83b4-b8303ce1f286',0,NULL,NULL,NULL,'2026-06-24 09:24:07'),('f26589dd-54fe-4244-93ee-b623810f84b1','6819f961-b144-4c96-bbbd-8a0c0055cce1','5f848c37-dd70-4298-a76c-572257ca3493','multa','220c9983-01f8-4975-a4e2-797f216d3f3a',5.00,'efectivo',NULL,'10389ef86dd34a2a8a4ef3bf47719f488da54d2099bd4e457d97669ae2732105','516363c5-c79a-4491-83b4-b8303ce1f286',0,NULL,NULL,NULL,'2026-06-24 09:24:41');
+INSERT INTO `cobros` VALUES ('1289a623-bf71-4ee8-9d4a-40e66f98bef5','6819f961-b144-4c96-bbbd-8a0c0055cce1','1c5451f8-1b26-47fa-bae1-ed4bb2ddfc66','aporte_obligatorio',NULL,10.00,'efectivo',NULL,'94dcf74821c5ef655c5e399592eb38b694a69493a50c7d02bcbabe106ecb6b20','516363c5-c79a-4491-83b4-b8303ce1f286',0,NULL,NULL,NULL,'2026-06-24 10:02:53'),('801daa50-adf2-4658-9369-2a70b0cd6c78','6819f961-b144-4c96-bbbd-8a0c0055cce1','5f848c37-dd70-4298-a76c-572257ca3493','aporte_excedente',NULL,50.00,'efectivo',NULL,'8368a918c098272f5b77eb62f1f05e3b7e5867111046486e59c168fc6fcceece','516363c5-c79a-4491-83b4-b8303ce1f286',0,NULL,NULL,NULL,'2026-06-24 09:31:30'),('826b7031-d0c0-4a72-a6d9-2190184064a6','6819f961-b144-4c96-bbbd-8a0c0055cce1','5f848c37-dd70-4298-a76c-572257ca3493','aporte_obligatorio',NULL,10.00,'efectivo',NULL,'3925fc53ed6f4034ca43f7ac184448511a4363a80942bb22a415989e19fdb2a9','516363c5-c79a-4491-83b4-b8303ce1f286',0,NULL,NULL,NULL,'2026-06-24 09:24:07'),('c84860da-c27a-4ce3-a756-b652b949271f','6819f961-b144-4c96-bbbd-8a0c0055cce1','5f848c37-dd70-4298-a76c-572257ca3493','multa','6a59484a-df70-4e27-8c87-09a5903e69a1',5.00,'efectivo',NULL,'a3be3942fba13307e9cf7dc66d563c7328a4c603ca40b76505966488c6c185ee','516363c5-c79a-4491-83b4-b8303ce1f286',0,NULL,NULL,NULL,'2026-06-24 10:01:08'),('ec31343a-3ce3-4bc7-9ff2-720bacb4dd5d','6819f961-b144-4c96-bbbd-8a0c0055cce1','1c5451f8-1b26-47fa-bae1-ed4bb2ddfc66','cuota_credito','7559412c-d400-4cc4-b71e-ee08187d1e7f',90.90,'efectivo',NULL,'713d2936a39a546387b9e8c2fab15161153ad86200bdcafc5fae8ba6345059ee','516363c5-c79a-4491-83b4-b8303ce1f286',0,NULL,NULL,NULL,'2026-06-24 10:02:54'),('f26589dd-54fe-4244-93ee-b623810f84b1','6819f961-b144-4c96-bbbd-8a0c0055cce1','5f848c37-dd70-4298-a76c-572257ca3493','multa','220c9983-01f8-4975-a4e2-797f216d3f3a',5.00,'efectivo',NULL,'10389ef86dd34a2a8a4ef3bf47719f488da54d2099bd4e457d97669ae2732105','516363c5-c79a-4491-83b4-b8303ce1f286',0,NULL,NULL,NULL,'2026-06-24 09:24:41');
 /*!40000 ALTER TABLE `cobros` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -329,6 +330,7 @@ CREATE TABLE `creditos` (
 
 LOCK TABLES `creditos` WRITE;
 /*!40000 ALTER TABLE `creditos` DISABLE KEYS */;
+INSERT INTO `creditos` VALUES ('3e412f72-c592-431c-a037-7ef660758a06','6819f961-b144-4c96-bbbd-8a0c0055cce1','c3dd23b3-5eff-45f3-97c6-8343c340bfcc',NULL,180.00,180.00,2,6.00,'simple','Pago de deuda','aprobado',NULL,'2026-06-24 09:40:00','2026-06-24 09:59:11',NULL,'516363c5-c79a-4491-83b4-b8303ce1f286',NULL),('570a7eb5-7efe-4a3f-adc9-1437a9283aee','6819f961-b144-4c96-bbbd-8a0c0055cce1','c3dd23b3-5eff-45f3-97c6-8343c340bfcc',NULL,180.00,NULL,2,6.00,'simple','Pago de deudas','rechazado',NULL,'2026-06-24 09:33:23','2026-06-24 09:39:23',NULL,'516363c5-c79a-4491-83b4-b8303ce1f286','No hay liquidez.');
 /*!40000 ALTER TABLE `creditos` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -358,7 +360,7 @@ CREATE TABLE `cuentas_ahorro` (
 
 LOCK TABLES `cuentas_ahorro` WRITE;
 /*!40000 ALTER TABLE `cuentas_ahorro` DISABLE KEYS */;
-INSERT INTO `cuentas_ahorro` VALUES ('d3496eee-37e8-46b2-8bbf-c4180a07f54d','6819f961-b144-4c96-bbbd-8a0c0055cce1',10.00,0.00,10.00,'2026-06-24 09:24:07');
+INSERT INTO `cuentas_ahorro` VALUES ('d3496eee-37e8-46b2-8bbf-c4180a07f54d','6819f961-b144-4c96-bbbd-8a0c0055cce1',20.00,50.00,70.00,'2026-06-24 10:02:53');
 /*!40000 ALTER TABLE `cuentas_ahorro` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -432,7 +434,7 @@ CREATE TABLE `historial_operaciones` (
 
 LOCK TABLES `historial_operaciones` WRITE;
 /*!40000 ALTER TABLE `historial_operaciones` DISABLE KEYS */;
-INSERT INTO `historial_operaciones` VALUES ('0ca72c37-9f5b-45a9-b848-3baa9731e945','6819f961-b144-4c96-bbbd-8a0c0055cce1','aporte_obligatorio',10.00,NULL,NULL,'826b7031-d0c0-4a72-a6d9-2190184064a6','5f848c37-dd70-4298-a76c-572257ca3493','516363c5-c79a-4491-83b4-b8303ce1f286',NULL,NULL,'::1','2026-06-24 09:24:07'),('24e25757-a483-4196-b8f8-5b0d3692eaf4','6819f961-b144-4c96-bbbd-8a0c0055cce1','pago_multa',5.00,NULL,NULL,'f26589dd-54fe-4244-93ee-b623810f84b1','5f848c37-dd70-4298-a76c-572257ca3493','516363c5-c79a-4491-83b4-b8303ce1f286',NULL,NULL,'::1','2026-06-24 09:24:41');
+INSERT INTO `historial_operaciones` VALUES ('0ca72c37-9f5b-45a9-b848-3baa9731e945','6819f961-b144-4c96-bbbd-8a0c0055cce1','aporte_obligatorio',10.00,NULL,NULL,'826b7031-d0c0-4a72-a6d9-2190184064a6','5f848c37-dd70-4298-a76c-572257ca3493','516363c5-c79a-4491-83b4-b8303ce1f286',NULL,NULL,'::1','2026-06-24 09:24:07'),('24e25757-a483-4196-b8f8-5b0d3692eaf4','6819f961-b144-4c96-bbbd-8a0c0055cce1','pago_multa',5.00,NULL,NULL,'f26589dd-54fe-4244-93ee-b623810f84b1','5f848c37-dd70-4298-a76c-572257ca3493','516363c5-c79a-4491-83b4-b8303ce1f286',NULL,NULL,'::1','2026-06-24 09:24:41'),('6618df7f-5d0f-4ef6-9fae-220012a217ac','6819f961-b144-4c96-bbbd-8a0c0055cce1','pago_cuota',90.90,NULL,NULL,'ec31343a-3ce3-4bc7-9ff2-720bacb4dd5d','1c5451f8-1b26-47fa-bae1-ed4bb2ddfc66','516363c5-c79a-4491-83b4-b8303ce1f286',NULL,NULL,'::1','2026-06-24 10:02:54'),('6c6b5543-38ef-4611-ab39-b240a1aea132','6819f961-b144-4c96-bbbd-8a0c0055cce1','pago_multa',5.00,NULL,NULL,'c84860da-c27a-4ce3-a756-b652b949271f','5f848c37-dd70-4298-a76c-572257ca3493','516363c5-c79a-4491-83b4-b8303ce1f286',NULL,NULL,'::1','2026-06-24 10:01:08'),('948dfabd-5452-4def-9a48-475246701131','6819f961-b144-4c96-bbbd-8a0c0055cce1','aporte_obligatorio',10.00,NULL,NULL,'1289a623-bf71-4ee8-9d4a-40e66f98bef5','1c5451f8-1b26-47fa-bae1-ed4bb2ddfc66','516363c5-c79a-4491-83b4-b8303ce1f286',NULL,NULL,'::1','2026-06-24 10:02:53'),('d92df638-8c1a-41df-b153-13c4a1c8bbc4','6819f961-b144-4c96-bbbd-8a0c0055cce1','aporte_excedente',50.00,NULL,NULL,'801daa50-adf2-4658-9369-2a70b0cd6c78','5f848c37-dd70-4298-a76c-572257ca3493','516363c5-c79a-4491-83b4-b8303ce1f286',NULL,NULL,'::1','2026-06-24 09:31:30');
 /*!40000 ALTER TABLE `historial_operaciones` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -514,7 +516,6 @@ CREATE TABLE `multas` (
 
 LOCK TABLES `multas` WRITE;
 /*!40000 ALTER TABLE `multas` DISABLE KEYS */;
-INSERT INTO `multas` VALUES ('220c9983-01f8-4975-a4e2-797f216d3f3a','6819f961-b144-4c96-bbbd-8a0c0055cce1','5f848c37-dd70-4298-a76c-572257ca3493','retraso_30min',5.00,NULL,0,NULL,0,'activa',NULL,NULL,'2026-06-24 09:24:33');
 /*!40000 ALTER TABLE `multas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -553,7 +554,7 @@ CREATE TABLE `notificaciones` (
 
 LOCK TABLES `notificaciones` WRITE;
 /*!40000 ALTER TABLE `notificaciones` DISABLE KEYS */;
-INSERT INTO `notificaciones` VALUES ('1710a646-3694-4290-8afe-218e74fccbe6',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','multa','Multa generada','Se ha generado una multa por Retraso 30min de $5 en la sesion #1 para el socio 1002003000',1,'papelera',1,'2026-06-24 09:24:33','2026-06-24 09:25:01','2026-06-24 09:25:04'),('23639415-f580-4794-b08e-73f3191c3064',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','cobro','Pago registrado','Multa por Retraso 30min - Sesion #1 del 28/06/2026 ha sido pagada en Sesion #1 del 24/06/2026',1,'papelera',1,'2026-06-24 09:24:41','2026-06-24 09:25:01','2026-06-24 09:25:04'),('4b89339b-af58-4942-a80a-9e127b9044ee',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','cobro','Pago registrado','Cuota mensual de $10.00 ha sido registrada en Sesion #1 del 24/06/2026',1,'papelera',1,'2026-06-24 09:24:07','2026-06-24 09:24:20','2026-06-24 09:24:23');
+INSERT INTO `notificaciones` VALUES ('2126ae35-f6f3-4068-8357-e798d245fe37',NULL,NULL,'credito','Nueva solicitud de credito','El socio ELVIA ha solicitado un credito de $180',1,'papelera',1,'2026-06-24 09:40:00','2026-06-24 09:41:07','2026-06-24 10:03:35'),('2c7a30b1-5422-454d-996d-1cf75a21e7fc',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','credito','Credito aprobado','Su credito de $180 ha sido aprobado para legalizaci+¦n',1,'entrada',1,'2026-06-24 09:59:11','2026-06-24 09:59:22',NULL),('48b6b2d6-dc87-461a-82ac-1058c7217199',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','cobro','Pago registrado','Cuota mensual de $10.00 ha sido registrada en Sesion #2 del 24/06/2026',1,'entrada',1,'2026-06-24 10:02:53','2026-06-24 10:09:00',NULL),('5764abe4-7a03-4d42-807f-d7dacbec1bda',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','multa','Multa generada','Se ha generado una multa por Retraso 30min de $5 en la sesion #1 para el socio 1002003000',1,'entrada',1,'2026-06-24 10:01:01','2026-06-24 10:01:21',NULL),('61d76466-74ae-4b7d-acc2-6f2db0404c86','ce86e169-fa0a-468d-bb04-ca7b8c7a5291',NULL,'sesion','Sesion #1 cerrada','La sesion #1 ha sido cerrada. Total recaudado: $70.00',1,'papelera',1,'2026-06-24 10:02:05','2026-06-24 10:03:32','2026-06-24 10:03:35'),('67aff800-11cc-4486-9b60-82d7f3bf21a6','ce86e169-fa0a-468d-bb04-ca7b8c7a5291',NULL,'sesion','Sesion #1 cerrada','La sesion #1 ha sido cerrada. Total recaudado: $65.00',1,'papelera',1,'2026-06-24 09:59:39','2026-06-24 10:03:32','2026-06-24 10:03:35'),('6b631d86-3eff-4ee0-8d3c-88edae920438','516363c5-c79a-4491-83b4-b8303ce1f286',NULL,'sesion','Sesion #1 cerrada','La sesion #1 ha sido cerrada. Total recaudado: $70.00',0,'entrada',1,'2026-06-24 10:02:05',NULL,NULL),('b4d617f3-168a-4621-a59d-13f8c74c1ae2','516363c5-c79a-4491-83b4-b8303ce1f286',NULL,'sesion','Sesion #1 cerrada','La sesion #1 ha sido cerrada. Total recaudado: $65.00',0,'entrada',1,'2026-06-24 09:59:38',NULL,NULL),('bcf1e3f8-b3a0-4241-b782-3b5ba440edf8',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','credito','Credito rechazado','Su solicitud de credito ha sido rechazada: No hay liquidez.',1,'entrada',1,'2026-06-24 09:39:23','2026-06-24 09:39:37',NULL),('c61a6b89-47ab-4d83-a4cd-d2c35e9e603a',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','asistencia','Correccion de asistencia','Correccion de asistencia - A tiempo en la sesion #1 para el socio 1002003000. Multa eliminada.',1,'entrada',1,'2026-06-24 09:44:19','2026-06-24 09:44:31',NULL),('d7f9aa7e-c4d3-4c54-9a2b-82208c86177a',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','cobro','Pago registrado','Multa por Retraso 30min - Sesion #1 del 28/06/2026 ha sido pagada en Sesion #1 del 24/06/2026',1,'entrada',1,'2026-06-24 10:01:08','2026-06-24 10:01:21',NULL),('ed539a0f-d279-42e7-a796-7d6a8487c382',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','asistencia','Correccion de asistencia','Correccion de asistencia - A tiempo en la sesion #1 para el socio 1002003000. Multa eliminada.',1,'entrada',1,'2026-06-24 10:01:31','2026-06-24 10:02:35',NULL),('ef7aaea3-f4f1-4a30-b85e-5ad4caa56735',NULL,'6819f961-b144-4c96-bbbd-8a0c0055cce1','cobro','Pago registrado','Cuota de credito de $90.90 ha sido registrada en Sesion #2 del 24/06/2026',1,'entrada',1,'2026-06-24 10:02:54','2026-06-24 10:09:00',NULL);
 /*!40000 ALTER TABLE `notificaciones` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -590,7 +591,7 @@ CREATE TABLE `obligaciones_sesion` (
 
 LOCK TABLES `obligaciones_sesion` WRITE;
 /*!40000 ALTER TABLE `obligaciones_sesion` DISABLE KEYS */;
-INSERT INTO `obligaciones_sesion` VALUES ('0ae67def-c013-440a-8504-1d8d49029dca','5f848c37-dd70-4298-a76c-572257ca3493','6819f961-b144-4c96-bbbd-8a0c0055cce1','cuota_mensual','Cuota mensual - Sesion #1 del 28/06/2026',10.00,NULL,1,'826b7031-d0c0-4a72-a6d9-2190184064a6','2026-06-24 09:23:45'),('3c7f6566-35d5-491f-9e03-433933e9664a','5f848c37-dd70-4298-a76c-572257ca3493','6819f961-b144-4c96-bbbd-8a0c0055cce1','multa','Multa por Retraso 30min - Sesion #1 del 28/06/2026',5.00,'220c9983-01f8-4975-a4e2-797f216d3f3a',1,'f26589dd-54fe-4244-93ee-b623810f84b1','2026-06-24 09:24:33');
+INSERT INTO `obligaciones_sesion` VALUES ('0ae67def-c013-440a-8504-1d8d49029dca','5f848c37-dd70-4298-a76c-572257ca3493','6819f961-b144-4c96-bbbd-8a0c0055cce1','cuota_mensual','Cuota mensual - Sesion #1 del 28/06/2026',10.00,NULL,1,'826b7031-d0c0-4a72-a6d9-2190184064a6','2026-06-24 09:23:45'),('1e711ee0-cefc-485c-9eb0-0e07e4d27540','1c5451f8-1b26-47fa-bae1-ed4bb2ddfc66','6819f961-b144-4c96-bbbd-8a0c0055cce1','cuota_credito','Cuota #1 - Cr+®dito Ordinario (vence 31/12/1969)',90.90,'7559412c-d400-4cc4-b71e-ee08187d1e7f',1,'ec31343a-3ce3-4bc7-9ff2-720bacb4dd5d','2026-06-24 10:02:19'),('cad4ce1c-efae-4183-b654-81a6cd02335c','1c5451f8-1b26-47fa-bae1-ed4bb2ddfc66','6819f961-b144-4c96-bbbd-8a0c0055cce1','cuota_mensual','Cuota mensual - Sesion #2 del 31/07/2026',10.00,NULL,1,'1289a623-bf71-4ee8-9d4a-40e66f98bef5','2026-06-24 10:02:19');
 /*!40000 ALTER TABLE `obligaciones_sesion` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -611,7 +612,7 @@ CREATE TABLE `parametros` (
   `editable` tinyint(1) DEFAULT '1' COMMENT 'Indica si el par+ímetro puede ser editado desde el panel',
   PRIMARY KEY (`id_parametro`),
   UNIQUE KEY `c+¦digo` (`codigo`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Par+ímetros configurables del sistema';
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Par+ímetros configurables del sistema';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -620,7 +621,7 @@ CREATE TABLE `parametros` (
 
 LOCK TABLES `parametros` WRITE;
 /*!40000 ALTER TABLE `parametros` DISABLE KEYS */;
-INSERT INTO `parametros` VALUES (1,'tasa_inter+®s_cr+®dito','Tasa de inter+®s para cr+®ditos','6.00','decimal','financiero',1),(2,'m+®todo_inter+®s_default','M+®todo de inter+®s por defecto','simple','texto','financiero',1),(3,'tasa_inter+®s_ahorro','Tasa de inter+®s sobre ahorros','0.00','decimal','financiero',1),(4,'tasa_inter+®s_inversi+¦n','Tasa de inter+®s para inversiones','6.00','decimal','financiero',1),(5,'aporte_obligatorio_mensual','Aporte obligatorio mensual','10.00','decimal','financiero',1),(6,'cuota_ingreso','Cuota +¦nica de ingreso','20.00','decimal','financiero',1),(7,'multa_retraso_10min','Multa retraso 10-30 minutos','1.00','decimal','financiero',1),(8,'multa_retraso_30min','Multa retraso >=30 minutos','5.00','decimal','financiero',1),(9,'multa_inasistencia','Multa por inasistencia','5.00','decimal','financiero',1),(10,'multa_mora_cr+®dito','Multa por mora de cr+®dito','5.00','decimal','financiero',1),(11,'l+¡mite_cr+®dito_emergente','L+¡mite cr+®dito emergente','300.00','decimal','financiero',1),(12,'plazo_m+¡nimo_inversi+¦n','Plazo m+¡nimo inversi+¦n (meses)','6','numero','financiero',1),(13,'intentos_m+íx_login','Intentos m+íximo de login','3','numero','seguridad',1),(14,'bloqueo_minutos','Minutos de bloqueo','15','numero','seguridad',1),(15,'session_timeout_minutos','Timeout de sesi+¦n (minutos)','30','numero','seguridad',1),(16,'pin_2fa_d+¡gitos','D+¡gitos del PIN 2FA','6','numero','seguridad',1),(17,'pin_2fa_expiracion_min','Expiraci+¦n PIN 2FA (minutos)','5','numero','seguridad',1),(18,'m+íx_reenv+¡o_pin_hora','M+íximo reenv+¡os PIN por hora','3','numero','seguridad',1),(19,'logo_sidebar','Logo del sidebar','ca62b9e0-de01-42cc-9bb6-0826f49dce00','texto','imagen',1),(20,'logo_sd','Logo sin fondo','d9433f2e-ffa1-48c9-bf86-b338e6796ff2','texto','imagen',1);
+INSERT INTO `parametros` VALUES (1,'tasa_inter+®s_cr+®dito','Tasa de inter+®s para cr+®ditos','6.00','decimal','financiero',1),(2,'m+®todo_inter+®s_default','M+®todo de inter+®s por defecto','simple','texto','financiero',1),(3,'tasa_inter+®s_ahorro','Tasa de inter+®s sobre ahorros','0.00','decimal','financiero',1),(4,'tasa_inter+®s_inversi+¦n','Tasa de inter+®s para inversiones','6.00','decimal','financiero',1),(5,'aporte_obligatorio_mensual','Aporte obligatorio mensual','10.00','decimal','financiero',1),(6,'cuota_ingreso','Cuota +¦nica de ingreso','20.00','decimal','financiero',1),(7,'multa_retraso_10min','Multa retraso 10-30 minutos','1.00','decimal','financiero',1),(8,'multa_retraso_30min','Multa retraso >=30 minutos','5.00','decimal','financiero',1),(9,'multa_inasistencia','Multa por inasistencia','5.00','decimal','financiero',1),(10,'multa_mora_cr+®dito','Multa por mora de cr+®dito','5.00','decimal','financiero',1),(11,'l+¡mite_cr+®dito_emergente','L+¡mite cr+®dito emergente','300.00','decimal','financiero',1),(12,'plazo_m+¡nimo_inversi+¦n','Plazo m+¡nimo inversi+¦n (meses)','6','numero','financiero',1),(13,'intentos_m+íx_login','Intentos m+íximo de login','3','numero','seguridad',1),(14,'bloqueo_minutos','Minutos de bloqueo','15','numero','seguridad',1),(15,'session_timeout_minutos','Timeout de sesi+¦n (minutos)','30','numero','seguridad',1),(16,'pin_2fa_d+¡gitos','D+¡gitos del PIN 2FA','6','numero','seguridad',1),(17,'pin_2fa_expiracion_min','Expiraci+¦n PIN 2FA (minutos)','5','numero','seguridad',1),(18,'m+íx_reenv+¡o_pin_hora','M+íximo reenv+¡os PIN por hora','3','numero','seguridad',1),(19,'logo_sidebar','Logo del sidebar','ca62b9e0-de01-42cc-9bb6-0826f49dce00','texto','imagen',1),(20,'logo_sd','Logo sin fondo','d9433f2e-ffa1-48c9-bf86-b338e6796ff2','texto','imagen',1),(21,'multa_cuota_impaga','Multa por cuota mensual impaga','5.00','decimal','financiero',1);
 /*!40000 ALTER TABLE `parametros` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -696,7 +697,7 @@ CREATE TABLE `productos_financieros` (
 
 LOCK TABLES `productos_financieros` WRITE;
 /*!40000 ALTER TABLE `productos_financieros` DISABLE KEYS */;
-INSERT INTO `productos_financieros` VALUES ('2e4c5dbd-afa8-424e-9367-6687ad3c4490','Inversi+¦n ordinaria','inversion',6.00,'simple',3,12,500.00,10000.00,0,5.00,1,'2026-06-20 15:42:04','<p>Condiciones de Inversi+¦n</p><p>Estas son condiciones de inversi+¦n.</p><p>-Saludos</p>',0,0.00,0,0.00,1,0,'dolares',0,0,'meses'),('c3dd23b3-5eff-45f3-97c6-8343c340bfcc','Cr+®dito Ordinario','credito',6.00,'simple',3,12,100.00,1000.00,0,0.00,1,'2026-06-07 18:03:07','<p>Condiciones del cr+®dito</p><p>Estas son las condiciones que debe aceptar el socio para acceder al cr+®dito.</p><p>-La Directiva</p>',0,20.00,0,0.00,0,0,'dolares',10,0,'meses');
+INSERT INTO `productos_financieros` VALUES ('2e4c5dbd-afa8-424e-9367-6687ad3c4490','Inversi+¦n ordinaria','inversion',6.00,'simple',3,12,500.00,10000.00,0,5.00,1,'2026-06-20 15:42:04','<p>Condiciones de Inversi+¦n</p><p>Estas son condiciones de inversi+¦n.</p><p>-Saludos</p>',0,0.00,0,0.00,1,0,'dolares',0,0,'meses'),('c3dd23b3-5eff-45f3-97c6-8343c340bfcc','Cr+®dito Ordinario','credito',6.00,'simple',1,12,100.00,1000.00,0,0.00,1,'2026-06-07 18:03:07','<p>Condiciones del cr+®dito</p><p>Estas son las condiciones que debe aceptar el socio para acceder al cr+®dito.</p><p>-La Directiva</p>',0,20.00,0,0.00,0,0,'dolares',10,0,'meses');
 /*!40000 ALTER TABLE `productos_financieros` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -897,7 +898,7 @@ CREATE TABLE `sesiones_mensuales` (
 
 LOCK TABLES `sesiones_mensuales` WRITE;
 /*!40000 ALTER TABLE `sesiones_mensuales` DISABLE KEYS */;
-INSERT INTO `sesiones_mensuales` VALUES ('5f848c37-dd70-4298-a76c-572257ca3493',1,'2026-06-28','Sesi+¦n Ordinaria Junio 2026','abierta','2026-06-24 09:23:45',NULL,NULL,NULL,0.00,0.00,0.00);
+INSERT INTO `sesiones_mensuales` VALUES ('1c5451f8-1b26-47fa-bae1-ed4bb2ddfc66',2,'2026-07-31','Sesi+¦n Ordinaria Julio 2026','abierta','2026-06-24 10:02:19',NULL,NULL,NULL,0.00,0.00,0.00),('5f848c37-dd70-4298-a76c-572257ca3493',1,'2026-06-28','Sesi+¦n Ordinaria Junio 2026','cerrada','2026-06-24 09:23:45','2026-06-24 10:02:05','516363c5-c79a-4491-83b4-b8303ce1f286','acta_sesion_1_20260624.html',70.00,0.00,70.00);
 /*!40000 ALTER TABLE `sesiones_mensuales` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1063,4 +1064,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-24  9:28:36
+-- Dump completed on 2026-06-24 10:10:35
