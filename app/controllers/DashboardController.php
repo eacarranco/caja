@@ -50,4 +50,11 @@ class DashboardController extends BaseController {
             'chartTipoData' => $chartTipoData,
         ]);
     }
+
+    public function contarPendientes() {
+        $this->requireAuth();
+        $creditos = $this->db->query("SELECT COUNT(*) FROM creditos WHERE estado IN ('ingresado','pendiente')")->fetchColumn();
+        $inversiones = $this->db->query("SELECT COUNT(*) FROM inversiones WHERE estado = 'pendiente'")->fetchColumn();
+        $this->json(['creditos' => (int)$creditos, 'inversiones' => (int)$inversiones]);
+    }
 }

@@ -55,12 +55,35 @@ function actualizarNotifBadge() {
         }).catch(function() {});
 }
 
+function actualizarBandejaBadge() {
+    fetch(BASE_URL + '/dashboard/contarPendientes')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            var total = (d.creditos || 0) + (d.inversiones || 0);
+            ['Total', 'Creditos', 'Inversiones'].forEach(function(t) {
+                var el = document.getElementById('bandejaBadge' + t);
+                if (el) {
+                    var count = t === 'Total' ? total : d[t.toLowerCase() + 's'] || 0;
+                    if (count > 0) {
+                        el.textContent = Math.min(count, 99);
+                        el.classList.remove('d-none');
+                    } else {
+                        el.classList.add('d-none');
+                    }
+                }
+            });
+        }).catch(function() {});
+}
+
+document.addEventListener('DOMContentLoaded', actualizarBandejaBadge);
+
 if (typeof Pusher !== 'undefined' && typeof PUSHER_KEY !== 'undefined' && PUSHER_KEY) {
     var pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER || 'us2' });
     var channel = pusher.subscribe('canal-general');
     channel.bind('notificacion', function(data) {
         if (typeof data === 'string') { try { data = JSON.parse(data); } catch(e) { return; } }
         actualizarNotifBadge();
+        actualizarBandejaBadge();
         // Check if the notification is for this user
         var paraMi = false;
         if (!data.id_socio && !data.id_usuario) {
@@ -107,4 +130,5 @@ if (typeof Pusher !== 'undefined' && typeof PUSHER_KEY !== 'undefined' && PUSHER
     });
 } else {
     setInterval(actualizarNotifBadge, 30000);
+    setInterval(actualizarBandejaBadge, 30000);
 }

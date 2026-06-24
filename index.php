@@ -32,6 +32,7 @@ $urlParts = explode('/', $url);
 $routeMap = [
     '' => ['controller' => 'DashboardController', 'method' => 'index'],
     'dashboard' => ['controller' => 'DashboardController', 'method' => 'index'],
+    'dashboard/contarPendientes' => ['controller' => 'DashboardController', 'method' => 'contarPendientes'],
     'documento' => ['controller' => 'DocumentoController', 'method' => 'comprobante'],
     'documento/estadoCuenta' => ['controller' => 'DocumentoController', 'method' => 'estadoCuenta'],
     'documento/constanciaSocio' => ['controller' => 'DocumentoController', 'method' => 'constanciaSocio'],

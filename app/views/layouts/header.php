@@ -248,16 +248,19 @@ if ($loggedIn) {
                         <a href="#" class="sidebar-link">
                             <i class="bi bi-inboxes-fill"></i>
                             <span>Bandeja aprobación</span>
+                            <span id="bandejaBadgeTotal" class="badge bg-danger rounded-pill ms-auto d-none">0</span>
                         </a>
                         <ul class="submenu <?= $bandejaSubActive ?>">
                             <?php if ($uid && RBAC::tienePermiso($uid, 'credito.aprobar')): ?>
-                            <li class="submenu-item <?= mazerActive('credito/bandejaAprobados') ?>">
-                                <a href="<?= $baseUrl ?>/credito/bandejaAprobados" class="submenu-link">Créditos</a>
+                            <li class="submenu-item d-flex justify-content-between align-items-center <?= mazerActive('credito/bandejaAprobados') ?>">
+                                <a href="<?= $baseUrl ?>/credito/bandejaAprobados" class="submenu-link flex-grow-1">Créditos</a>
+                                <span id="bandejaBadgeCreditos" class="badge bg-warning rounded-pill me-2 d-none">0</span>
                             </li>
                             <?php endif; ?>
                             <?php if ($uid && RBAC::tienePermiso($uid, 'inversion.aprobar')): ?>
-                            <li class="submenu-item <?= mazerActive('inversion/pendientes') ?>">
-                                <a href="<?= $baseUrl ?>/inversion/pendientes" class="submenu-link">Inversiones</a>
+                            <li class="submenu-item d-flex justify-content-between align-items-center <?= mazerActive('inversion/pendientes') ?>">
+                                <a href="<?= $baseUrl ?>/inversion/pendientes" class="submenu-link flex-grow-1">Inversiones</a>
+                                <span id="bandejaBadgeInversiones" class="badge bg-warning rounded-pill me-2 d-none">0</span>
                             </li>
                             <?php endif; ?>
                         </ul>
