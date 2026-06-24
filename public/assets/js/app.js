@@ -68,15 +68,25 @@ function showToast(message, type) {
     if (!container) {
         container = document.createElement('div');
         container.className = 'toast-container position-fixed top-0 end-0 p-3';
+        container.style.zIndex = '9999';
         document.body.appendChild(container);
     }
     var toast = document.createElement('div');
-    toast.className = 'toast align-items-center text-bg-' + type + ' border-0 show';
+    toast.className = 'toast align-items-center text-bg-' + type + ' border-0';
     toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
     toast.innerHTML = '<div class="d-flex"><div class="toast-body">' + message + '</div>' +
         '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>';
     container.appendChild(toast);
-    setTimeout(function() { toast.remove(); }, 5000);
+    if (typeof bootstrap !== 'undefined' && bootstrap.Toast) {
+        var bsToast = new bootstrap.Toast(toast, { autohide: true, delay: 5000 });
+        bsToast.show();
+        toast.addEventListener('hidden.bs.toast', function() { toast.remove(); });
+    } else {
+        toast.classList.add('show');
+        setTimeout(function() { toast.remove(); }, 5000);
+    }
 }
 
 function actualizarNotifBadge() {
