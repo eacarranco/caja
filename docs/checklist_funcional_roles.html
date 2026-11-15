@@ -1,0 +1,633 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><title>Checklist funcional por roles RBAC — Caja Pujota-Simbaña</title><style>@page { size: A4; margin: 13mm 12mm 13mm 12mm; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    color: #24323d;
+    font-size: 9.4pt;
+    line-height: 1.38;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+h1, h2, h3, h4 { margin: 0; color: #0b3c5d; font-weight: 700; }
+p { margin: 0; }
+.small { font-size: 8pt; color: #667784; }
+.muted { color: #667784; }
+.section { page-break-before: always; }
+.section:first-of-type { page-break-before: avoid; }
+.cover {
+    min-height: 260mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0;
+}
+.cover-band { background: #0b3c5d; color: #fff; padding: 8mm 10mm 7mm; border-bottom: 2.2mm solid #d9a441; }
+.brand { display: flex; align-items: center; gap: 5mm; }
+.brand-mark {
+    width: 15mm; height: 15mm; border-radius: 4mm;
+    background: #fff; color: #0b3c5d;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13pt; font-weight: 800; letter-spacing: .5px;
+    border: 1.2mm solid #d9a441;
+}
+.brand-name { font-size: 8pt; text-transform: uppercase; letter-spacing: 1.1px; opacity: .85; }
+.brand-title { font-size: 13pt; font-weight: 700; line-height: 1.15; }
+.cover-tag {
+    margin-left: auto; border: .35mm solid rgba(255,255,255,.55);
+    padding: 2mm 3.5mm; border-radius: 2mm; font-size: 7.5pt;
+    letter-spacing: .4px; text-transform: uppercase;
+}
+.cover-main { padding: 16mm 10mm 0; }
+.eyebrow { color: #1d7874; font-weight: 700; font-size: 9pt; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 5mm; }
+.cover h1 { font-size: 31pt; line-height: 1.08; letter-spacing: -.4px; margin-bottom: 6mm; }
+.cover .lead { font-size: 12.5pt; color: #425563; line-height: 1.45; max-width: 145mm; }
+.cover-stats { display: flex; gap: 4mm; margin-top: 11mm; }
+.cover-stats > div {
+    flex: 1; background: #f4f7f9; border: .25mm solid #d7e0e6;
+    border-top: 1.2mm solid #1d7874; border-radius: 2mm;
+    padding: 4mm 3mm; text-align: center;
+}
+.cover-stats strong { display: block; font-size: 19pt; color: #0b3c5d; line-height: 1; }
+.cover-stats span { display: block; font-size: 7.5pt; color: #667784; margin-top: 1.5mm; text-transform: uppercase; letter-spacing: .6px; }
+.cover-fields { padding: 0 10mm; }
+.cover-fields .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm 8mm; }
+.field label { display: block; font-size: 7.2pt; color: #667784; text-transform: uppercase; letter-spacing: .7px; margin-bottom: 2mm; }
+.field .line { border-bottom: .3mm solid #9fb0bb; height: 5.5mm; }
+.cover-footer { margin: 9mm 10mm 0; padding-top: 4mm; border-top: .25mm solid #d7e0e6; font-size: 7.2pt; color: #667784; display: flex; justify-content: space-between; }
+.page-title { font-size: 18pt; margin-bottom: 2mm; }
+.page-sub { font-size: 9.5pt; color: #667784; margin-bottom: 7mm; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+.card { background: #f7f9fa; border: .25mm solid #d7e0e6; border-radius: 2mm; padding: 5mm; }
+.card h3 { font-size: 10.5pt; margin-bottom: 3mm; }
+.card p, .card li { font-size: 8.6pt; color: #425563; }
+.card ul, .card ol { margin: 0; padding-left: 4.5mm; }
+.card li { margin-bottom: 2mm; }
+.note { background: #fff8e8; border-left: 1.2mm solid #d9a441; padding: 4mm 4.5mm; border-radius: 0 2mm 2mm 0; font-size: 8.6pt; color: #5b4a23; }
+.note strong { color: #0b3c5d; }
+.kpi-row { display: flex; gap: 4mm; margin: 6mm 0; }
+.kpi { flex: 1; border: .25mm solid #d7e0e6; border-radius: 2mm; padding: 3.5mm; background: #fff; }
+.kpi strong { display: block; color: #0b3c5d; font-size: 14pt; }
+.kpi span { font-size: 7.5pt; color: #667784; }
+table { width: 100%; border-collapse: collapse; }
+.summary-table th, .summary-table td { border: .25mm solid #d7e0e6; padding: 2.6mm 2.8mm; vertical-align: top; }
+.summary-table th { background: #0b3c5d; color: #fff; font-size: 7.6pt; text-transform: uppercase; letter-spacing: .35px; text-align: left; }
+.summary-table td { font-size: 8.1pt; }
+.summary-table tr:nth-child(even) td { background: #f7f9fa; }
+.coverage-table { font-size: 7.3pt; }
+.coverage-table th, .coverage-table td { border: .25mm solid #d7e0e6; padding: 1.85mm 1.4mm; text-align: center; }
+.coverage-table th { background: #0b3c5d; color: #fff; font-size: 6.6pt; line-height: 1.2; }
+.coverage-table td:first-child, .coverage-table th:first-child { text-align: left; }
+.coverage-table td:first-child { font-weight: 600; color: #0b3c5d; }
+.coverage-table .full { color: #1d7874; font-weight: 700; }
+.coverage-table .partial { color: #b07a1e; font-weight: 700; }
+.coverage-table .none { color: #b9c4cb; }
+.legend { display: flex; gap: 6mm; font-size: 7.6pt; color: #667784; margin-top: 3mm; }
+.legend b { color: #24323d; }
+.role-section { page-break-before: always; }
+.role-head {
+    background: #0b3c5d; color: #fff;
+    border-radius: 2.5mm;
+    padding: 5mm 6mm;
+    margin-bottom: 4mm;
+    border-bottom: 1.4mm solid #d9a441;
+}
+.role-head-top { display: flex; align-items: center; gap: 4mm; }
+.role-code {
+    background: #d9a441; color: #0b3c5d;
+    width: 13mm; height: 13mm; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 10pt;
+}
+.role-name { font-size: 18pt; line-height: 1.1; }
+.role-level { margin-left: auto; text-align: right; font-size: 7.2pt; text-transform: uppercase; letter-spacing: .7px; opacity: .9; }
+.role-level strong { display: block; font-size: 9pt; color: #fff; }
+.role-purpose { font-size: 8.8pt; line-height: 1.45; margin-top: 3.5mm; color: #e9f0f4; }
+.role-meta { display: flex; gap: 3mm; flex-wrap: wrap; margin-top: 3.5mm; }
+.pill { background: rgba(255,255,255,.13); border: .25mm solid rgba(255,255,255,.3); border-radius: 10mm; padding: 1.3mm 3mm; font-size: 7.1pt; color: #fff; }
+.permissions { margin-top: 3mm; font-size: 7pt; color: #cfe0e8; }
+.permissions code { background: rgba(255,255,255,.12); padding: .6mm 1.4mm; border-radius: 1mm; margin: 0 .6mm; color: #fff; }
+.role-count { display: flex; justify-content: space-between; align-items: center; margin: 0 0 3mm; font-size: 8pt; color: #667784; }
+.role-count strong { color: #0b3c5d; }
+.func-table { page-break-inside: auto; }
+.func-table thead { display: table-header-group; }
+.func-table tr { page-break-inside: avoid; }
+.func-table th {
+    background: #1d7874; color: #fff;
+    font-size: 7.4pt; text-transform: uppercase; letter-spacing: .4px;
+    padding: 2.6mm 2.4mm; text-align: left; border: .25mm solid #1a6a67;
+}
+.func-table td {
+    border: .25mm solid #d7e0e6;
+    padding: 2.4mm 2.4mm;
+    vertical-align: top;
+    font-size: 7.9pt;
+    line-height: 1.35;
+}
+.func-table tbody tr:nth-child(even) td { background: #f7f9fa; }
+.col-item { width: 11%; white-space: nowrap; }
+.col-func { width: 21%; color: #0b3c5d; }
+.col-desc { width: 38%; }
+.col-example { width: 30%; color: #425563; }
+.item-line { display: inline-flex; align-items: center; gap: 2mm; }
+.cb {
+    display: inline-block; width: 3.2mm; height: 3.2mm;
+    border: .35mm solid #425563; border-radius: .5mm;
+    background: #fff; vertical-align: middle;
+}
+.restriction {
+    margin: 0 0 3mm; font-size: 8pt; color: #7a4a18;
+    background: #fff4e5; border-left: 1.2mm solid #d9a441;
+    padding: 3mm 4mm; border-radius: 0 1.5mm 1.5mm 0;
+}
+.continuation { page-break-before: always; }
+.continuation-head {
+    display: flex; align-items: center; gap: 3mm;
+    background: #f4f7f9; border: .25mm solid #d7e0e6;
+    border-left: 1.2mm solid #1d7874;
+    border-radius: 0 1.5mm 1.5mm 0;
+    padding: 2.5mm 3.5mm; margin-bottom: 3mm;
+    font-size: 8.2pt; color: #0b3c5d; font-weight: 600;
+}
+.continuation-head .role-code { width: 8.5mm; height: 8.5mm; font-size: 8pt; }
+.notes-box {
+    margin-top: 5mm; border: .25mm solid #d7e0e6; border-radius: 2mm;
+    padding: 3.5mm 4mm; background: #fff; page-break-inside: avoid;
+}
+.notes-title { font-size: 8.5pt; font-weight: 700; color: #0b3c5d; margin-bottom: 2.5mm; }
+.notes-priority { display: flex; gap: 7mm; flex-wrap: wrap; font-size: 7.8pt; color: #425563; margin-bottom: 2.5mm; }
+.notes-line { border-bottom: .25mm solid #c9d5dc; height: 6mm; }
+.decision {
+    margin-top: 4mm; border: .55mm dashed #1d7874; border-radius: 2.5mm;
+    padding: 3.2mm 4mm; page-break-inside: avoid; background: #fbfdfd;
+}
+.decision-head { display: flex; align-items: center; gap: 3mm; margin-bottom: 2mm; }
+.decision-icon {
+    width: 7mm; height: 7mm; border-radius: 50%;
+    background: #1d7874; color: #fff; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 9pt; flex: 0 0 auto;
+}
+.decision-title { font-size: 9.5pt; font-weight: 700; color: #0b3c5d; }
+.decision-sub { font-size: 7pt; color: #667784; }
+.options { display: flex; gap: 6mm; flex-wrap: wrap; margin: 1.5mm 0 2.5mm; }
+.options label { display: flex; align-items: center; gap: 2mm; font-size: 8pt; }
+.obs-label { font-size: 7pt; color: #667784; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 1mm; }
+.line { border-bottom: .3mm solid #9fb0bb; height: 5mm; }
+.sign-row { display: flex; gap: 8mm; margin-top: 2.5mm; }
+.sign-field { flex: 1; }
+.sign-field.short { flex: 0 0 40mm; }
+.sign-field span { display: block; font-size: 6.8pt; color: #667784; margin-top: 1mm; }
+.acceptance-table th, .acceptance-table td { border: .25mm solid #d7e0e6; padding: 2.4mm; text-align: center; }
+.acceptance-table th { background: #0b3c5d; color: #fff; font-size: 7.3pt; text-transform: uppercase; }
+.acceptance-table td:first-child, .acceptance-table th:first-child { text-align: left; }
+.acceptance-table td { font-size: 8pt; }
+.acceptance-table .left { text-align: left; }
+.acceptance-table .cb { margin: 0 auto; }
+.final-sign { display: flex; gap: 10mm; margin-top: 14mm; }
+.final-sign > div { flex: 1; text-align: center; }
+.final-sign .line { height: 16mm; }
+.final-sign span { display: block; font-size: 7.5pt; color: #667784; margin-top: 2mm; }
+.next-steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 3mm; margin-top: 4mm; }
+.step { background: #f7f9fa; border: .25mm solid #d7e0e6; border-radius: 2mm; padding: 3.5mm; font-size: 8pt; }
+.step strong { display: block; color: #0b3c5d; margin-bottom: 1mm; }
+.toc { display: grid; grid-template-columns: 1fr 1fr; gap: 2mm 8mm; font-size: 8.5pt; }
+.toc div { display: flex; justify-content: space-between; border-bottom: .2mm dotted #c9d5dc; padding: 1.5mm 0; }
+.toc span:last-child { color: #667784; }
+.badge { display: inline-block; background: #e8f1f2; color: #1d7874; border-radius: 8mm; padding: .8mm 2.4mm; font-size: 6.8pt; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }</style></head><body>
+<section class="cover">
+    <div class="cover-band">
+        <div class="brand">
+            <div class="brand-mark">CPS</div>
+            <div>
+                <div class="brand-name">Caja de Ahorro y Crédito Solidaria Familiar</div>
+                <div class="brand-title">Pujota-Simbaña</div>
+            </div>
+            <div class="cover-tag">Documento de alcance · v1.0</div>
+        </div>
+    </div>
+    <div class="cover-main">
+        <div class="eyebrow">Checklist funcional por roles RBAC</div>
+        <h1>Seleccione las funcionalidades<br>para su nueva instancia</h1>
+        <p class="lead">Una vista clara de todo lo que el sistema puede hacer, organizada desde el rol de menor alcance hasta el rol de mayor alcance, con ejemplos concretos y casillas de selección.</p>
+        <div class="cover-stats">
+            <div><strong>7</strong><span>roles RBAC</span></div>
+            <div><strong>34</strong><span>permisos</span></div>
+            <div><strong>29</strong><span>tablas</span></div>
+            <div><strong>100%</strong><span>web</span></div>
+        </div>
+    </div>
+    <div class="cover-fields">
+        <div class="fields-grid">
+            <div class="field"><label>Cliente / institución</label><div class="line"></div></div>
+            <div class="field"><label>Nombre de la instancia</label><div class="line"></div></div>
+            <div class="field"><label>Responsable del cliente</label><div class="line"></div></div>
+            <div class="field"><label>Cargo / área</label><div class="line"></div></div>
+            <div class="field"><label>Asesor comercial / implementador</label><div class="line"></div></div>
+            <div class="field"><label>Fecha de elaboración</label><div class="line">15/11/2026</div></div>
+        </div>
+    </div>
+    <div class="cover-footer">
+        <span>Documento confidencial · Uso comercial y de implementación</span>
+        <span>Versión 1.0 · 15/11/2026</span>
+    </div>
+</section>
+<section class="section">
+    <div class="page-title">Cómo usar este checklist</div>
+    <div class="page-sub">Un documento de descubrimiento y aceptación de alcance para la nueva instancia.</div>
+
+    <div class="grid-2">
+        <div class="card">
+            <h3>1. Recorra los roles en orden</h3>
+            <p>Los roles están ordenados de menor a mayor alcance funcional. El <strong>Analista Financiero</strong> cierra la lista porque es un rol <strong>endosable</strong>: hereda automáticamente todos los permisos del sistema.</p>
+        </div>
+        <div class="card">
+            <h3>2. Marque las funciones deseadas</h3>
+            <p>Cada fila tiene una casilla. Marque solo las funcionalidades que desea para esa instancia. Si no marca ninguna, se entiende que no se incluye el rol o que se revisará en una segunda sesión.</p>
+        </div>
+        <div class="card">
+            <h3>3. Complete la decisión por rol</h3>
+            <p>Al final de cada rol encontrará un cuadro para indicar si incluye todo, solo lo marcado o si no incluye el rol. Agregue observaciones y firme.</p>
+        </div>
+        <div class="card">
+            <h3>4. Firme el acta de alcance</h3>
+            <p>La última página resume la selección por rol. Con la firma del cliente y del proveedor, el alcance queda listo para convertirse en el backlog de implementación.</p>
+        </div>
+    </div>
+
+    <div class="note" style="margin-top:6mm">
+        <strong>Definición de terminado (DoD):</strong> una funcionalidad seleccionada se considera terminada cuando está configurada, probada con un usuario del rol correspondiente y aceptada por el cliente en la demostración.
+    </div>
+
+    <div class="grid-2" style="margin-top:6mm">
+        <div class="card">
+            <h3>Glosario mínimo</h3>
+            <ul>
+                <li><strong>RBAC:</strong> control de acceso basado en roles; cada rol agrupa permisos.</li>
+                <li><strong>Rol:</strong> conjunto de responsabilidades asignadas a un usuario.</li>
+                <li><strong>Permiso:</strong> autorización concreta para ejecutar una acción.</li>
+                <li><strong>Endosable:</strong> rol que hereda todos los permisos del sistema.</li>
+                <li><strong>Instancia:</strong> copia configurada del sistema para una institución.</li>
+            </ul>
+        </div>
+        <div class="card">
+            <h3>Cómo se convierte en backlog</h3>
+            <p>Cada función marcada se transforma en una historia de usuario con criterios de aceptación. Las funciones no marcadas quedan fuera del alcance de la primera entrega y pueden incorporarse en una fase posterior.</p>
+            <p style="margin-top:2mm"><strong>Épicas sugeridas:</strong> seguridad y roles, socios, operación de sesión y cobros, créditos e inversiones, reportes y auditoría.</p>
+        </div>
+    </div>
+    <div class="note" style="margin-top:6mm"><strong>Nota de alcance:</strong> la matriz de permisos puede ajustarse por institución. El checklist permite seleccionar funciones específicas, incluso dentro de un mismo rol; las funciones no seleccionadas quedan fuera de la primera entrega.</div>
+</section>
+<section class="section">
+    <div class="page-title">Mapa de roles y alcance</div>
+    <div class="page-sub">Una lectura rápida de quién hace qué antes de entrar al detalle.</div>
+    <table class="summary-table">
+        <thead><tr><th style="width:8%">Rol</th><th style="width:18%">Nombre</th><th style="width:42%">Propósito</th><th style="width:22%">Módulos principales</th><th style="width:10%">Funciones</th></tr></thead>
+        <tbody><tr><td><strong>R1</strong></td><td><strong>Socio</strong></td><td>Acceso al portal personal para consultar su situación financiera, solicitar servicios y mantenerse informado, sin acceso a la operación administrativa.</td><td>Portal · Ahorro · Créditos · Inversiones · Multas</td><td class="left"><strong>15</strong></td></tr><tr><td><strong>R2</strong></td><td><strong>Asistente de Tesorería</strong></td><td>Apoyo en la operación diaria de caja: consulta de socios, sesiones, cobros, retiros e inversiones, sin cierre de sesión ni aprobaciones.</td><td>Socios · Sesiones · Cobros · Retiros · Inversiones · Reportes</td><td class="left"><strong>17</strong></td></tr><tr><td><strong>R3</strong></td><td><strong>Secretario/a</strong></td><td>Gestión documental y administrativa de socios, credenciales, sesiones y soporte a tesorería, con control de estados y certificados.</td><td>Socios · Documentos · Sesiones · Cobros · Asistencias · Retiros · Reportes</td><td class="left"><strong>16</strong></td></tr><tr><td><strong>R4</strong></td><td><strong>Tesorero</strong></td><td>Ejecución financiera completa: sesiones, cobros, cierre de caja, créditos, inversiones, retiros y reportes financieros.</td><td>Sesiones · Cobros · Créditos · Inversiones · Retiros · Reportes · Caja</td><td class="left"><strong>21</strong></td></tr><tr><td><strong>R5</strong></td><td><strong>Presidente</strong></td><td>Dirección y control: aprobación de créditos y excedentes, supervisión de cartera, anulación de cobros, cierre de sesión y reportes de alto nivel.</td><td>Socios · Créditos · Excedentes · Reportes · Caja</td><td class="left"><strong>13</strong></td></tr><tr><td><strong>R6</strong></td><td><strong>Administrador Técnico</strong></td><td>Gobierno de usuarios, roles, permisos, catálogos e imagen corporativa. Su matriz base no incluye operación financiera.</td><td>Usuarios · Roles · Catálogos · Imagen · Socios</td><td class="left"><strong>13</strong></td></tr><tr><td><strong>R7</strong></td><td><strong>Analista Financiero</strong></td><td>Rol endosable: hereda automáticamente todos los permisos. Configura las reglas financieras, ejecuta cálculos y supervisa la operación completa.</td><td>Todo el sistema</td><td class="left"><strong>16</strong></td></tr></tbody></table>
+    <div class="page-title" style="font-size:13pt;margin-top:8mm">Matriz de cobertura</div>
+    <div class="page-sub" style="margin-bottom:3mm">Vista sintética por rol. <strong>●</strong> completa · <strong>◐</strong> parcial · <strong>—</strong> no aplica.</div>
+    <table class="coverage-table">
+        <thead><tr><th style="width:24%">Módulo</th><th>Socio</th><th>Asist. Tesorería</th><th>Secretario/a</th><th>Tesorero</th><th>Presidente</th><th>Admin. Técnico</th><th>Analista Fin.</th></tr></thead><tbody><tr><td>Seguridad y acceso</td><td class="full">●</td><td class="full">●</td><td class="full">●</td><td class="full">●</td><td class="full">●</td><td class="full">●</td><td class="full">●</td></tr><tr><td>Socios</td><td class="none">—</td><td class="partial">◐</td><td class="full">●</td><td class="full">●</td><td class="full">●</td><td class="full">●</td><td class="full">●</td></tr><tr><td>Sesiones y check-in</td><td class="none">—</td><td class="full">●</td><td class="full">●</td><td class="full">●</td><td class="partial">◐</td><td class="none">—</td><td class="full">●</td></tr><tr><td>Cobros</td><td class="none">—</td><td class="full">●</td><td class="partial">◐</td><td class="full">●</td><td class="partial">◐</td><td class="none">—</td><td class="full">●</td></tr><tr><td>Créditos</td><td class="partial">◐</td><td class="none">—</td><td class="none">—</td><td class="full">●</td><td class="full">●</td><td class="none">—</td><td class="full">●</td></tr><tr><td>Inversiones</td><td class="partial">◐</td><td class="full">●</td><td class="none">—</td><td class="full">●</td><td class="none">—</td><td class="none">—</td><td class="full">●</td></tr><tr><td>Cálculos</td><td class="partial">◐</td><td class="none">—</td><td class="none">—</td><td class="none">—</td><td class="partial">◐</td><td class="none">—</td><td class="full">●</td></tr><tr><td>Reportes</td><td class="none">—</td><td class="full">●</td><td class="partial">◐</td><td class="full">●</td><td class="full">●</td><td class="none">—</td><td class="full">●</td></tr><tr><td>Configuración</td><td class="none">—</td><td class="none">—</td><td class="none">—</td><td class="none">—</td><td class="none">—</td><td class="full">●</td><td class="full">●</td></tr><tr><td>Portal del socio</td><td class="full">●</td><td class="full">●</td><td class="full">●</td><td class="full">●</td><td class="full">●</td><td class="full">●</td><td class="full">●</td></tr></tbody></table>
+</section>
+<section class="section">
+    <div class="page-title">Servicios transversales</div>
+    <div class="page-sub">Funciones de base que acompañan a todos los roles. La selección de este paquete se registra en el acta final.</div>
+    <table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-01</strong></span></td><td class="col-func"><strong>Acceso seguro por cédula</strong></td><td class="col-desc">Inicio de sesión con cédula y contraseña, bloqueo tras 3 intentos fallidos y cierre automático por inactividad.</td><td class="col-example">La tesorera ingresa con su cédula y atiende la sesión; tras 30 minutos sin actividad, el sistema cierra la sesión.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-02</strong></span></td><td class="col-func"><strong>Verificación 2FA</strong></td><td class="col-desc">Segundo factor con PIN de 6 dígitos enviado al correo, obligatorio según la configuración del usuario.</td><td class="col-example">El presidente recibe un PIN en su correo y lo confirma para completar el acceso.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-03</strong></span></td><td class="col-func"><strong>Recuperación de contraseña</strong></td><td class="col-desc">Enlace con token temporal enviado por correo para restablecer la contraseña sin intervención del administrador.</td><td class="col-example">Un socio olvida su clave y la restablece desde el enlace “Olvidé mi contraseña”.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-04</strong></span></td><td class="col-func"><strong>Cambio y vigencia de contraseña</strong></td><td class="col-desc">Cambio voluntario o forzado de contraseña y control de expiración cada 180 días.</td><td class="col-example">El sistema solicita actualizar la clave cuando se cumple el periodo de vigencia.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-05</strong></span></td><td class="col-func"><strong>Panel de inicio</strong></td><td class="col-desc">Dashboard con indicadores, últimos cobros, sesiones y gráficos para el staff; portal resumen para el socio.</td><td class="col-example">El tesorero ve la recaudación del mes; el socio ve su ahorro y sus valores pendientes.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-06</strong></span></td><td class="col-func"><strong>Notificaciones</strong></td><td class="col-desc">Bandeja de entrada, contador de no leídas, archivar, restaurar, papelera y avisos en tiempo real con actualización periódica.</td><td class="col-example">El socio recibe el aviso de crédito aprobado; el staff ve el contador de notificaciones nuevas.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-07</strong></span></td><td class="col-func"><strong>Documentos y comprobantes</strong></td><td class="col-desc">Comprobantes de cobro, estados de cuenta, constancias, libres deuda, actas de cierre y comprobantes por sesión o socio.</td><td class="col-example">Se imprime el comprobante de un aporte de USD 10 y se entrega al socio.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-08</strong></span></td><td class="col-func"><strong>Gestión documental segura</strong></td><td class="col-desc">Carga, descarga y control de acceso a archivos PDF, imágenes y documentos de oficina, con almacenamiento fuera del directorio público.</td><td class="col-example">Secretaría adjunta el PDF firmado de un crédito y solo los roles autorizados pueden verlo.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-09</strong></span></td><td class="col-func"><strong>Capital de Caja</strong></td><td class="col-desc">Libro mayor con saldo anterior y posterior, filtros por fecha y categoría, resumen y exportación a CSV, XLSX y PDF.</td><td class="col-example">Al cierre del mes se revisa el saldo de caja y se descarga el estado de cuenta.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-10</strong></span></td><td class="col-func"><strong>Certificados</strong></td><td class="col-desc">Emisión de estado de cuenta, constancia de socio activo y certificado de libre deuda.</td><td class="col-example">Un socio solicita una constancia para un trámite bancario y se genera en PDF.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-11</strong></span></td><td class="col-func"><strong>Auditoría e integridad</strong></td><td class="col-desc">Historial de operaciones con usuario, fecha, IP y hashes SHA-256 en cobros y socios para trazabilidad.</td><td class="col-example">Se audita quién anuló un cobro, cuándo y con qué motivo.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-12</strong></span></td><td class="col-func"><strong>Activación de cuenta</strong></td><td class="col-desc">Enlace de bienvenida con token para que el socio cree su contraseña y active su acceso.</td><td class="col-example">Un socio nuevo activa su cuenta desde el correo enviado por la caja.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-13</strong></span></td><td class="col-func"><strong>Consulta de multas</strong></td><td class="col-desc">Consulta y detalle de multas con estado, monto, motivo y justificación; el alcance depende del rol.</td><td class="col-example">El socio revisa una multa por inasistencia de USD 5 y su estado actual.</td></tr></tbody></table>
+</section>
+    <section class="role-section">
+        <div class="role-head">
+            <div class="role-head-top">
+                <div class="role-code">R1</div>
+                <div class="role-name">Socio</div>
+                <div class="role-level">Nivel de alcance<strong>1 de 7 · Menor alcance</strong></div>
+            </div>
+            <div class="role-purpose">Acceso al portal personal para consultar su situación financiera, solicitar servicios y mantenerse informado, sin acceso a la operación administrativa.</div>
+            <div class="role-meta"><span class="pill">Portal</span><span class="pill">Ahorro</span><span class="pill">Créditos</span><span class="pill">Inversiones</span><span class="pill">Multas</span></div>
+            <div class="permissions"><strong>Permisos clave:</strong> <code>auth.login</code> <code>portal (autoservicio)</code> </div>
+        </div>
+        <div class="role-count"><span>Checklist de funcionalidades del rol</span><span><strong>15</strong> funciones desplegadas</span></div><table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-01</strong></span></td><td class="col-func"><strong>Portal de inicio</strong></td><td class="col-desc">Resumen de cuenta de ahorro, capital de inversión y valores pendientes de pago.</td><td class="col-example">Al ingresar, María ve USD 1.250 de ahorro, USD 500 de capital de inversión y USD 35 pendientes.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-02</strong></span></td><td class="col-func"><strong>Detalle de cuenta de ahorro</strong></td><td class="col-desc">Saldos obligatorio y excedente, movimientos y saldo corrido de la cuenta.</td><td class="col-example">Consulta sus aportes de enero a junio y el saldo después de cada movimiento.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-03</strong></span></td><td class="col-func"><strong>Detalle de capital de inversión</strong></td><td class="col-desc">Saldo disponible para invertir, inversiones registradas y movimientos del capital.</td><td class="col-example">Ve USD 500 disponibles y el detalle de una inversión activa a 6 meses.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-04</strong></span></td><td class="col-func"><strong>Historial de operaciones</strong></td><td class="col-desc">Últimos 100 movimientos con tipo, monto, fecha, referencia y saldo.</td><td class="col-example">Revisa el pago de su cuota de crédito de mayo y el saldo resultante.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-05</strong></span></td><td class="col-func"><strong>Valores pendientes</strong></td><td class="col-desc">Obligaciones de la sesión: cuota mensual, cuota de crédito y multas, con total a pagar.</td><td class="col-example">Consulta que en la próxima sesión debe pagar USD 25 entre aporte y multa.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-06</strong></span></td><td class="col-func"><strong>Solicitud de retiro de ahorro</strong></td><td class="col-desc">Registro de solicitud con monto, motivo, validación de saldo disponible y seguimiento del estado.</td><td class="col-example">Solicita retirar USD 100 para una emergencia y consulta si fue aprobado.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-07</strong></span></td><td class="col-func"><strong>Solicitud de crédito</strong></td><td class="col-desc">Asistente de tres pasos: simulación, condiciones y confirmación de la solicitud.</td><td class="col-example">Solicita USD 2.000 a 12 meses para capital de trabajo y recibe la confirmación de que su solicitud fue ingresada.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-08</strong></span></td><td class="col-func"><strong>Elegibilidad y garantes</strong></td><td class="col-desc">Validación de permanencia mínima, ahorro mínimo, destino del crédito y selección de garantes cuando el producto lo exige.</td><td class="col-example">El sistema indica que requiere 6 meses de permanencia y USD 100 de ahorro; el socio selecciona dos garantes.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-09</strong></span></td><td class="col-func"><strong>Simulador de crédito</strong></td><td class="col-desc">Cálculo en línea de cuotas y tabla de amortización con métodos simple, francés y alemán.</td><td class="col-example">Compara la cuota de un crédito de USD 3.000 a 24 meses con interés simple y francés.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-10</strong></span></td><td class="col-func"><strong>Catálogo y simulación de inversiones</strong></td><td class="col-desc">Consulta de productos de inversión activos, tasas, plazos y simulación de rendimiento.</td><td class="col-example">Simula una inversión de USD 500 a 6 meses al 6% anual y ve el rendimiento proyectado.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-11</strong></span></td><td class="col-func"><strong>Apertura de inversión</strong></td><td class="col-desc">Solicitud de inversión con monto, plazo, destino final y descuento del capital de inversión.</td><td class="col-example">Solicita una inversión de USD 500 a 6 meses con destino al capital de inversión.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-12</strong></span></td><td class="col-func"><strong>Retiro anticipado de inversión</strong></td><td class="col-desc">Cálculo del rendimiento devengado y de la penalidad por retiro anticipado antes de confirmar.</td><td class="col-example">Retira antes del vencimiento y ve cuánto recibe después de la penalidad.</td></tr></tbody></table><div class="continuation"><div class="continuation-head"><span class="role-code">R1</span><span>Socio · continuación del checklist</span></div><table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-13</strong></span></td><td class="col-func"><strong>Multas y justificación</strong></td><td class="col-desc">Consulta de multas propias, detalle y envío de justificación o impugnación con texto y archivo adjunto.</td><td class="col-example">Justifica una falta con un certificado médico en PDF y espera la revisión.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-14</strong></span></td><td class="col-func"><strong>Notificaciones del portal</strong></td><td class="col-desc">Avisos de sesiones, pagos, créditos, inversiones y resoluciones, con indicador de no leída.</td><td class="col-example">Recibe el aviso de aprobación de su crédito y el recordatorio de la próxima sesión.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>S-15</strong></span></td><td class="col-func"><strong>Seguridad de la cuenta</strong></td><td class="col-desc">Cambio de contraseña y activación de la cuenta mediante el enlace de bienvenida.</td><td class="col-example">Activa su cuenta desde el correo y cambia su contraseña cuando lo desee.</td></tr></tbody></table></div>
+    <div class="decision">
+        <div class="decision-head">
+            <span class="decision-icon">✓</span>
+            <div>
+                <div class="decision-title">Decisión del cliente · R1 — Socio</div>
+                <div class="decision-sub">Marque una opción para la instancia.</div>
+            </div>
+        </div>
+        <div class="options">
+            <label><span class="cb"></span> Incluir todo el rol</label>
+            <label><span class="cb"></span> Solo lo marcado</label>
+            <label><span class="cb"></span> No incluir</label>
+        </div>
+        <div class="obs">
+            <div class="obs-label">Observaciones / ajustes solicitados:</div>
+            <div class="line"></div>
+        </div>
+        <div class="sign-row">
+            <div class="sign-field"><div class="line"></div><span>Nombre y firma del cliente</span></div>
+            <div class="sign-field short"><div class="line"></div><span>Fecha</span></div>
+        </div>
+    </div>
+        <div class="notes-box">
+            <div class="notes-title">Notas y acuerdos de la sesión</div>
+            <div class="notes-priority"><span><strong>Prioridad:</strong> ☐ Alta &nbsp; ☐ Media &nbsp; ☐ Baja</span><span><strong>Responsable:</strong> ____________________</span></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+        </div>
+    </section>
+    <section class="role-section">
+        <div class="role-head">
+            <div class="role-head-top">
+                <div class="role-code">R2</div>
+                <div class="role-name">Asistente de Tesorería</div>
+                <div class="role-level">Nivel de alcance<strong>2 de 7 · Apoyo operativo</strong></div>
+            </div>
+            <div class="role-purpose">Apoyo en la operación diaria de caja: consulta de socios, sesiones, cobros, retiros e inversiones, sin cierre de sesión ni aprobaciones.</div>
+            <div class="role-meta"><span class="pill">Socios</span><span class="pill">Sesiones</span><span class="pill">Cobros</span><span class="pill">Retiros</span><span class="pill">Inversiones</span><span class="pill">Reportes</span></div>
+            <div class="permissions"><strong>Permisos clave:</strong> <code>cobro.aporte</code> <code>cobro.cuota_credito</code> <code>cobro.multa</code> <code>cobro.inversion</code> <code>socio.consultar</code> <code>socio.ver_financiero</code> <code>reporte.socios</code> <code>reporte.cobros</code> </div>
+        </div>
+        <div class="restriction"><strong>Fuera del alcance de este rol:</strong> No cierra ni reapertura sesiones, no aprueba créditos ni inversiones, y no edita la ficha del socio ni la configuración del sistema.</div><div class="role-count"><span>Checklist de funcionalidades del rol</span><span><strong>17</strong> funciones desplegadas</span></div><table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-01</strong></span></td><td class="col-func"><strong>Dashboard operativo</strong></td><td class="col-desc">Indicadores de socios activos, sesión en curso, cobros del mes y créditos vigentes.</td><td class="col-example">Al iniciar el día, revisa cuántos socios están activos y cuánto se recaudó en la última sesión.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-02</strong></span></td><td class="col-func"><strong>Consulta de socios</strong></td><td class="col-desc">Búsqueda y paginación por cédula, apellido o nombre, con ficha del socio y su estado.</td><td class="col-example">Busca a un socio por cédula para confirmar si está activo antes de registrar un cobro.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-03</strong></span></td><td class="col-func"><strong>Ficha financiera del socio</strong></td><td class="col-desc">Consulta de saldos de ahorro, capital de inversión, créditos, inversiones y movimientos.</td><td class="col-example">Verifica el saldo disponible de un socio antes de aprobar un retiro.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-04</strong></span></td><td class="col-func"><strong>Sesiones y check-in</strong></td><td class="col-desc">Listado, apertura, edición y registro de asistencia de los socios en la sesión.</td><td class="col-example">Registra la asistencia de 40 socios en la sesión mensual y marca quién llegó tarde.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-05</strong></span></td><td class="col-func"><strong>Obligaciones de sesión</strong></td><td class="col-desc">Generación automática de cuota mensual, cuotas de crédito vencidas y multas pendientes por socio.</td><td class="col-example">Al abrir la sesión, el sistema genera la deuda de cada socio según su estado.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-06</strong></span></td><td class="col-func"><strong>Registro de cobros</strong></td><td class="col-desc">Cobro de aportes obligatorios y excedentes, cuotas, multas e inversiones, con medio de pago y comprobante.</td><td class="col-example">Registra un aporte obligatorio de USD 10 y un excedente de USD 20 en efectivo.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-07</strong></span></td><td class="col-func"><strong>Pago de cuotas de crédito</strong></td><td class="col-desc">Aplicación del pago a la tabla de amortización y actualización del saldo del crédito.</td><td class="col-example">Cobra la cuota 4 de un crédito y el sistema marca la cuota como pagada.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-08</strong></span></td><td class="col-func"><strong>Historial de cobros por sesión</strong></td><td class="col-desc">Consulta de cobros registrados, anulados y comprobantes de la sesión.</td><td class="col-example">Revisa los cobros del día y reimprime el comprobante de un socio.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-09</strong></span></td><td class="col-func"><strong>Asistencias</strong></td><td class="col-desc">Listado con filtros por socio, tipo de asistencia y sesión.</td><td class="col-example">Consulta las faltas y retrasos de la última sesión para reportarlos a la secretaría.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-10</strong></span></td><td class="col-func"><strong>Retiros de ahorro</strong></td><td class="col-desc">Revisión, aprobación o rechazo de solicitudes de retiro con validación de saldo.</td><td class="col-example">Aprueba un retiro de USD 100 y el sistema descuenta el saldo disponible.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-11</strong></span></td><td class="col-func"><strong>Inversiones: operación</strong></td><td class="col-desc">Listado, apertura, depósito de capital, retiro anticipado y cierre de inversiones vencidas.</td><td class="col-example">Registra una inversión de USD 500 a 6 meses y luego cierra las inversiones vencidas del mes.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-12</strong></span></td><td class="col-func"><strong>Multas: consulta</strong></td><td class="col-desc">Listado y detalle de multas con estado, monto y motivo.</td><td class="col-example">Consulta las multas pendientes de un socio antes de su check-in.</td></tr></tbody></table><div class="continuation"><div class="continuation-head"><span class="role-code">R2</span><span>Asistente de Tesorería · continuación del checklist</span></div><table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-13</strong></span></td><td class="col-func"><strong>Reporte de socios</strong></td><td class="col-desc">Reporte de socios con datos de contacto, estado y saldos, con exportación CSV.</td><td class="col-example">Exporta el listado de socios activos para la campaña de comunicación.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-14</strong></span></td><td class="col-func"><strong>Reporte de cobros</strong></td><td class="col-desc">Reporte de cobros por rango de fechas, tipo y medio de pago, con exportación CSV.</td><td class="col-example">Descarga los cobros del mes para conciliar la caja.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-15</strong></span></td><td class="col-func"><strong>Certificados</strong></td><td class="col-desc">Emisión de estado de cuenta, constancia de socio y libre deuda.</td><td class="col-example">Genera una constancia de socio activo para un trámite personal.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-16</strong></span></td><td class="col-func"><strong>Capital de Caja y exportaciones</strong></td><td class="col-desc">Consulta del libro mayor, resumen por categoría y exportación CSV, XLSX y PDF.</td><td class="col-example">Revisa el saldo de caja y descarga el detalle para el informe mensual.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>A-17</strong></span></td><td class="col-func"><strong>Notificaciones y archivos</strong></td><td class="col-desc">Bandeja de notificaciones, consulta de comprobantes y descarga de archivos autorizados.</td><td class="col-example">Consulta el comprobante de un cobro y descarga el PDF de una inversión.</td></tr></tbody></table></div>
+    <div class="decision">
+        <div class="decision-head">
+            <span class="decision-icon">✓</span>
+            <div>
+                <div class="decision-title">Decisión del cliente · R2 — Asistente de Tesorería</div>
+                <div class="decision-sub">Marque una opción para la instancia.</div>
+            </div>
+        </div>
+        <div class="options">
+            <label><span class="cb"></span> Incluir todo el rol</label>
+            <label><span class="cb"></span> Solo lo marcado</label>
+            <label><span class="cb"></span> No incluir</label>
+        </div>
+        <div class="obs">
+            <div class="obs-label">Observaciones / ajustes solicitados:</div>
+            <div class="line"></div>
+        </div>
+        <div class="sign-row">
+            <div class="sign-field"><div class="line"></div><span>Nombre y firma del cliente</span></div>
+            <div class="sign-field short"><div class="line"></div><span>Fecha</span></div>
+        </div>
+    </div>
+        <div class="notes-box">
+            <div class="notes-title">Notas y acuerdos de la sesión</div>
+            <div class="notes-priority"><span><strong>Prioridad:</strong> ☐ Alta &nbsp; ☐ Media &nbsp; ☐ Baja</span><span><strong>Responsable:</strong> ____________________</span></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+        </div>
+    </section>
+    <section class="role-section">
+        <div class="role-head">
+            <div class="role-head-top">
+                <div class="role-code">R3</div>
+                <div class="role-name">Secretario/a</div>
+                <div class="role-level">Nivel de alcance<strong>3 de 7 · Gestión administrativa</strong></div>
+            </div>
+            <div class="role-purpose">Gestión documental y administrativa de socios, credenciales, sesiones y soporte a tesorería, con control de estados y certificados.</div>
+            <div class="role-meta"><span class="pill">Socios</span><span class="pill">Documentos</span><span class="pill">Sesiones</span><span class="pill">Cobros</span><span class="pill">Asistencias</span><span class="pill">Retiros</span><span class="pill">Reportes</span></div>
+            <div class="permissions"><strong>Permisos clave:</strong> <code>socio.registrar</code> <code>socio.editar</code> <code>socio.consultar</code> <code>socio.ver_financiero</code> <code>socio.cambiar_estado</code> <code>cobro.aporte</code> <code>cobro.anular</code> <code>reporte.socios</code> </div>
+        </div>
+        <div class="restriction"><strong>Fuera del alcance de este rol:</strong> No cierra ni reapertura sesiones, no registra cuotas de crédito, no aprueba créditos o inversiones, no elimina socios y no accede a la configuración del sistema.</div><div class="role-count"><span>Checklist de funcionalidades del rol</span><span><strong>16</strong> funciones desplegadas</span></div><table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-01</strong></span></td><td class="col-func"><strong>Dashboard</strong></td><td class="col-desc">Indicadores generales de socios, sesiones y cobros para la gestión administrativa.</td><td class="col-example">Al iniciar la jornada, revisa las solicitudes y los socios pendientes de activación.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-02</strong></span></td><td class="col-func"><strong>Registro de socios</strong></td><td class="col-desc">Alta con validación de cédula ecuatoriana, unicidad de cédula y correo, datos personales y representante para menores de edad.</td><td class="col-example">Registra a Juan Pérez con cédula 1712345678, correo y documento de identidad; el sistema crea su usuario y cuenta de ahorro.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-03</strong></span></td><td class="col-func"><strong>Edición de socios</strong></td><td class="col-desc">Actualización de datos personales, contacto, dirección, profesión y representante.</td><td class="col-example">Actualiza el teléfono y el correo de un socio que cambió de domicilio.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-04</strong></span></td><td class="col-func"><strong>Ficha integral del socio</strong></td><td class="col-desc">Consulta de datos personales, estado, saldos, créditos, inversiones y documentos.</td><td class="col-example">Revisa la ficha completa de un socio antes de emitir una constancia.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-05</strong></span></td><td class="col-func"><strong>Cambio de estado y acta</strong></td><td class="col-desc">Cambio de estado del socio con motivo y generación de acta en PDF.</td><td class="col-example">Marca a un socio como retirado y genera el acta de retiro para el archivo.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-06</strong></span></td><td class="col-func"><strong>Documentos de identidad</strong></td><td class="col-desc">Carga de foto, cédula anverso y reverso, documentos del representante y soportes del socio.</td><td class="col-example">Adjunta la cédula y la foto de un socio nuevo al expediente digital.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-07</strong></span></td><td class="col-func"><strong>Credenciales del socio</strong></td><td class="col-desc">Forzar cambio de contraseña, restablecer contraseña y reenviar el enlace de activación.</td><td class="col-example">Restablece el acceso de un socio que olvidó su contraseña y le envía una clave temporal.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-08</strong></span></td><td class="col-func"><strong>Sesiones y check-in</strong></td><td class="col-desc">Listado, apertura, edición y registro de asistencia de la sesión mensual.</td><td class="col-example">Abre la sesión y registra la asistencia de los socios presentes.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-09</strong></span></td><td class="col-func"><strong>Cobros de aportes</strong></td><td class="col-desc">Registro de aportes obligatorios y excedentes, con comprobante y actualización de saldos.</td><td class="col-example">Registra el aporte mensual de USD 10 de un socio y entrega el comprobante.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-10</strong></span></td><td class="col-func"><strong>Anulación de cobros</strong></td><td class="col-desc">Anulación de un cobro con motivo, reversión de saldos y registro en auditoría.</td><td class="col-example">Anula un cobro duplicado de USD 20 y deja el motivo registrado.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-11</strong></span></td><td class="col-func"><strong>Asistencias y justificaciones</strong></td><td class="col-desc">Listado de asistencias y aprobación o rechazo de justificaciones presentadas por los socios.</td><td class="col-example">Aprueba la justificación de una falta presentada con certificado médico.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-12</strong></span></td><td class="col-func"><strong>Retiros de ahorro</strong></td><td class="col-desc">Revisión, aprobación o rechazo de solicitudes de retiro con validación de saldo.</td><td class="col-example">Aprueba un retiro de USD 150 y el sistema descuenta el saldo del socio.</td></tr></tbody></table><div class="continuation"><div class="continuation-head"><span class="role-code">R3</span><span>Secretario/a · continuación del checklist</span></div><table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-13</strong></span></td><td class="col-func"><strong>Multas: consulta</strong></td><td class="col-desc">Listado y detalle de multas con estado, monto, motivo y soporte de justificación.</td><td class="col-example">Consulta una multa impugnada y su documento de respaldo.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-14</strong></span></td><td class="col-func"><strong>Reporte de socios</strong></td><td class="col-desc">Reporte de socios con datos de contacto, estado y saldos, con exportación CSV.</td><td class="col-example">Exporta el listado de socios para actualizar el padrón.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-15</strong></span></td><td class="col-func"><strong>Certificados</strong></td><td class="col-desc">Emisión de estado de cuenta, constancia de socio y libre deuda.</td><td class="col-example">Emite un certificado de libre deuda para un socio que lo solicita.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>C-16</strong></span></td><td class="col-func"><strong>Caja, notificaciones y archivos</strong></td><td class="col-desc">Consulta del capital de caja, bandeja de notificaciones y descarga de documentos autorizados.</td><td class="col-example">Revisa el saldo de caja y descarga el acta de cierre de la última sesión.</td></tr></tbody></table></div>
+    <div class="decision">
+        <div class="decision-head">
+            <span class="decision-icon">✓</span>
+            <div>
+                <div class="decision-title">Decisión del cliente · R3 — Secretario/a</div>
+                <div class="decision-sub">Marque una opción para la instancia.</div>
+            </div>
+        </div>
+        <div class="options">
+            <label><span class="cb"></span> Incluir todo el rol</label>
+            <label><span class="cb"></span> Solo lo marcado</label>
+            <label><span class="cb"></span> No incluir</label>
+        </div>
+        <div class="obs">
+            <div class="obs-label">Observaciones / ajustes solicitados:</div>
+            <div class="line"></div>
+        </div>
+        <div class="sign-row">
+            <div class="sign-field"><div class="line"></div><span>Nombre y firma del cliente</span></div>
+            <div class="sign-field short"><div class="line"></div><span>Fecha</span></div>
+        </div>
+    </div>
+        <div class="notes-box">
+            <div class="notes-title">Notas y acuerdos de la sesión</div>
+            <div class="notes-priority"><span><strong>Prioridad:</strong> ☐ Alta &nbsp; ☐ Media &nbsp; ☐ Baja</span><span><strong>Responsable:</strong> ____________________</span></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+        </div>
+    </section>
+    <section class="role-section">
+        <div class="role-head">
+            <div class="role-head-top">
+                <div class="role-code">R4</div>
+                <div class="role-name">Tesorero</div>
+                <div class="role-level">Nivel de alcance<strong>4 de 7 · Operación financiera</strong></div>
+            </div>
+            <div class="role-purpose">Ejecución financiera completa: sesiones, cobros, cierre de caja, créditos, inversiones, retiros y reportes financieros.</div>
+            <div class="role-meta"><span class="pill">Sesiones</span><span class="pill">Cobros</span><span class="pill">Créditos</span><span class="pill">Inversiones</span><span class="pill">Retiros</span><span class="pill">Reportes</span><span class="pill">Caja</span></div>
+            <div class="permissions"><strong>Permisos clave:</strong> <code>cobro.aporte</code> <code>cobro.cuota_credito</code> <code>cobro.multa</code> <code>cobro.inversion</code> <code>cobro.desembolso</code> <code>cobro.anular</code> <code>cobro.cierre_sesion</code> <code>credito.aprobar</code> <code>inversion.aprobar</code> <code>reporte.socios</code> <code>reporte.financiero</code> <code>reporte.cobros</code> </div>
+        </div>
+        <div class="restriction"><strong>Fuera del alcance de este rol:</strong> No configura productos ni parámetros financieros, no gestiona usuarios, roles o catálogos, y no cambia el estado del socio.</div><div class="role-count"><span>Checklist de funcionalidades del rol</span><span><strong>21</strong> funciones desplegadas</span></div><table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-01</strong></span></td><td class="col-func"><strong>Dashboard financiero</strong></td><td class="col-desc">Indicadores de recaudación, cartera, inversiones y sesiones del año.</td><td class="col-example">Revisa la recaudación del mes y el saldo de caja antes del cierre.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-02</strong></span></td><td class="col-func"><strong>Registro y edición de socios</strong></td><td class="col-desc">Alta y actualización de datos del socio para la operación financiera.</td><td class="col-example">Registra a un socio nuevo y corrige su correo antes de la primera sesión.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-03</strong></span></td><td class="col-func"><strong>Ficha financiera del socio</strong></td><td class="col-desc">Consulta de saldos, créditos, inversiones, ahorros y movimientos.</td><td class="col-example">Verifica el saldo disponible antes de aprobar un retiro o desembolso.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-04</strong></span></td><td class="col-func"><strong>Apertura y edición de sesiones</strong></td><td class="col-desc">Creación de sesiones ordinarias, extraordinarias o informativas, con validación de una ordinaria por mes.</td><td class="col-example">Abre la sesión ordinaria de julio y define fecha, hora y título.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-05</strong></span></td><td class="col-func"><strong>Check-in y obligaciones</strong></td><td class="col-desc">Registro de asistencia y generación automática de cuotas, créditos y multas por socio.</td><td class="col-example">Hace check-in a 40 socios y el sistema calcula la deuda de cada uno.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-06</strong></span></td><td class="col-func"><strong>Registro de cobros</strong></td><td class="col-desc">Cobro de aportes, excedentes, cuotas, multas, inversiones y otros conceptos, con medio de pago y comprobante.</td><td class="col-example">Registra un aporte, una cuota de crédito y una multa en la misma sesión.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-07</strong></span></td><td class="col-func"><strong>Pago de cuotas de crédito</strong></td><td class="col-desc">Aplicación del pago a la amortización, actualización del saldo y control de cuotas vencidas.</td><td class="col-example">Cobra la cuota 5 de un crédito y el sistema actualiza el saldo pendiente.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-08</strong></span></td><td class="col-func"><strong>Anulación de cobros</strong></td><td class="col-desc">Anulación con motivo, reversión de saldos y registro en auditoría.</td><td class="col-example">Anula un cobro mal registrado y deja trazabilidad de la operación.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-09</strong></span></td><td class="col-func"><strong>Cierre y reapertura de sesión</strong></td><td class="col-desc">Cierre con cálculo de multas por inasistencia, totales recaudados, desembolsados y saldo de caja; acta en PDF.</td><td class="col-example">Cierra la sesión, genera el acta y reapertura si falta registrar un cobro.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-10</strong></span></td><td class="col-func"><strong>Créditos: bandeja y aprobación</strong></td><td class="col-desc">Revisión de solicitudes, aprobación, rechazo, solicitud en espera y generación de tabla de amortización.</td><td class="col-example">Aprueba un crédito de USD 1.500 a 12 meses y se genera su tabla de cuotas.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-11</strong></span></td><td class="col-func"><strong>Créditos: legalización y desembolso</strong></td><td class="col-desc">Generación del PDF de solicitud, carga del acta firmada y desembolso del crédito.</td><td class="col-example">Sube el acta firmada y desembolsa el crédito; el sistema registra el egreso en caja.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-12</strong></span></td><td class="col-func"><strong>Créditos: mora</strong></td><td class="col-desc">Cálculo de mora e intereses moratorios sobre cuotas vencidas.</td><td class="col-example">Calcula la mora de un crédito con dos cuotas vencidas.</td></tr></tbody></table><div class="continuation"><div class="continuation-head"><span class="role-code">R4</span><span>Tesorero · continuación del checklist</span></div><table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-13</strong></span></td><td class="col-func"><strong>Inversiones: operación</strong></td><td class="col-desc">Apertura, depósito de capital, retiro anticipado y cierre de inversiones vencidas.</td><td class="col-example">Registra una inversión de USD 1.000 a 12 meses y luego procesa su retiro anticipado.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-14</strong></span></td><td class="col-func"><strong>Inversiones: aprobación</strong></td><td class="col-desc">Bandeja de inversiones pendientes, aprobación o rechazo con notificación al socio.</td><td class="col-example">Aprueba la inversión solicitada por un socio y descuenta su capital de inversión.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-15</strong></span></td><td class="col-func"><strong>Retiros de ahorro</strong></td><td class="col-desc">Revisión, aprobación o rechazo de solicitudes de retiro con validación de saldo y comprobante.</td><td class="col-example">Aprueba un retiro de USD 200 y registra el comprobante correspondiente.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-16</strong></span></td><td class="col-func"><strong>Asistencias: listado</strong></td><td class="col-desc">Consulta de asistencias, retrasos y faltas por socio y sesión.</td><td class="col-example">Revisa las faltas de la sesión para el informe de cierre.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-17</strong></span></td><td class="col-func"><strong>Multas: consulta</strong></td><td class="col-desc">Listado y detalle de multas con estado, monto y motivo.</td><td class="col-example">Consulta las multas pendientes antes del cierre de sesión.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-18</strong></span></td><td class="col-func"><strong>Reportes financieros</strong></td><td class="col-desc">Reportes de socios, financiero, cobros, morosidad e historial de operaciones, con exportación CSV.</td><td class="col-example">Descarga el reporte de morosidad y el reporte de cobros del mes.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-19</strong></span></td><td class="col-func"><strong>Certificados</strong></td><td class="col-desc">Emisión de estado de cuenta, constancia de socio y libre deuda.</td><td class="col-example">Emite un estado de cuenta para un socio que lo solicita.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-20</strong></span></td><td class="col-func"><strong>Capital de Caja</strong></td><td class="col-desc">Libro mayor, filtros, resumen por categoría y exportación CSV, XLSX y PDF.</td><td class="col-example">Descarga el estado de caja del mes para el informe financiero.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>T-21</strong></span></td><td class="col-func"><strong>Notificaciones, archivos y portal</strong></td><td class="col-desc">Bandeja de notificaciones, comprobantes, documentos y acceso a “Mi portal”.</td><td class="col-example">Consulta una notificación de crédito y descarga el comprobante de desembolso.</td></tr></tbody></table></div>
+    <div class="decision">
+        <div class="decision-head">
+            <span class="decision-icon">✓</span>
+            <div>
+                <div class="decision-title">Decisión del cliente · R4 — Tesorero</div>
+                <div class="decision-sub">Marque una opción para la instancia.</div>
+            </div>
+        </div>
+        <div class="options">
+            <label><span class="cb"></span> Incluir todo el rol</label>
+            <label><span class="cb"></span> Solo lo marcado</label>
+            <label><span class="cb"></span> No incluir</label>
+        </div>
+        <div class="obs">
+            <div class="obs-label">Observaciones / ajustes solicitados:</div>
+            <div class="line"></div>
+        </div>
+        <div class="sign-row">
+            <div class="sign-field"><div class="line"></div><span>Nombre y firma del cliente</span></div>
+            <div class="sign-field short"><div class="line"></div><span>Fecha</span></div>
+        </div>
+    </div>
+    </section>
+    <section class="role-section">
+        <div class="role-head">
+            <div class="role-head-top">
+                <div class="role-code">R5</div>
+                <div class="role-name">Presidente</div>
+                <div class="role-level">Nivel de alcance<strong>5 de 7 · Dirección y aprobación</strong></div>
+            </div>
+            <div class="role-purpose">Dirección y control: aprobación de créditos y excedentes, supervisión de cartera, anulación de cobros, cierre de sesión y reportes de alto nivel.</div>
+            <div class="role-meta"><span class="pill">Socios</span><span class="pill">Créditos</span><span class="pill">Excedentes</span><span class="pill">Reportes</span><span class="pill">Caja</span></div>
+            <div class="permissions"><strong>Permisos clave:</strong> <code>socio.registrar</code> <code>socio.editar</code> <code>socio.consultar</code> <code>socio.ver_financiero</code> <code>socio.cambiar_estado</code> <code>credito.aprobar</code> <code>calculo.aprobar_excedentes</code> <code>cobro.anular</code> <code>cobro.cierre_sesion</code> <code>reporte.socios</code> <code>reporte.financiero</code> <code>reporte.cobros</code> </div>
+        </div>
+        <div class="restriction"><strong>Fuera del alcance de este rol:</strong> No opera el check-in ni registra cobros, no desembolsa créditos, no gestiona inversiones y no accede a la configuración técnica.</div><div class="role-count"><span>Checklist de funcionalidades del rol</span><span><strong>13</strong> funciones desplegadas</span></div><table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>P-01</strong></span></td><td class="col-func"><strong>Dashboard directivo</strong></td><td class="col-desc">Indicadores de socios, cartera, recaudación, inversiones y sesiones para la toma de decisiones.</td><td class="col-example">Revisa la evolución de la cartera y la recaudación antes de la asamblea.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>P-02</strong></span></td><td class="col-func"><strong>Registro y edición de socios</strong></td><td class="col-desc">Alta y actualización de socios con los datos necesarios para la gestión institucional.</td><td class="col-example">Registra a un socio nuevo y corrige su información de contacto.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>P-03</strong></span></td><td class="col-func"><strong>Ficha financiera del socio</strong></td><td class="col-desc">Consulta de saldos, créditos, inversiones y movimientos del socio.</td><td class="col-example">Revisa la situación financiera de un socio antes de aprobar su crédito.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>P-04</strong></span></td><td class="col-func"><strong>Cambio de estado del socio</strong></td><td class="col-desc">Cambio de estado con motivo y generación de acta en PDF.</td><td class="col-example">Aprueba el pase de un socio a estado activo y genera el acta correspondiente.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>P-05</strong></span></td><td class="col-func"><strong>Bandeja de aprobación de créditos</strong></td><td class="col-desc">Bandeja con solicitudes ingresadas, pendientes y aprobadas, con acceso al detalle.</td><td class="col-example">Revisa las solicitudes de crédito de la semana y prioriza las de mayor urgencia.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>P-06</strong></span></td><td class="col-func"><strong>Aprobar, rechazar o poner en espera</strong></td><td class="col-desc">Decisión sobre la solicitud con monto aprobado, justificación y notificación al socio.</td><td class="col-example">Aprueba un crédito de USD 1.500 o lo deja en espera por falta de liquidez.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>P-07</strong></span></td><td class="col-func"><strong>Documentación del crédito</strong></td><td class="col-desc">Generación del PDF de solicitud y carga del acta firmada para la legalización.</td><td class="col-example">Genera la solicitud de crédito y sube el acta firmada por el comité.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>P-08</strong></span></td><td class="col-func"><strong>Aprobación de excedentes</strong></td><td class="col-desc">Revisión y aprobación de la distribución de excedentes calculada por el área financiera.</td><td class="col-example">Aprueba la distribución anual de excedentes propuesta por el analista.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>P-09</strong></span></td><td class="col-func"><strong>Anulación de cobros</strong></td><td class="col-desc">Anulación de cobros con motivo, reversión de saldos y registro en auditoría.</td><td class="col-example">Anula un cobro observado y deja constancia del motivo.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>P-10</strong></span></td><td class="col-func"><strong>Cierre de sesión</strong></td><td class="col-desc">Cierre de la sesión con totales, multas automáticas y acta en PDF.</td><td class="col-example">Cierra la sesión mensual y firma el acta de cierre.</td></tr></tbody></table><div class="continuation"><div class="continuation-head"><span class="role-code">R5</span><span>Presidente · continuación del checklist</span></div><table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>P-11</strong></span></td><td class="col-func"><strong>Reportes de dirección</strong></td><td class="col-desc">Reportes de socios, financiero, cobros, morosidad e historial de operaciones, con exportación CSV.</td><td class="col-example">Revisa el reporte de morosidad y el informe financiero del mes.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>P-12</strong></span></td><td class="col-func"><strong>Certificados y consulta de multas</strong></td><td class="col-desc">Emisión de certificados y consulta de multas con su estado.</td><td class="col-example">Emite un certificado de libre deuda y revisa una multa impugnada.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>P-13</strong></span></td><td class="col-func"><strong>Caja, notificaciones y archivos</strong></td><td class="col-desc">Consulta del capital de caja, bandeja de notificaciones y documentos autorizados.</td><td class="col-example">Revisa el saldo de caja y descarga el acta de la última sesión.</td></tr></tbody></table></div>
+    <div class="decision">
+        <div class="decision-head">
+            <span class="decision-icon">✓</span>
+            <div>
+                <div class="decision-title">Decisión del cliente · R5 — Presidente</div>
+                <div class="decision-sub">Marque una opción para la instancia.</div>
+            </div>
+        </div>
+        <div class="options">
+            <label><span class="cb"></span> Incluir todo el rol</label>
+            <label><span class="cb"></span> Solo lo marcado</label>
+            <label><span class="cb"></span> No incluir</label>
+        </div>
+        <div class="obs">
+            <div class="obs-label">Observaciones / ajustes solicitados:</div>
+            <div class="line"></div>
+        </div>
+        <div class="sign-row">
+            <div class="sign-field"><div class="line"></div><span>Nombre y firma del cliente</span></div>
+            <div class="sign-field short"><div class="line"></div><span>Fecha</span></div>
+        </div>
+    </div>
+        <div class="notes-box">
+            <div class="notes-title">Notas y acuerdos de la sesión</div>
+            <div class="notes-priority"><span><strong>Prioridad:</strong> ☐ Alta &nbsp; ☐ Media &nbsp; ☐ Baja</span><span><strong>Responsable:</strong> ____________________</span></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+        </div>
+    </section>
+    <section class="role-section">
+        <div class="role-head">
+            <div class="role-head-top">
+                <div class="role-code">R6</div>
+                <div class="role-name">Administrador Técnico</div>
+                <div class="role-level">Nivel de alcance<strong>6 de 7 · Gobierno del sistema</strong></div>
+            </div>
+            <div class="role-purpose">Gobierno de usuarios, roles, permisos, catálogos e imagen corporativa. Su matriz base no incluye operación financiera.</div>
+            <div class="role-meta"><span class="pill">Usuarios</span><span class="pill">Roles</span><span class="pill">Catálogos</span><span class="pill">Imagen</span><span class="pill">Socios</span></div>
+            <div class="permissions"><strong>Permisos clave:</strong> <code>param.usuarios</code> <code>param.roles</code> <code>param.catalogos</code> <code>param.imagen</code> <code>socio.registrar</code> <code>socio.editar</code> <code>socio.consultar</code> <code>socio.eliminar</code> </div>
+        </div>
+        <div class="restriction"><strong>Fuera del alcance de este rol:</strong> No accede a productos financieros, parámetros financieros, cobros, créditos, inversiones, cálculos ni reportes financieros. La matriz es configurable si la institución decide ampliar el alcance.</div><div class="role-count"><span>Checklist de funcionalidades del rol</span><span><strong>13</strong> funciones desplegadas</span></div><table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>D-01</strong></span></td><td class="col-func"><strong>Dashboard</strong></td><td class="col-desc">Panel general de indicadores del sistema para supervisar la operación.</td><td class="col-example">Revisa el estado general del sistema al iniciar la jornada.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>D-02</strong></span></td><td class="col-func"><strong>Registro de socios</strong></td><td class="col-desc">Alta de socios con validación de cédula, correo y datos personales.</td><td class="col-example">Registra a un socio nuevo y entrega sus credenciales de acceso.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>D-03</strong></span></td><td class="col-func"><strong>Edición de socios</strong></td><td class="col-desc">Actualización de datos personales, contacto y documentos del socio.</td><td class="col-example">Corrige el correo y el teléfono de un socio existente.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>D-04</strong></span></td><td class="col-func"><strong>Eliminación de socios</strong></td><td class="col-desc">Eliminación definitiva solo cuando el socio no tiene transacciones; si tiene historial, el sistema bloquea la eliminación.</td><td class="col-example">Elimina un registro duplicado sin movimientos; un socio con créditos o cobros no se puede eliminar.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>D-05</strong></span></td><td class="col-func"><strong>Consulta de socios</strong></td><td class="col-desc">Búsqueda, paginación y ficha del socio sin acceso a su detalle financiero.</td><td class="col-example">Busca un socio por cédula para verificar sus datos de contacto.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>D-06</strong></span></td><td class="col-func"><strong>Gestión de usuarios</strong></td><td class="col-desc">Creación, edición, activación, desactivación y eliminación de usuarios del sistema.</td><td class="col-example">Crea el usuario de la nueva secretaria y lo deja activo.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>D-07</strong></span></td><td class="col-func"><strong>Asignación de roles y 2FA</strong></td><td class="col-desc">Asignación de uno o varios roles por usuario y activación del segundo factor.</td><td class="col-example">Asigna el rol “Tesorero” a un usuario y activa su 2FA obligatorio.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>D-08</strong></span></td><td class="col-func"><strong>Gestión de roles y permisos</strong></td><td class="col-desc">Creación, edición y eliminación de roles con matriz de permisos por módulo.</td><td class="col-example">Crea el rol “Comité de Crédito” con permisos de consulta y aprobación.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>D-09</strong></span></td><td class="col-func"><strong>Roles endosables</strong></td><td class="col-desc">Configuración de roles que heredan automáticamente todos los permisos del sistema.</td><td class="col-example">Marca un rol como endosable para que reciba todos los permisos al instante.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>D-10</strong></span></td><td class="col-func"><strong>Catálogos</strong></td><td class="col-desc">Gestión de provincias, cantones y entidades públicas.</td><td class="col-example">Agrega un cantón nuevo y una entidad pública al catálogo.</td></tr></tbody></table><div class="continuation"><div class="continuation-head"><span class="role-code">R6</span><span>Administrador Técnico · continuación del checklist</span></div><table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>D-11</strong></span></td><td class="col-func"><strong>Imagen corporativa</strong></td><td class="col-desc">Carga de logo, logo sin fondo, color corporativo y abreviatura de la caja.</td><td class="col-example">Actualiza el logo y el color institucional para la nueva instancia.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>D-12</strong></span></td><td class="col-func"><strong>Seguridad de cuentas</strong></td><td class="col-desc">Control de intentos fallidos, bloqueos, activación de usuarios y protección contra auto-eliminación.</td><td class="col-example">Desbloquea un usuario bloqueado y evita que un administrador se elimine a sí mismo.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>D-13</strong></span></td><td class="col-func"><strong>Notificaciones, archivos y portal</strong></td><td class="col-desc">Bandeja de notificaciones, documentos autorizados y acceso a “Mi portal”.</td><td class="col-example">Consulta una notificación del sistema y descarga un documento autorizado.</td></tr></tbody></table></div>
+    <div class="decision">
+        <div class="decision-head">
+            <span class="decision-icon">✓</span>
+            <div>
+                <div class="decision-title">Decisión del cliente · R6 — Administrador Técnico</div>
+                <div class="decision-sub">Marque una opción para la instancia.</div>
+            </div>
+        </div>
+        <div class="options">
+            <label><span class="cb"></span> Incluir todo el rol</label>
+            <label><span class="cb"></span> Solo lo marcado</label>
+            <label><span class="cb"></span> No incluir</label>
+        </div>
+        <div class="obs">
+            <div class="obs-label">Observaciones / ajustes solicitados:</div>
+            <div class="line"></div>
+        </div>
+        <div class="sign-row">
+            <div class="sign-field"><div class="line"></div><span>Nombre y firma del cliente</span></div>
+            <div class="sign-field short"><div class="line"></div><span>Fecha</span></div>
+        </div>
+    </div>
+        <div class="notes-box">
+            <div class="notes-title">Notas y acuerdos de la sesión</div>
+            <div class="notes-priority"><span><strong>Prioridad:</strong> ☐ Alta &nbsp; ☐ Media &nbsp; ☐ Baja</span><span><strong>Responsable:</strong> ____________________</span></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+        </div>
+    </section>
+    <section class="role-section">
+        <div class="role-head">
+            <div class="role-head-top">
+                <div class="role-code">R7</div>
+                <div class="role-name">Analista Financiero</div>
+                <div class="role-level">Nivel de alcance<strong>7 de 7 · Alcance total (endosable)</strong></div>
+            </div>
+            <div class="role-purpose">Rol endosable: hereda automáticamente todos los permisos. Configura las reglas financieras, ejecuta cálculos y supervisa la operación completa.</div>
+            <div class="role-meta"><span class="pill">Todo el sistema</span></div>
+            <div class="permissions"><strong>Permisos clave:</strong> <code>todos los permisos (rol endosable)</code> </div>
+        </div>
+        <div class="restriction"><strong>Fuera del alcance de este rol:</strong> Por su alcance total, se recomienda asignarlo solo a personal de confianza y revisar periódicamente su matriz de permisos.</div><div class="role-count"><span>Checklist de funcionalidades del rol</span><span><strong>16</strong> funciones desplegadas</span></div><table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-01</strong></span></td><td class="col-func"><strong>Acceso total al sistema</strong></td><td class="col-desc">Rol endosable: recibe automáticamente todos los permisos, incluidos los financieros y administrativos.</td><td class="col-example">El analista puede entrar a cualquier módulo sin asignaciones adicionales.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-02</strong></span></td><td class="col-func"><strong>Usuarios y roles</strong></td><td class="col-desc">Gestión completa de usuarios, roles y matriz de permisos.</td><td class="col-example">Crea un rol temporal para el comité de crédito y lo elimina al finalizar.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-03</strong></span></td><td class="col-func"><strong>Catálogos e imagen corporativa</strong></td><td class="col-desc">Administración de provincias, cantones, entidades públicas, logo y color institucional.</td><td class="col-example">Actualiza el logo y agrega el cantón de un nuevo socio.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-04</strong></span></td><td class="col-func"><strong>Parámetros del sistema</strong></td><td class="col-desc">Configuración de tasas, aportes, multas, plazos, límites y demás parámetros financieros y de seguridad.</td><td class="col-example">Ajusta la tasa de interés y el aporte obligatorio mensual para el nuevo periodo.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-05</strong></span></td><td class="col-func"><strong>Productos financieros</strong></td><td class="col-desc">Creación, edición, activación y desactivación de productos de crédito e inversión.</td><td class="col-example">Crea el producto “Crédito Emergente” con monto máximo de USD 300.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-06</strong></span></td><td class="col-func"><strong>Socios: gestión completa</strong></td><td class="col-desc">Registro, edición, consulta, cambio de estado y eliminación controlada de socios.</td><td class="col-example">Registra un socio, cambia su estado y elimina un duplicado sin movimientos.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-07</strong></span></td><td class="col-func"><strong>Sesiones y cobros completos</strong></td><td class="col-desc">Apertura, check-in, obligaciones, cobros de todos los tipos, anulación y reapertura.</td><td class="col-example">Abre la sesión, cobra aportes, cuotas y multas, y anula un cobro observado.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-08</strong></span></td><td class="col-func"><strong>Cierre de sesión</strong></td><td class="col-desc">Cierre con multas automáticas, totales, saldo de caja y acta en PDF.</td><td class="col-example">Cierra la sesión mensual y revisa el acta generada.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-09</strong></span></td><td class="col-func"><strong>Créditos: ciclo completo</strong></td><td class="col-desc">Solicitud, aprobación, rechazo, espera, legalización, desembolso y cálculo de mora.</td><td class="col-example">Aprueba, legaliza y desembolsa un crédito de USD 2.000 a 12 meses.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-10</strong></span></td><td class="col-func"><strong>Inversiones: ciclo completo</strong></td><td class="col-desc">Apertura, depósitos, aprobación, rechazo, retiro anticipado y cierre de vencidas.</td><td class="col-example">Aprueba una inversión de USD 1.000 y procesa su retiro anticipado.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-11</strong></span></td><td class="col-func"><strong>Cálculos y simulaciones</strong></td><td class="col-desc">Simulador de crédito con métodos simple, francés y alemán, y generación de tablas de amortización.</td><td class="col-example">Simula un crédito de USD 5.000 a 24 meses y compara los tres métodos.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-12</strong></span></td><td class="col-func"><strong>Excedentes e intereses</strong></td><td class="col-desc">Cálculo y aprobación de excedentes, y cálculo de intereses de ahorro mensuales.</td><td class="col-example">Calcula la distribución anual de excedentes y acredita los intereses de ahorro.</td></tr></tbody></table><div class="continuation"><div class="continuation-head"><span class="role-code">R7</span><span>Analista Financiero · continuación del checklist</span></div><table class="func-table"><thead><tr><th class="col-item">Item</th><th class="col-func">Funcionalidad</th><th class="col-desc">Descripción</th><th class="col-example">Ejemplo de uso</th></tr></thead><tbody><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-13</strong></span></td><td class="col-func"><strong>Reportes y certificados</strong></td><td class="col-desc">Todos los reportes, morosidad, historial de operaciones y certificados.</td><td class="col-example">Exporta el reporte financiero y emite un certificado de libre deuda.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-14</strong></span></td><td class="col-func"><strong>Caja y auditoría</strong></td><td class="col-desc">Capital de caja, exportaciones y consulta de la auditoría de operaciones.</td><td class="col-example">Revisa el libro mayor y audita una anulación de cobro.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-15</strong></span></td><td class="col-func"><strong>Notificaciones del sistema</strong></td><td class="col-desc">Bandeja de entrada, contador de no leídas, archivar, restaurar, papelera y avisos del sistema.</td><td class="col-example">Revisa las notificaciones del sistema y administra la papelera.</td></tr><tr><td class="col-item"><span class="item-line"><span class="cb"></span><strong>F-16</strong></span></td><td class="col-func"><strong>Portal del socio</strong></td><td class="col-desc">Acceso a “Mi portal” con la misma experiencia del socio, para validación y soporte.</td><td class="col-example">Ingresa al portal para verificar la experiencia de un socio antes de capacitarlo.</td></tr></tbody></table></div>
+    <div class="decision">
+        <div class="decision-head">
+            <span class="decision-icon">✓</span>
+            <div>
+                <div class="decision-title">Decisión del cliente · R7 — Analista Financiero</div>
+                <div class="decision-sub">Marque una opción para la instancia.</div>
+            </div>
+        </div>
+        <div class="options">
+            <label><span class="cb"></span> Incluir todo el rol</label>
+            <label><span class="cb"></span> Solo lo marcado</label>
+            <label><span class="cb"></span> No incluir</label>
+        </div>
+        <div class="obs">
+            <div class="obs-label">Observaciones / ajustes solicitados:</div>
+            <div class="line"></div>
+        </div>
+        <div class="sign-row">
+            <div class="sign-field"><div class="line"></div><span>Nombre y firma del cliente</span></div>
+            <div class="sign-field short"><div class="line"></div><span>Fecha</span></div>
+        </div>
+    </div>
+        <div class="notes-box">
+            <div class="notes-title">Notas y acuerdos de la sesión</div>
+            <div class="notes-priority"><span><strong>Prioridad:</strong> ☐ Alta &nbsp; ☐ Media &nbsp; ☐ Baja</span><span><strong>Responsable:</strong> ____________________</span></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+            <div class="notes-line"></div>
+        </div>
+    </section>
+<section class="section">
+    <div class="page-title">Acta de selección de alcance</div>
+    <div class="page-sub">Resumen ejecutivo para la configuración de la instancia. Complete, firme y adjunte este documento al acuerdo comercial.</div>
+
+    <table class="acceptance-table">
+        <thead><tr><th style="width:8%">Código</th><th style="width:28%">Rol / paquete</th><th style="width:14%">Incluir completo</th><th style="width:14%">Parcial</th><th style="width:14%">No incluir</th><th style="width:22%">Observaciones</th></tr></thead>
+        <tbody>
+            <tr><td><strong>T</strong></td><td class="left">Servicios transversales</td><td><span class="cb"></span></td><td><span class="cb"></span></td><td><span class="cb"></span></td><td></td></tr><tr><td><strong>R1</strong></td><td class="left">Socio</td><td><span class="cb"></span></td><td><span class="cb"></span></td><td><span class="cb"></span></td><td></td></tr><tr><td><strong>R2</strong></td><td class="left">Asistente de Tesorería</td><td><span class="cb"></span></td><td><span class="cb"></span></td><td><span class="cb"></span></td><td></td></tr><tr><td><strong>R3</strong></td><td class="left">Secretario/a</td><td><span class="cb"></span></td><td><span class="cb"></span></td><td><span class="cb"></span></td><td></td></tr><tr><td><strong>R4</strong></td><td class="left">Tesorero</td><td><span class="cb"></span></td><td><span class="cb"></span></td><td><span class="cb"></span></td><td></td></tr><tr><td><strong>R5</strong></td><td class="left">Presidente</td><td><span class="cb"></span></td><td><span class="cb"></span></td><td><span class="cb"></span></td><td></td></tr><tr><td><strong>R6</strong></td><td class="left">Administrador Técnico</td><td><span class="cb"></span></td><td><span class="cb"></span></td><td><span class="cb"></span></td><td></td></tr><tr><td><strong>R7</strong></td><td class="left">Analista Financiero</td><td><span class="cb"></span></td><td><span class="cb"></span></td><td><span class="cb"></span></td><td></td></tr>
+        </tbody>
+    </table>
+
+    <div class="grid-2" style="margin-top:6mm">
+        <div class="card">
+            <h3>Datos de la instancia</h3>
+            <p><strong>Total de funciones en el catálogo:</strong> 124</p>
+            <p><strong>Funciones seleccionadas:</strong> ____________________</p>
+            <p><strong>Modalidad:</strong> ☐ Estándar &nbsp;&nbsp; ☐ Personalizada</p>
+            <p style="margin-top:2mm"><strong>Observaciones generales:</strong></p>
+            <div class="line"></div>
+            <div class="line"></div>
+        </div>
+        <div class="card">
+            <h3>Próximos pasos</h3>
+            <div class="next-steps">
+                <div class="step"><strong>1. Validar alcance</strong>Revisión conjunta del checklist firmado.</div>
+                <div class="step"><strong>2. Configurar</strong>Roles, permisos, productos y parámetros.</div>
+                <div class="step"><strong>3. Capacitar</strong>Demo por rol y material de apoyo.</div>
+                <div class="step"><strong>4. Go-live</strong>Prueba de aceptación y salida a producción.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="final-sign">
+        <div><div class="line"></div><span>Nombre y firma del cliente</span><span>Cargo / fecha</span></div>
+        <div><div class="line"></div><span>Nombre y firma del proveedor</span><span>Cargo / fecha</span></div>
+    </div>
+
+    <div class="note" style="margin-top:8mm"><strong>Confidencialidad:</strong> este documento contiene información funcional y comercial de la Caja de Ahorro y Crédito Solidaria Familiar Pujota-Simbaña. Su uso está limitado al proceso de selección e implementación de la instancia.</div>
+</section></body></html>
