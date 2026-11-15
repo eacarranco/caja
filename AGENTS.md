@@ -1,165 +1,66 @@
-# AGENTS.md — Contexto del proyecto
+# AGENTS.md — Caja de Ahorro Pujota-Simbaña
 
-## Proyecto
-**Caja de Ahorro y Crédito Solidaria Familiar Pujota-Simbaña**
-Sistema web MVC PHP 8.4 + MySQL 8 para gestión integral de una caja de ahorro.
+Sistema MVC PHP 8.4 + MySQL 8 sin framework para una caja de ahorro ecuatoriana. Producción real: https://caja.sga-sp.com. Rama de trabajo: `dev`.
 
-## Stack
-- PHP 8.4 MVC puro (Front Controller + Route Map)
-- MySQL 8.4 InnoDB utf8mb4_unicode_ci
-- Bootstrap 5.3.3 + icons
-- PHPMailer v6.12 (SMTP)
-- HTML print (`@media print`) para PDF/comprobantes
-- Pusher vía HTTP API cURL (configurado app_id 2133656, key e61ecc32567775804dcc, cluster us2)
-- Chart.js en dashboard
+## Comandos y entorno
+- Local: `http://localhost/caja/` (Laragon/Apache). No hay npm, bundler, tests, lint ni CI de pruebas.
+- `php` (8.4.12) está en PATH; verifica sintaxis con `php -l archivo.php`.
+- No uses `php -S`: el ruteo depende de `.htaccess`/Apache.
+- MySQL local: `C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin\mysql.exe -u root caja_ahorro_pujota` (root, sin contraseña).
+- Composer no está en PATH: `C:\laragon\bin\composer\composer.bat`. `vendor/` está ignorado en git pero ya instalado; el deploy corre `composer install --no-dev`.
+- No hay autoload para clases de `app/`.
 
-## Entorno
-- Servidor: Laragon (Apache 2.4.62, PHP 8.4.12, MySQL 8.4.3)
-- URL base: `http://localhost/caja/`
-- Ruta raíz: `C:\laragon\www\caja\`
-- Windows 11
+## Git y despliegue
+- Push a `prod` dispara el webhook real: GitHub → `webhook/deploy.php` → `webhook/deploy-caja.sh`, que hace `git reset --hard origin/prod`, `composer install`, `php database/migrate.php` y permisos en `/var/www/caja.sga-sp.com`. No uses `prod` para experimentos.
+- El deploy preserva `config/database.php`, `config/email.php`, `config/pusher.php` y `webhook/*`: cambios locales ahí nunca llegan a producción. `config/app.php` y el resto del código sí se despliegan.
+- `config/app.php` tiene `DEBUG=true` (también en prod) y calcula `BASE_URL` desde el request (soporta `X-Forwarded-Proto`).
+- `.htaccess` raíz bloquea `basedatos|database|config|app|storage|vendor|docs`; `webhook/` queda público a propósito. Bloquea cualquier directorio sensible nuevo.
+- `.gitignore` ignora `storage/{documentos,fotos,logs}` pero NO `storage/archivos` (uploads). Revisa `git status`; evita `git add -A`.
+- No imprimas ni pegues credenciales de `config/*.php`: las de Pusher/SMTP reales están versionadas.
 
-## Estructura
-```
-caja/
-├── index.php          # Front Controller + Route Map (~120 rutas)
-├── .htaccess          # RewriteRule todo a index.php
-├── basedatos/         # Dump MySQL (caja_ahorro_pujota.sql)
-├── config/
-│   ├── app.php        # Constantes globales
-│   ├── database.php   # PDO singleton
-│   ├── email.php      # SMTP (mail.titanix-ec.com:587)
-│   └── pusher.php     # Credenciales Pusher
-├── database/
-│   ├── schema.sql     # 25 tablas (incl. archivos)
-│   ├── seeds.sql      # 6 roles, 28 permisos, matriz, 20 parámetros
-│   └── seed_admin.php # Admin user creator
-├── app/
-│   ├── controllers/   # 23 (BaseController + ArchivoController + 21 módulos)
-│   ├── helpers/       # 12 helpers (+FileManager)
-│   ├── models/        # 3 (BaseModel, Socio, Usuario)
-│   └── views/         # ~60 vistas en 18 subdirectorios
-│       └── layouts/   # header.php (sidebar bifurcado Socio/Admin) + footer.php
-├── public/
-│   └── assets/
-│       ├── css/style.css
-│       ├── js/app.js
-│       └── images/
-├── storage/
-│   ├── archivos/      # Almacenamiento seguro FileManager (fuera de public/)
-│   ├── documentos/    # HTML generados (comprobantes, actas, contratos)
-│   ├── fotos/         # Fotos de socios
-│   └── logs/
-├── vendor/            # PHPMailer v6.12
-├── composer.json
-├── AGENTS.md
-└── CHANGELOG.md
-```
+## Ruteo y arquitectura
+- `index.php` es el front controller: mapa explícito de rutas + fallback `/<segmento>/<metodo>` → `<Segmento>Controller->metodo`; también acepta `/<base>/<metodo>` si `<base>` está en el mapa.
+- No hay middleware global: cada acción protegida debe llamar `requireAuth()` o `requirePermission('codigo')`. `app/middlewares/` existe pero no está conectado.
+- `BaseController` provee `render()` (header/footer o `layouts/blank`), `json()`, `validateCSRF()`, `redirect()` e `historialInsert()`.
+- Los controladores consultan PDO directo. Los únicos modelos (`BaseModel`, `Socio`, `Usuario`) se usan solo en Socios/Usuarios; el resto es SQL en controladores.
+- Los helpers se cargan con `require_once` explícito: varios en `index.php`, otros dentro del controlador que los usa. Un helper nuevo no se autoloada.
+- UI: tema Mazer por CDN (base Bootstrap 5), Bootstrap Icons, `public/assets/css/style.css` y `public/assets/js/app.js`. No hay build ni bundle local; no agregues otro Bootstrap.
+- Sidebar en `app/views/layouts/header.php`: menú completo para staff; versión simplificada solo si el usuario tiene exactamente el rol `Socio`.
 
-## Base de datos — 25 tablas (nombres clean ASCII)
-archivos, usuarios, roles, permisos, roles_usuarios, roles_permisos, socios, sesiones_mensuales, asistencias, cuentas_ahorro, productos_financieros, creditos, amortizaciones, inversiones, cobros, multas, historial_operaciones, notificaciones, parametros, provincias, cantones, catastro_entidades_publicas, garantes, solicitudes_retiro
+## Datos, migraciones y trampas de esquema
+- BD local `caja_ahorro_pujota`: 29 tablas InnoDB, PK `CHAR(36)` UUID generadas por `UUIDGenerator` (sin default en BD).
+- Dumps en `basedatos/`: `caja_ahorro_pujota_completo.sql` (más reciente, snapshot v1.0.0 del 28/06) y `caja_ahorro_pujota.sql` (dump de trabajo del 25/06); ambos tienen 29 tablas. El primero crea/usa `caja_ahorro_pujota`; no lo importes en producción (allí la BD es `db_caja_ahorro_pujota`).
+- NO reconstruyas con `database/seeds.sql`: está desactualizado (roles `endosable=FALSE`, IDs de permisos viejos, códigos de parámetro con acentos). `database/schema.sql` también difiere de la BD viva en ENUMs (`'crédito'/'número'` vs `'credito'/'numero'`).
+- `database/migrate.php` ejecuta todos los `migracion_*.php` en cada deploy, ordenados; sus errores no detienen el deploy. Las migraciones deben ser idempotentes (`SHOW COLUMNS`, `CREATE TABLE IF NOT EXISTS`). Los `migracion_*.sql` no se ejecutan solos (alguno hardcodea `USE caja_ahorro_pujota`).
+- `database/seed_admin.php` hardcodea `C:\laragon\www\caja` y crea `Admin123`; solo para local. `database/limpiar_transaccional.sql` deja catálogos/usuarios y vacía lo operativo.
+- Hay parámetros duplicados: `aporte_obligatorio_mensual`, `multa_mora_credito` y `multa_cuota_impaga` se leen de `parametros`; las multas de asistencia/retraso y los límites de login se leen de constantes en `config/app.php`. Revisa ambos al cambiar reglas.
+- `parametros.codigo` conserva códigos legacy con acentos (ej. `tasa_interés_crédito`); copia el valor existente, no lo renombres.
 
-## RBAC
-- **28 permisos** en 7 módulos
-- **6 roles**: Administrador Técnico (solo técnico), Presidente, Analista Financiero (endosable=TRUE → hereda TODOS los permisos), Tesorero, Asistente Tesorería, Socio
-- Roles endosables: si usuario tiene rol con endosable=TRUE, obtiene todos los permisos
-- Sidebar bifurcado: usuarios con solo rol "Socio" ven menú simplificado (Inicio, Pagar, Solicitar, Inversión)
+## Invariantes de negocio
+- Todo movimiento de dinero debe registrar el libro mayor con `CajaHelper::registrar()` (calcula `saldo_anterior`/`saldo_posterior` desde el último registro) y la auditoría con `historialInsert()`. Algunos flujos actuales silencian fallos con `try/catch`.
+- `historial_operaciones` es solo inserción; `historialInsert()` no calcula hash. Los hashes SHA-256 de integridad se calculan en controladores para `cobros` y `socios`.
+- Flujo de crédito: `ingresado → pendiente|aprobado → legalizado → desembolsado`; ver `README.md`.
+- `obligaciones_sesion` es la deuda de la sesión: se genera al abrir/check-in, se paga con `id_cobro` y se usa al cerrar para multas. Al cobrar/anular actualiza `pagada`; no dupliques registros.
+- Archivos: solo `FileManager` (whitelist, máx. 20 MB) en `storage/archivos/`, servidos por `ArchivoController` (nunca enlace directo).
 
-## Controladores (23)
-Auth, Socio, Parametro, Usuario, Rol, Catalogo, Imagen, Producto, Sesion, Cobro, Calculo (CalculadoraInteres: Simple, Frances, Aleman), Credito, Inversion, Reporte, Dashboard, Documento, Notificacion, Portal, Multa, Retiro, Asistencia, Archivo
+## Convenciones
+- Login por **cédula** (`Auth::login` consulta `usuarios.cedula`), no por `nombre_usuario`. Columnas 2FA con guion bajo: `_2fa_obligatorio`, `_2fa_activo`.
+- Textos de interfaz en español con acentos/ñ; tablas, columnas, variables, permisos y constantes en ASCII sin acentos.
+- Usa `BASE_URL`/`$baseUrl`; no hardcodees `/caja/` (local es subdirectorio, prod es raíz).
+- POST de formularios: token CSRF + `validateCSRF()` y redirect con flash. JSON solo para AJAX explícito.
+- Roles endosables: `Analista Financiero` (`endosable=1`) hereda todos los permisos.
+- Seguridad: bcrypt, bloqueo tras 3 intentos, timeout 30 min, expiración de contraseña 180 días; `htmlspecialchars()` en salidas.
 
-## Ayudantes (12)
-UUIDGenerator, CedulaEcuador, Validator, Auth, RBAC, CSRFMiddleware, PDFGenerator, PusherHelper, NotificacionHelper, EmailHelper, CalculadoraInteres, **FileManager**
+## Usuarios de prueba (BD local verificada)
+| Cédula | Contraseña | Roles |
+|---|---|---|
+| `1002606083` | `admin123` | Todos los roles admin, incluido Analista endosable; 2FA off |
+| `1002003000` | `admin123` | Solo Socio (portal) |
+| `1003560438` | `admin123` | Tesorero |
 
-## Seguridad
-- CSRF por sesión
-- 2FA PIN 6 dígitos vía SMTP (PHPMailer)
-- bcrypt en contraseñas
-- Prepared statements (PDO)
-- Bloqueo 3 intentos, timeout 30 min
-- SHA-256 en historial_operaciones (inmodificable)
-- Middleware requireAuth() en BaseController
-- Archivos almacenados fuera de `public/` (storage/archivos/), servidos solo vía controlador autenticado
+La tabla de usuarios de prueba de `docs/SRS_RFS_27062026.md` no coincide con la BD actual (el login es por cédula).
 
-## Módulos implementados
-- **Auth**: Login, 2FA PIN SMTP, logout, timeout, cambio contraseña (admin + portal)
-- **Socios**: CRUD, búsqueda + paginación, cambio estado AJAX + acta PDF, subir foto/documentos, estado de cuenta PDF
-- **Parámetros**: Listar + editar (inputs tipo-aware)
-- **Usuarios**: CRUD con checkboxes roles, 2FA toggle, protege auto-eliminación
-- **Roles**: CRUD + matriz permisos por módulo + endosable
-- **Catálogos**: Provincias, cantones, entidades públicas
-- **Imagen corporativa**: Logo + color picker, carga vía FileManager (logo_sidebar, logo_sd)
-- **Productos financieros**: CRUD + toggle estado, formulario tipo-aware (crédito/inversión) con Summernote WYSIWYG
-- **Sesiones y Cobros**: Abrir sesión, check-in, registro cobro AJAX, cierre con acta + multas automáticas + historial, anular cobro, pago cuota crédito
-- **Cálculos**: Simulador 3 métodos, tabla amortización, excedentes + aprobar, intereses de ahorro mensuales
-- **Créditos**: Solicitar (con garantes), ver, aprobar, desembolsar, rechazar, mora automática
-- **Inversiones**: Apertura con contrato PDF, listar, retiro anticipado, cierre automático vencidas
-- **Multas**: CRUD, justificar portal, aprobar/rechazar, marcar pagada
-- **Asistencias**: Listar, justificar portal, aprobar/rechazar admin
-- **Retiros de ahorro**: Solicitud portal → admin aprueba/rechaza/desembolsa (id_sesión nullable)
-- **Garantes**: Tabla propia, selección multi-checkbox, validaciones
-- **Dashboard**: Tarjetas, últimos cobros, Chart.js
-- **Portal socio**: Inicio con cards resumen + Pagar (cards pendientes) + Solicitar (Crédito/Certificado) + Inversión
-- **Certificados**: Página dedicada con cards (Estado cuenta, Constancia, Libre deuda) con botón Imprimir
-- **Reportes**: Socios + CSV, financiero, cobros + CSV, morosidad, historial operaciones
-- **Notificaciones**: Helper inserts, listar + marcar leídas, vista portal, polling 30s + Pusher
-- **PDF/HTML**: Comprobantes cobro, actas cierre, constancias, libre deuda, estado cuenta, contrato inversión
-- **FileManager**: Gestión centralizada de archivos con metadatos en BD y almacenamiento seguro
-- **Notificaciones push**: Pusher HTTP API con HMAC-SHA256 + polling 30s fallback
-
-## Sidebar
-- **Admin**: Dashboard, Socios, Sesiones, Cobros, Asistencias, Retiros, Créditos, Inversiones, Productos, Cálculos, Reportes, Configuración (Parámetros/Imagen corporativa), Usuarios, Roles, Catálogos, Multas, Inicio, Contraseña, Salir
-- **Socio** (solo rol Socio): Inicio, Pagar, Solicitar (Crédito/Certificado), Inversión — sin títulos, sin Dashboard/Contraseña/Salir. Toggle light-dark en footer del sidebar
-
-## Responsive
-- Sidebar colapsable con hamburguesa (transform translateX + overlay)
-- 31 tablas con `table-responsive`
-- Portal con `table-responsive-stack` (cards apiladas en móvil)
-- Media queries en style.css
-
-## Codificación
-- Todos los archivos PHP en **UTF-8 sin BOM**
-- Cabecera `Content-Type: text/html; charset=utf-8` en `index.php`
-- PDO con `charset=utf8mb4` y `SET NAMES utf8mb4`
-- Cliente MySQL con `--default-character-set=utf8mb4` para import/export
-
-## Convenciones de nomenclatura
-- **Texto de interfaz** (labels, select options, mensajes, títulos, descripciones): usar acentos y ñ (ej: `'Cédula'`, `'Inversión'`, `'Aprobación'`)
-- **Identificadores de código** (variables, nombres de tabla, nombres de columna, nombres de índice, códigos de permiso, constantes): **sin acentos ni ñ** (ej: `cedula`, `inversion`, `aprobacion`, `param.catalogos`, `calculo.intereses`)
-- **Nombres de base de datos**: solo ASCII limpio (ej: `caja_ahorro_pujota`, no `caja_ahorro_pujota_con_acentos`)
-- Nombres columnas en clean ASCII (sin acentos/ñ): cedula, correo_electronico, contrasena, etc.
-- UUIDs como PK (`UUIDGenerator::generate()`)
-- CONCAT_WS para nombres completos
-- Ruteo híbrido: mapa explícito + fallback por convención
-- Historial operaciones: `historialInsert()` en BaseController
-- Roles endosables heredan todos los permisos
-- Interés moratorio: `total * tasa * (días/30)` desde parámetro `multa_mora_credito`
-- Interés ahorro: `saldo * tasa / 100 / 12`, acredita a `saldo_excedente`
-- PHPMailer vía Composer
-- Archivos siempre por FileManager (upload/serve/delete), nunca acceso directo
-- Form POST controllers redirigen con flash; JSON solo para AJAX explícito
-
-## Usuarios de prueba
-- **admin** / admin123 — Admin Técnico (sin 2FA, sin permisos financieros)
-- **1002606083** / Admin123 — Admin Técnico (sin 2FA, sin permisos financieros)
-- **1002003000** / admin123 — Tesorero + Asistente Tesorería (para probar cobros y portal)
-- Para probar todo el sistema: Analista Financiero (rol endosable) hereda todos los permisos
-
-## Estado actual
-- ~110 archivos PHP propios, 75 vendor (PHPMailer) = ~185 total
-- 0 errores de sintaxis
-- Todas las rutas HTTP funcionales (200/302/403 según permisos)
-- Base de datos migrada a clean ASCII: ~65 columnas, 3 tablas, 6 ENUMs renombrados
-- Productos financieros: formulario tipo-aware con Summernote WYSIWYG, secciones por tipo
-- SMTP funcional con PHPMailer
-- Pusher configurado con credenciales reales
-- FileManager operativo con tabla archivos en BD
-- Sidebar bifurcado: sidebar completo para admin, simplificado para Socio
-- Portal socio con Inicio (cards resumen), Pagar, Solicitar (Crédito funcional / Certificado funcional), Inversión (placeholder)
-- Dump MySQL en `basedatos/caja_ahorro_pujota.sql`
-
-## Próximos pasos
-- Población de datos de prueba (socios, sesiones, cobros, créditos, inversiones)
-- Implementar página Inversión en portal socio
-- Pruebas de integración end-to-end
-- Despliegue a producción
+## Trampas conocidas
+- 2FA roto: `AuthController::login()` y `requireAuth()` redirigen a `/login/2fa`, pero el router resuelve eso como `AuthController::2fa()`; el método real es `_2fa()` (la ruta `/2fa` sí funciona). Los usuarios actuales tienen 2FA off.
+- `AVANCES.md`, `CHANGELOG.md` y parte de `docs/` están desactualizados (conteos, credenciales, tablas). La referencia viva es la BD: 29 tablas, 34 permisos, 7 roles, 21 parámetros.
+- `README.md` es la fuente más actual para el flujo de crédito; `docs/SRS_RFS_27062026.md` para arquitectura/despliegue; `docs/SNAPSHOT_v1.0.0.md` para restore (pero sus conteos de columnas no siempre coinciden).
